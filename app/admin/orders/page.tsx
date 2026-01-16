@@ -25,6 +25,7 @@ interface Order {
     color: string;
     price: number;
     image: string;
+    logo?: string; // Customer logo URL
   }>;
 }
 
