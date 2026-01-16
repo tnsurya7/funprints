@@ -134,18 +134,18 @@ export default function AdminDashboard() {
 
         {/* Quick Actions */}
         <div className="grid grid-cols-1 md:grid-cols-3 gap-6 mb-8">
+          <Link href="/admin/products" className="card p-6 hover:shadow-xl transition-all">
+            <h3 className="text-xl font-semibold mb-2">👕 Manage Products</h3>
+            <p className="text-gray-600">Upload images, change prices, manage stock</p>
+          </Link>
+
           <Link href="/admin/orders" className="card p-6 hover:shadow-xl transition-all">
-            <h3 className="text-xl font-semibold mb-2">Manage Orders</h3>
+            <h3 className="text-xl font-semibold mb-2">📦 Manage Orders</h3>
             <p className="text-gray-600">View and update order status</p>
           </Link>
 
           <div className="card p-6 hover:shadow-xl transition-all cursor-pointer">
-            <h3 className="text-xl font-semibold mb-2">Verify Payments</h3>
-            <p className="text-gray-600">Check UPI payment screenshots</p>
-          </div>
-
-          <div className="card p-6 hover:shadow-xl transition-all cursor-pointer">
-            <h3 className="text-xl font-semibold mb-2">Bulk Enquiries</h3>
+            <h3 className="text-xl font-semibold mb-2">💬 Bulk Enquiries</h3>
             <p className="text-gray-600">Manage bulk order requests</p>
           </div>
         </div>
