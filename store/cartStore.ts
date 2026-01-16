@@ -9,6 +9,8 @@ export interface CartItem {
   size: string;
   color: string;
   quantity: number;
+  logo?: string; // Logo image URL
+  logoFile?: File; // Logo file for upload
 }
 
 interface CartStore {

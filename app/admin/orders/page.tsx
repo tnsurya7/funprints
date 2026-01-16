@@ -265,12 +265,14 @@ export default function AdminOrders() {
                     </button>
                   )}
                   
-                  <button
+                  <a
+                    href={`/api/orders/${order.orderId}/print`}
+                    download={`print-${order.orderId}.png`}
                     className="px-6 py-2 bg-purple-600 text-white rounded-lg font-semibold hover:bg-purple-700 transition-colors flex items-center gap-2"
                   >
                     <Download className="w-5 h-5" />
                     Download Print File
-                  </button>
+                  </a>
 
                   <a
                     href={`https://wa.me/${order.customerMobile}?text=Hi ${order.customerName}, your order ${order.orderId} update...`}

@@ -28,6 +28,7 @@ export interface Order {
     color: string;
     price: number;
     image: string;
+    logo?: string; // Customer logo URL
   }>;
   totalAmount: number;
   paymentMethod: string;
