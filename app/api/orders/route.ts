@@ -66,8 +66,8 @@ export async function POST(request: NextRequest) {
       })),
       totalAmount: total,
       paymentMethod,
-      paymentStatus: paymentMethod === 'COD' ? 'verified' : 'pending',
-      orderStatus: 'pending',
+      paymentStatus: (paymentMethod === 'COD' ? 'verified' : 'pending') as 'pending' | 'verified' | 'failed',
+      orderStatus: 'pending' as 'pending' | 'processing' | 'completed' | 'cancelled',
       createdAt: new Date().toISOString(),
       updatedAt: new Date().toISOString(),
     };
