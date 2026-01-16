@@ -95,6 +95,69 @@ export default function AdminOrders() {
     }
   };
 
+  const generatePrintFile = async (order: Order) => {
+    try {
+      const item = order.items[0];
+      if (!item) return;
+
+      // Create canvas
+      const canvas = document.createElement('canvas');
+      canvas.width = 3000;
+      canvas.height = 3000;
+      const ctx = canvas.getContext('2d');
+      if (!ctx) return;
+
+      // Load and draw t-shirt image
+      const img = new window.Image();
+      img.crossOrigin = 'anonymous';
+      img.onload = () => {
+        ctx.drawImage(img, 0, 0, 3000, 3000);
+
+        // If logo exists, draw it
+        if (item.logo) {
+          const logoImg = new window.Image();
+          logoImg.crossOrigin = 'anonymous';
+          logoImg.onload = () => {
+            // Draw logo on chest area (centered, scaled)
+            const logoSize = 800;
+            const logoX = (3000 - logoSize) / 2;
+            const logoY = 1000; // Chest position
+            ctx.drawImage(logoImg, logoX, logoY, logoSize, logoSize);
+
+            // Download
+            canvas.toBlob((blob) => {
+              if (blob) {
+                const url = URL.createObjectURL(blob);
+                const a = document.createElement('a');
+                a.href = url;
+                a.download = `print-${order.orderId}.png`;
+                a.click();
+                URL.revokeObjectURL(url);
+              }
+            }, 'image/png');
+          };
+          logoImg.src = item.logo;
+        } else {
+          // No logo, just download t-shirt
+          canvas.toBlob((blob) => {
+            if (blob) {
+              const url = URL.createObjectURL(blob);
+              const a = document.createElement('a');
+              a.href = url;
+              a.download = `print-${order.orderId}.png`;
+              a.click();
+              URL.revokeObjectURL(url);
+            }
+          }, 'image/png');
+        }
+      };
+      img.src = item.image;
+    } catch (error) {
+      console.error('Print generation error:', error);
+      toast.error('Failed to generate print file');
+    }
+  };
+
   return (
     <div className="min-h-screen bg-gray-50 pt-24 pb-16">
       <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
@@ -265,14 +328,13 @@ export default function AdminOrders() {
                     </button>
                   )}
                   
-                  <a
-                    href={`/api/orders/${order.orderId}/print`}
-                    download={`print-${order.orderId}.png`}
+                  <button
+                    onClick={() => generatePrintFile(order)}
                     className="px-6 py-2 bg-purple-600 text-white rounded-lg font-semibold hover:bg-purple-700 transition-colors flex items-center gap-2"
                   >
                     <Download className="w-5 h-5" />
                     Download Print File
-                  </a>
+                  </button>
 
                   <a
                     href={`https://wa.me/${order.customerMobile}?text=Hi ${order.customerName}, your order ${order.orderId} update...`}
