@@ -68,36 +68,143 @@ export async function sendOrderConfirmationToCustomer(data: OrderEmailData) {
       <head>
         <meta charset="UTF-8">
         <meta name="viewport" content="width=device-width, initial-scale=1.0">
-        <style>
-          body { 
-            font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, 'Helvetica Neue', Arial, sans-serif;
-            line-height: 1.6; 
-            color: #1f2937; 
-            margin: 0;
-            padding: 0;
-            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
-          }
-          .container { 
-            max-width: 600px; 
-            margin: 40px auto; 
-            background: white;
-            border-radius: 16px;
-            overflow: hidden;
-            box-shadow: 0 20px 25px -5px rgba(0, 0, 0, 0.1), 0 10px 10px -5px rgba(0, 0, 0, 0.04);
-          }
-          .header { 
-            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
-            color: white; 
-            padding: 40px 30px; 
-            text-align: center;
-          }
-          .header h1 {
-            margin: 0 0 10px 0;
-            font-size: 32px;
-            font-weight: 700;
-          }
-          .header p {
-            margin: 0;
+      </head>
+      <body style="margin:0;padding:0;background-color:#f4f6f8;font-family:Arial,sans-serif;">
+        <table width="100%" cellpadding="0" cellspacing="0" style="background-color:#f4f6f8;padding:20px 0;">
+          <tr>
+            <td align="center">
+              <table width="600" cellpadding="0" cellspacing="0" style="background-color:#ffffff;border-radius:12px;overflow:hidden;box-shadow:0 4px 6px rgba(0,0,0,0.1);">
+                <!-- Header -->
+                <tr>
+                  <td style="background-color:#7c3aed;padding:30px;text-align:center;">
+                    <h1 style="margin:0;color:#ffffff;font-size:28px;font-weight:bold;">🎉 Order Confirmed!</h1>
+                    <p style="margin:10px 0 0 0;color:#ffffff;font-size:14px;">Thank you for shopping with Fun Prints</p>
+                  </td>
+                </tr>
+                
+                <!-- Order ID -->
+                <tr>
+                  <td style="padding:30px;">
+                    <table width="100%" cellpadding="0" cellspacing="0" style="background-color:#f9fafb;border-radius:8px;padding:15px;">
+                      <tr>
+                        <td style="text-align:center;">
+                          <p style="margin:0;color:#6b7280;font-size:12px;">Order ID</p>
+                          <p style="margin:5px 0 0 0;color:#7c3aed;font-size:20px;font-weight:bold;">${data.orderId}</p>
+                        </td>
+                      </tr>
+                    </table>
+                  </td>
+                </tr>
+
+                <!-- Greeting -->
+                <tr>
+                  <td style="padding:0 30px 20px 30px;">
+                    <p style="margin:0;color:#111111;font-size:14px;">Hi <strong>${data.customerName}</strong>, your order has been confirmed and will be processed shortly! 🚀</p>
+                  </td>
+                </tr>
+
+                <!-- Order Items -->
+                <tr>
+                  <td style="padding:0 30px 20px 30px;">
+                    <h2 style="margin:0 0 15px 0;color:#111111;font-size:16px;font-weight:bold;">📦 Order Items</h2>
+                    <table width="100%" cellpadding="0" cellspacing="0" style="border:1px solid #e5e7eb;border-radius:8px;overflow:hidden;">
+                      <thead>
+                        <tr style="background-color:#f9fafb;">
+                          <th style="padding:12px;text-align:left;color:#6b7280;font-size:12px;font-weight:600;">Product</th>
+                          <th style="padding:12px;text-align:center;color:#6b7280;font-size:12px;font-weight:600;">Qty</th>
+                          <th style="padding:12px;text-align:right;color:#6b7280;font-size:12px;font-weight:600;">Price</th>
+                        </tr>
+                      </thead>
+                      <tbody>
+                        ${itemsHtml}
+                      </tbody>
+                    </table>
+                  </td>
+                </tr>
+
+                <!-- Total -->
+                <tr>
+                  <td style="padding:0 30px 20px 30px;">
+                    <table width="100%" cellpadding="0" cellspacing="0" style="background-color:#faf5ff;border-radius:8px;padding:15px;">
+                      <tr>
+                        <td style="color:#6b7280;font-size:14px;">Subtotal</td>
+                        <td style="text-align:right;color:#111111;font-size:14px;font-weight:600;">₹${data.totalAmount}</td>
+                      </tr>
+                      <tr>
+                        <td style="color:#6b7280;font-size:14px;padding-top:8px;">Shipping</td>
+                        <td style="text-align:right;color:#10b981;font-size:14px;font-weight:600;padding-top:8px;">FREE</td>
+                      </tr>
+                      <tr>
+                        <td style="color:#6b7280;font-size:14px;padding-top:8px;">GST (18%)</td>
+                        <td style="text-align:right;color:#111111;font-size:14px;font-weight:600;padding-top:8px;">₹${Math.round(data.totalAmount * 0.18)}</td>
+                      </tr>
+                      <tr style="border-top:2px solid #7c3aed;">
+                        <td style="color:#111111;font-size:18px;font-weight:bold;padding-top:12px;">Total Amount</td>
+                        <td style="text-align:right;color:#7c3aed;font-size:18px;font-weight:bold;padding-top:12px;">₹${data.totalAmount + Math.round(data.totalAmount * 0.18)}</td>
+                      </tr>
+                    </table>
+                  </td>
+                </tr>
+
+                <!-- Delivery Address -->
+                <tr>
+                  <td style="padding:0 30px 20px 30px;">
+                    <h2 style="margin:0 0 15px 0;color:#111111;font-size:16px;font-weight:bold;">🚚 Delivery Address</h2>
+                    <table width="100%" cellpadding="0" cellspacing="0" style="background-color:#f9fafb;border-radius:8px;padding:15px;border-left:4px solid #7c3aed;">
+                      <tr>
+                        <td>
+                          <p style="margin:0 0 8px 0;color:#111111;font-size:14px;font-weight:600;">${data.customerName}</p>
+                          <p style="margin:0;color:#6b7280;font-size:13px;line-height:1.6;">
+                            ${data.customerAddress}<br>
+                            📱 ${data.customerMobile}<br>
+                            📧 ${data.customerEmail}
+                          </p>
+                          <p style="margin:10px 0 0 0;"><span style="background-color:#7c3aed;color:#ffffff;padding:4px 12px;border-radius:12px;font-size:12px;font-weight:600;">💳 ${data.paymentMethod}</span></p>
+                        </td>
+                      </tr>
+                    </table>
+                  </td>
+                </tr>
+
+                <!-- Next Steps -->
+                <tr>
+                  <td style="padding:0 30px 30px 30px;">
+                    <table width="100%" cellpadding="0" cellspacing="0" style="background-color:#ecfdf5;border-radius:8px;padding:15px;border-left:4px solid #10b981;">
+                      <tr>
+                        <td>
+                          <p style="margin:0 0 8px 0;color:#065f46;font-size:14px;font-weight:600;">✅ What's Next?</p>
+                          <p style="margin:0;color:#047857;font-size:13px;line-height:1.8;">
+                            • We'll send you tracking details once your order is dispatched<br>
+                            • Expected delivery: 5-7 business days<br>
+                            • For any queries, contact us at <a href="tel:+919876543210" style="color:#7c3aed;text-decoration:none;font-weight:600;">+91 98765 43210</a>
+                          </p>
+                        </td>
+                      </tr>
+                    </table>
+                  </td>
+                </tr>
+
+                <!-- Footer -->
+                <tr>
+                  <td style="background-color:#f9fafb;padding:20px;text-align:center;border-top:1px solid #e5e7eb;">
+                    <p style="margin:0 0 10px 0;color:#7c3aed;font-size:18px;font-weight:bold;">Fun Prints</p>
+                    <p style="margin:0 0 15px 0;color:#6b7280;font-size:12px;">Premium Custom T-Shirts with Quality Assurance</p>
+                    <p style="margin:0;color:#6b7280;font-size:12px;">
+                      <a href="tel:+919876543210" style="color:#7c3aed;text-decoration:none;margin:0 8px;">📞 Call Us</a>
+                      <a href="https://wa.me/919344925600" style="color:#7c3aed;text-decoration:none;margin:0 8px;">💬 WhatsApp</a>
+                      <a href="mailto:${process.env.SMTP_USER}" style="color:#7c3aed;text-decoration:none;margin:0 8px;">📧 Email</a>
+                    </p>
+                    <p style="margin:15px 0 0 0;color:#9ca3af;font-size:11px;">© 2026 Fun Prints. All rights reserved.</p>
+                  </td>
+                </tr>
+              </table>
+            </td>
+          </tr>
+        </table>
+      </body>
+      </html>
+    `,
+  };
             font-size: 16px;
             opacity: 0.95;
           }
