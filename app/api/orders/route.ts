@@ -1,5 +1,15 @@
 import { NextRequest, NextResponse } from 'next/server';
 import { sendOrderConfirmationToCustomer, sendOrderNotificationToAdmin } from '@/lib/email';
+import { saveOrder, getAllOrders } from '@/lib/orders-storage';
+
+export async function GET() {
+  try {
+    const orders = getAllOrders();
+    return NextResponse.json({ success: true, orders });
+  } catch (error) {
+    return NextResponse.json({ error: 'Failed to fetch orders' }, { status: 500 });
+  }
+}
 
 export async function POST(request: NextRequest) {
   try {
@@ -38,16 +48,31 @@ export async function POST(request: NextRequest) {
       // Continue even if email fails
     }
 
-    // In production: Save order to database
+    // Save order to storage
     const order = {
       orderId: generatedOrderId,
-      items,
-      customer,
+      customerName: customer.name,
+      customerEmail: customer.email || '',
+      customerMobile: customer.mobile,
+      customerAddress: `${customer.buildingNumber || ''} ${customer.landmark || ''}, ${customer.city || ''}, ${customer.district || ''}, ${customer.state || ''} - ${customer.pincode || ''}`.trim(),
+      items: items.map((item: any) => ({
+        id: item.id,
+        name: item.name,
+        quantity: item.quantity,
+        size: item.size,
+        color: item.color,
+        price: item.price,
+        image: item.image || '',
+      })),
+      totalAmount: total,
       paymentMethod,
-      total,
-      status: paymentMethod === 'COD' ? 'Confirmed' : 'PAYMENT_PENDING',
-      createdAt: new Date(),
+      paymentStatus: paymentMethod === 'COD' ? 'verified' : 'pending',
+      orderStatus: 'pending',
+      createdAt: new Date().toISOString(),
+      updatedAt: new Date().toISOString(),
     };
+
+    saveOrder(order);
 
     return NextResponse.json({
       success: true,

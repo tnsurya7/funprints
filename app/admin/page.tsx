@@ -2,15 +2,57 @@
 
 import { useState, useEffect } from 'react';
 import { motion } from 'framer-motion';
-import { Package, DollarSign, Clock, CheckCircle } from 'lucide-react';
+import { Package, Clock, CheckCircle, AlertCircle } from 'lucide-react';
+import Link from 'next/link';
+
+interface Order {
+  orderId: string;
+  customerName: string;
+  customerEmail: string;
+  customerMobile: string;
+  totalAmount: number;
+  paymentMethod: string;
+  paymentStatus: string;
+  orderStatus: string;
+  createdAt: string;
+  items: Array<{
+    name: string;
+    quantity: number;
+    size: string;
+    color: string;
+    price: number;
+    image: string;
+  }>;
+}
 
 export default function AdminDashboard() {
-  const [stats, setStats] = useState({
-    totalOrders: 0,
-    pendingPayments: 0,
-    processing: 0,
-    completed: 0,
-  });
+  const [orders, setOrders] = useState<Order[]>([]);
+  const [loading, setLoading] = useState(true);
+
+  useEffect(() => {
+    fetchOrders();
+  }, []);
+
+  const fetchOrders = async () => {
+    try {
+      const res = await fetch('/api/orders');
+      const data = await res.json();
+      if (data.success) {
+        setOrders(data.orders);
+      }
+    } catch (error) {
+      console.error('Failed to fetch orders:', error);
+    } finally {
+      setLoading(false);
+    }
+  };
+
+  const stats = {
+    total: orders.length,
+    pending: orders.filter(o => o.paymentStatus === 'pending').length,
+    processing: orders.filter(o => o.orderStatus === 'processing').length,
+    completed: orders.filter(o => o.orderStatus === 'completed').length,
+  };
 
   return (
     <div className="min-h-screen bg-gray-50 pt-24 pb-16">
@@ -30,7 +72,7 @@ export default function AdminDashboard() {
             <div className="flex items-center justify-between">
               <div>
                 <p className="text-sm text-gray-600 mb-1">Total Orders</p>
-                <p className="text-3xl font-bold">{stats.totalOrders}</p>
+                <p className="text-3xl font-bold">{stats.total}</p>
               </div>
               <div className="p-3 bg-brand-100 rounded-lg">
                 <Package className="w-6 h-6 text-brand-600" />
@@ -47,7 +89,7 @@ export default function AdminDashboard() {
             <div className="flex items-center justify-between">
               <div>
                 <p className="text-sm text-gray-600 mb-1">Pending Payments</p>
-                <p className="text-3xl font-bold text-yellow-600">{stats.pendingPayments}</p>
+                <p className="text-3xl font-bold text-yellow-600">{stats.pending}</p>
               </div>
               <div className="p-3 bg-yellow-100 rounded-lg">
                 <Clock className="w-6 h-6 text-yellow-600" />
@@ -67,7 +109,7 @@ export default function AdminDashboard() {
                 <p className="text-3xl font-bold text-blue-600">{stats.processing}</p>
               </div>
               <div className="p-3 bg-blue-100 rounded-lg">
-                <DollarSign className="w-6 h-6 text-blue-600" />
+                <AlertCircle className="w-6 h-6 text-blue-600" />
               </div>
             </div>
           </motion.div>
@@ -91,22 +133,66 @@ export default function AdminDashboard() {
         </div>
 
         {/* Quick Actions */}
-        <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
-          <a href="/admin/orders" className="card p-6 hover:shadow-xl transition-all">
+        <div className="grid grid-cols-1 md:grid-cols-3 gap-6 mb-8">
+          <Link href="/admin/orders" className="card p-6 hover:shadow-xl transition-all">
             <h3 className="text-xl font-semibold mb-2">Manage Orders</h3>
             <p className="text-gray-600">View and update order status</p>
-          </a>
+          </Link>
 
-          <a href="/admin/payments" className="card p-6 hover:shadow-xl transition-all">
+          <div className="card p-6 hover:shadow-xl transition-all cursor-pointer">
             <h3 className="text-xl font-semibold mb-2">Verify Payments</h3>
             <p className="text-gray-600">Check UPI payment screenshots</p>
-          </a>
+          </div>
 
-          <a href="/admin/bulk-enquiries" className="card p-6 hover:shadow-xl transition-all">
+          <div className="card p-6 hover:shadow-xl transition-all cursor-pointer">
             <h3 className="text-xl font-semibold mb-2">Bulk Enquiries</h3>
             <p className="text-gray-600">Manage bulk order requests</p>
-          </a>
+          </div>
         </div>
+
+        {/* Recent Orders */}
+        {loading ? (
+          <div className="text-center py-12">
+            <div className="inline-block animate-spin rounded-full h-12 w-12 border-b-2 border-purple-600"></div>
+            <p className="mt-4 text-gray-600">Loading orders...</p>
+          </div>
+        ) : orders.length === 0 ? (
+          <div className="card p-12 text-center">
+            <Package className="w-16 h-16 text-gray-400 mx-auto mb-4" />
+            <h3 className="text-xl font-semibold text-gray-700 mb-2">No Orders Yet</h3>
+            <p className="text-gray-600">Orders will appear here once customers place them</p>
+          </div>
+        ) : (
+          <div className="card p-6">
+            <h2 className="text-2xl font-bold mb-6">Recent Orders</h2>
+            <div className="space-y-4">
+              {orders.slice(0, 5).map((order) => (
+                <div key={order.orderId} className="border-b border-gray-200 pb-4 last:border-0">
+                  <div className="flex justify-between items-start mb-2">
+                    <div>
+                      <p className="font-semibold text-lg">{order.orderId}</p>
+                      <p className="text-sm text-gray-600">{order.customerName} • {order.customerMobile}</p>
+                    </div>
+                    <div className="text-right">
+                      <p className="font-bold text-lg text-purple-600">₹{order.totalAmount}</p>
+                      <span className={`text-xs px-2 py-1 rounded-full ${
+                        order.paymentStatus === 'verified' ? 'bg-green-100 text-green-700' : 'bg-orange-100 text-orange-700'
+                      }`}>
+                        {order.paymentStatus}
+                      </span>
+                    </div>
+                  </div>
+                  <p className="text-sm text-gray-500">
+                    {new Date(order.createdAt).toLocaleString()}
+                  </p>
+                </div>
+              ))}
+            </div>
+            <Link href="/admin/orders">
+              <button className="mt-6 w-full btn-primary">View All Orders</button>
+            </Link>
+          </div>
+        )}
       </div>
     </div>
   );

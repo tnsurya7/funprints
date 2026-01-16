@@ -36,3 +36,6 @@ next-env.d.ts
 # Documentation files (may contain sensitive info)
 *.md
 !README.md
+
+# Data storage
+/data
