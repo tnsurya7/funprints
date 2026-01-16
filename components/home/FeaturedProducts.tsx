@@ -53,7 +53,7 @@ export default function FeaturedProducts() {
           <p className="text-xl text-gray-600">Discover our most popular designs</p>
         </motion.div>
 
-        <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-8">
+        <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-8 items-stretch">
           {featuredProducts.map((product, index) => (
             <motion.div
               key={product.id}
@@ -61,6 +61,7 @@ export default function FeaturedProducts() {
               whileInView={{ opacity: 1, y: 0 }}
               viewport={{ once: true }}
               transition={{ delay: index * 0.1 }}
+              className="flex"
             >
               <ProductCard product={product} />
             </motion.div>

@@ -22,7 +22,7 @@ export default function ProductCard({ product }: { product: Product }) {
   return (
     <motion.div
       whileHover={{ y: -12, scale: 1.02 }}
-      className="relative group"
+      className="relative group w-full h-full"
     >
       {/* Glow effect */}
       <div className={`absolute inset-0 bg-gradient-to-r ${gradient} rounded-3xl blur-xl opacity-0 group-hover:opacity-30 transition-opacity duration-500`}></div>
