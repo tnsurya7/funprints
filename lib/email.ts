@@ -191,7 +191,7 @@ export async function sendOrderConfirmationToCustomer(data: OrderEmailData) {
                     <p style="margin:0 0 15px 0;color:#6b7280;font-size:12px;">Premium Custom T-Shirts with Quality Assurance</p>
                     <p style="margin:0;color:#6b7280;font-size:12px;">
                       <a href="tel:+91XXXXXXXXXX" style="color:#7c3aed;text-decoration:none;margin:0 8px;">📞 Call Us</a>
-                      <a href={`https://wa.me/${process.env.NEXT_PUBLIC_WHATSAPP_NUMBER}`} style="color:#7c3aed;text-decoration:none;margin:0 8px;">💬 WhatsApp</a>
+                      <a href="https://wa.me/${process.env.NEXT_PUBLIC_WHATSAPP_NUMBER}" style="color:#7c3aed;text-decoration:none;margin:0 8px;">💬 WhatsApp</a>
                       <a href="mailto:${process.env.SMTP_USER}" style="color:#7c3aed;text-decoration:none;margin:0 8px;">📧 Email</a>
                     </p>
                     <p style="margin:15px 0 0 0;color:#9ca3af;font-size:11px;">© 2026 Fun Prints. All rights reserved.</p>

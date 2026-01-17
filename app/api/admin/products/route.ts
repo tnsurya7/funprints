@@ -23,12 +23,14 @@ export async function POST(request: NextRequest) {
       base_price: Number(base_price),
       gst_percent: 18,
       description,
-      colors: colors || [],
-      sizes: sizes || ['S', 'M', 'L', 'XL', 'XXL'],
       enabled: true,
     };
 
     const product = await ProductsService.createProduct(newProduct);
+
+    if (!product) {
+      return NextResponse.json({ error: 'Failed to create product' }, { status: 500 });
+    }
 
     return NextResponse.json({
       success: true,

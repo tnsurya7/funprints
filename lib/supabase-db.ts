@@ -155,6 +155,26 @@ export class ProductsService {
     }
   }
 
+  static async createProduct(productData: Omit<Product, 'id' | 'created_at' | 'updated_at'>): Promise<Product | null> {
+    try {
+      const { data, error } = await supabase
+        .from('products')
+        .insert([productData])
+        .select()
+        .single();
+
+      if (error) {
+        console.error('Error creating product:', error);
+        return null;
+      }
+
+      return data;
+    } catch (err) {
+      console.error('Create product error:', err);
+      return null;
+    }
+  }
+
   static async updateProduct(id: string, updates: Partial<Product>): Promise<boolean> {
     try {
       const { error } = await supabase

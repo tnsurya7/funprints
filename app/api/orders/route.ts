@@ -19,17 +19,44 @@ export async function POST(request: NextRequest) {
 
     console.log('Received order request:', { items, customer, paymentMethod });
 
+    // Transform items to match the expected structure
+    const transformedItems = items.map((item: any) => ({
+      productId: item.productId || item.id,
+      variantId: item.variantId || item.id, // This will need to be properly mapped
+      quantity: item.quantity,
+      unitPrice: item.price,
+    }));
+
+    // Transform customer data
+    const customerData = {
+      name: customer.name,
+      email: customer.email,
+      mobile: customer.mobile,
+    };
+
+    // Transform address data
+    const addressData = {
+      pincode: customer.pincode || '',
+      city: customer.city || '',
+      district: customer.district || '',
+      state: customer.state || '',
+      addressLine: `${customer.buildingNumber || ''} ${customer.landmark || ''}`.trim(),
+      landmark: customer.landmark,
+      addressType: customer.addressType || 'home',
+    };
+
     // Create order in Supabase
-    const { orderId: generatedOrderId, totalAmount } = await OrdersService.createOrder({
-      items,
-      customer,
+    const { orderCode: generatedOrderCode, totalAmount } = await OrdersService.createOrder({
+      items: transformedItems,
+      customer: customerData,
+      address: addressData,
       paymentMethod,
-      orderId
+      orderCode: orderId
     });
 
     // Prepare email data
     const emailData = {
-      orderId: generatedOrderId,
+      orderId: generatedOrderCode,
       customerName: customer.name,
       customerEmail: customer.email || 'customer@example.com',
       customerMobile: customer.mobile,
@@ -59,11 +86,11 @@ export async function POST(request: NextRequest) {
       // Continue even if email fails
     }
 
-    console.log('Order processed successfully:', generatedOrderId);
+    console.log('Order processed successfully:', generatedOrderCode);
 
     return NextResponse.json({
       success: true,
-      orderId: generatedOrderId,
+      orderId: generatedOrderCode,
       message: 'Order placed successfully',
     });
   } catch (error) {
