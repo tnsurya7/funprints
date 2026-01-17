@@ -1,37 +1,128 @@
-import ProductCard from '@/components/products/ProductCard';
-import { products } from '@/lib/products-data';
+'use client';
 
-export const metadata = {
-  title: 'Products - Fun Prints',
-  description: 'Browse our collection of premium custom t-shirts',
-};
+import { useState, useEffect } from 'react';
+import ProductCard from '@/components/products/ProductCard';
+
+interface Product {
+  id: string;
+  name: string;
+  category: string;
+  base_price: number;
+  colors: Array<{
+    name: string;
+    stock: number;
+    image_url: string;
+  }>;
+  enabled: boolean;
+}
 
 export default function ProductsPage() {
-  const productCards = products.map((product) => ({
-    id: product.id,
-    name: product.name,
-    price: product.price,
-    image: product.images.front,
-    category: product.category,
-    gradient: product.category === 'Round Neck' 
-      ? 'from-blue-500 to-cyan-500' 
-      : product.category === 'Polo'
-      ? 'from-purple-500 to-pink-500'
-      : product.category === 'V-Neck'
-      ? 'from-green-500 to-teal-500'
-      : 'from-orange-500 to-red-500',
-  }));
+  const [products, setProducts] = useState<Product[]>([]);
+  const [loading, setLoading] = useState(true);
+  const [filter, setFilter] = useState<string>('all');
+
+  useEffect(() => {
+    fetchProducts();
+  }, []);
+
+  const fetchProducts = async () => {
+    try {
+      const res = await fetch('/api/products');
+      const data = await res.json();
+      if (data.success) {
+        setProducts(data.products);
+      }
+    } catch (error) {
+      console.error('Failed to fetch products:', error);
+    } finally {
+      setLoading(false);
+    }
+  };
+
+  const categories = ['all', ...new Set(products.map(p => p.category))];
+  const filteredProducts = filter === 'all' ? products : products.filter(p => p.category === filter);
+
+  const getGradient = (category: string) => {
+    switch (category) {
+      case 'Round Neck': return 'from-blue-500 to-cyan-500';
+      case 'Polo': return 'from-purple-500 to-pink-500';
+      case 'V-Neck': return 'from-green-500 to-teal-500';
+      case 'Hoodie': return 'from-orange-500 to-red-500';
+      case 'Zip Hoodie': return 'from-red-500 to-pink-500';
+      default: return 'from-gray-500 to-gray-600';
+    }
+  };
+
+  const getStockStatus = (colors: Product['colors']) => {
+    const totalStock = colors.reduce((sum, color) => sum + color.stock, 0);
+    if (totalStock === 0) return 'Out of Stock';
+    if (totalStock <= 5) return `Only ${totalStock} left`;
+    return 'In Stock';
+  };
+
+  if (loading) {
+    return (
+      <div className="min-h-screen pt-24 pb-16 bg-gray-50">
+        <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
+          <div className="text-center py-12">
+            <div className="inline-block animate-spin rounded-full h-12 w-12 border-b-2 border-purple-600"></div>
+            <p className="mt-4 text-gray-600">Loading products...</p>
+          </div>
+        </div>
+      </div>
+    );
+  }
 
   return (
     <div className="min-h-screen pt-24 pb-16 bg-gray-50">
       <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
         <h1 className="text-4xl font-bold mb-8">Our Products</h1>
         
-        <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-8">
-          {productCards.map((product) => (
-            <ProductCard key={product.id} product={product} />
+        {/* Category Filter */}
+        <div className="flex gap-2 mb-8 overflow-x-auto pb-2">
+          {categories.map((category) => (
+            <button
+              key={category}
+              onClick={() => setFilter(category)}
+              className={`px-6 py-2 rounded-lg font-semibold whitespace-nowrap transition-all ${
+                filter === category
+                  ? 'bg-purple-600 text-white shadow-lg'
+                  : 'bg-white text-gray-700 hover:bg-gray-100'
+              }`}
+            >
+              {category === 'all' ? 'All Products' : category}
+              {category !== 'all' && ` (${products.filter(p => p.category === category).length})`}
+            </button>
           ))}
         </div>
+        
+        <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-8">
+          {filteredProducts.map((product) => {
+            const productCard = {
+              id: product.id,
+              name: product.name,
+              price: product.base_price,
+              image: product.colors[0]?.image_url || '',
+              category: product.category,
+              gradient: getGradient(product.category),
+              stockStatus: getStockStatus(product.colors),
+              colors: product.colors.map(c => c.name),
+            };
+            
+            return (
+              <ProductCard key={product.id} product={productCard} />
+            );
+          })}
+        </div>
+
+        {filteredProducts.length === 0 && (
+          <div className="text-center py-12">
+            <p className="text-xl text-gray-600 mb-4">No products found</p>
+            <p className="text-gray-500">
+              {filter === 'all' ? 'No products available' : `No ${filter} products available`}
+            </p>
+          </div>
+        )}
       </div>
     </div>
   );

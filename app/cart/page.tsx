@@ -5,10 +5,18 @@ import { Trash2 } from 'lucide-react';
 import Image from 'next/image';
 import Link from 'next/link';
 import { useRouter } from 'next/navigation';
+import LogoUpload from '@/components/cart/LogoUpload';
 
 export default function CartPage() {
-  const { items, removeItem, updateQuantity, getTotalPrice } = useCartStore();
+  const { items, removeItem, updateQuantity, getTotalPrice, addItem } = useCartStore();
   const router = useRouter();
+
+  const handleLogoUpdate = (itemId: string, logoUrl: string) => {
+    const item = items.find(i => `${i.id}-${i.size}-${i.color}` === itemId);
+    if (item) {
+      addItem({ ...item, logo: logoUrl });
+    }
+  };
 
   if (items.length === 0) {
     return (
@@ -76,6 +84,12 @@ export default function CartPage() {
                     </div>
                   </div>
                 </div>
+
+                {/* Logo Upload Section */}
+                <LogoUpload
+                  onLogoSelect={(logoUrl) => handleLogoUpdate(`${item.id}-${item.size}-${item.color}`, logoUrl)}
+                  currentLogo={item.logo}
+                />
               </div>
             ))}
           </div>

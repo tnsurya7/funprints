@@ -1,12 +1,13 @@
 import { NextRequest, NextResponse } from 'next/server';
 import { sendOrderConfirmationToCustomer, sendOrderNotificationToAdmin } from '@/lib/email';
-import { saveOrder, getAllOrders } from '@/lib/orders-storage';
+import { OrdersService } from '@/lib/supabase-db';
 
 export async function GET() {
   try {
-    const orders = getAllOrders();
+    const orders = await OrdersService.getAllOrders();
     return NextResponse.json({ success: true, orders });
   } catch (error) {
+    console.error('Failed to fetch orders:', error);
     return NextResponse.json({ error: 'Failed to fetch orders' }, { status: 500 });
   }
 }
@@ -14,26 +15,35 @@ export async function GET() {
 export async function POST(request: NextRequest) {
   try {
     const body = await request.json();
-    const { items, customer, paymentMethod, total, orderId } = body;
+    const { items, customer, paymentMethod, orderId } = body;
 
-    const generatedOrderId = orderId || `FP${Date.now()}`;
+    console.log('Received order request:', { items, customer, paymentMethod });
 
-    // Prepare email data with product images
+    // Create order in Supabase
+    const { orderId: generatedOrderId, totalAmount } = await OrdersService.createOrder({
+      items,
+      customer,
+      paymentMethod,
+      orderId
+    });
+
+    // Prepare email data
     const emailData = {
       orderId: generatedOrderId,
       customerName: customer.name,
       customerEmail: customer.email || 'customer@example.com',
       customerMobile: customer.mobile,
-      customerAddress: `${customer.address}, ${customer.city || ''}, ${customer.state || ''} - ${customer.pincode || ''}`.trim(),
+      customerAddress: `${customer.buildingNumber || ''} ${customer.landmark || ''}, ${customer.city || ''}, ${customer.district || ''}, ${customer.state || ''} - ${customer.pincode || ''}`.trim(),
       items: items.map((item: any) => ({
         name: item.name,
         quantity: item.quantity,
         size: item.size,
         color: item.color,
         price: item.price,
-        image: item.image || item.images?.front || '',
+        image: item.image,
+        logo: item.logo,
       })),
-      totalAmount: total,
+      totalAmount,
       paymentMethod: paymentMethod,
     };
 
@@ -43,36 +53,13 @@ export async function POST(request: NextRequest) {
         sendOrderConfirmationToCustomer(emailData),
         sendOrderNotificationToAdmin(emailData),
       ]);
+      console.log('Emails sent successfully');
     } catch (emailError) {
       console.error('Email sending failed:', emailError);
       // Continue even if email fails
     }
 
-    // Save order to storage
-    const order = {
-      orderId: generatedOrderId,
-      customerName: customer.name,
-      customerEmail: customer.email || '',
-      customerMobile: customer.mobile,
-      customerAddress: `${customer.buildingNumber || ''} ${customer.landmark || ''}, ${customer.city || ''}, ${customer.district || ''}, ${customer.state || ''} - ${customer.pincode || ''}`.trim(),
-      items: items.map((item: any) => ({
-        id: item.id,
-        name: item.name,
-        quantity: item.quantity,
-        size: item.size,
-        color: item.color,
-        price: item.price,
-        image: item.image || '',
-      })),
-      totalAmount: total,
-      paymentMethod,
-      paymentStatus: (paymentMethod === 'COD' ? 'verified' : 'pending') as 'pending' | 'verified' | 'failed',
-      orderStatus: 'pending' as 'pending' | 'processing' | 'completed' | 'cancelled',
-      createdAt: new Date().toISOString(),
-      updatedAt: new Date().toISOString(),
-    };
-
-    saveOrder(order);
+    console.log('Order processed successfully:', generatedOrderId);
 
     return NextResponse.json({
       success: true,
@@ -82,7 +69,7 @@ export async function POST(request: NextRequest) {
   } catch (error) {
     console.error('Order creation error:', error);
     return NextResponse.json(
-      { error: 'Failed to create order' },
+      { error: 'Failed to create order', details: error instanceof Error ? error.message : 'Unknown error' },
       { status: 500 }
     );
   }

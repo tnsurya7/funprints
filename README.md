@@ -20,11 +20,15 @@ A next-generation, production-ready e-commerce web application for custom t-shir
 ### Core Features
 - ✅ **Responsive Design** - Works perfectly on Desktop, Android, iOS, MacBook, and Tablets
 - ✅ **360° Product Viewer** - Interactive product rotation with zoom and gyroscope support
+- ✅ **Custom Logo Upload** - Customers can upload their logos for printing on t-shirts
 - ✅ **UPI Payment Integration** - Deep linking to Google Pay, PhonePe, Paytm with screenshot verification
 - ✅ **Cash on Delivery** - Traditional COD payment option
 - ✅ **Premium UI/UX** - Apple-like minimal design with smooth animations
 - ✅ **SEO Optimized** - Server-side rendering, dynamic meta tags, schema markup
 - ✅ **PWA Ready** - Installable as an app on mobile devices
+- ✅ **Admin Dashboard** - Complete order management with status updates
+- ✅ **Print File Generation** - Automatic merging of t-shirt images with customer logos
+- ✅ **Email Notifications** - Automated emails to customers and admin on order placement
 
 ### User Experience
 - Animated hero section with smooth transitions
@@ -32,8 +36,11 @@ A next-generation, production-ready e-commerce web application for custom t-shir
 - Size guide popup
 - Wishlist functionality
 - Shopping cart with real-time updates
+- **Logo upload for each cart item** - Drag & drop interface with preview
 - Multi-step checkout process
 - Order tracking and confirmation
+- Admin dashboard with order management
+- One-click print file generation (t-shirt + logo merged)
 
 ### Payment Flow (WhatsApp Deep Link - Zero Cost!)
 1. User adds products to cart
@@ -107,11 +114,11 @@ CLOUDINARY_API_KEY=your_api_key
 CLOUDINARY_API_SECRET=your_api_secret
 
 # UPI Configuration
-NEXT_PUBLIC_UPI_ID=funprint@upi
-NEXT_PUBLIC_UPI_NAME=Fun Prints
+NEXT_PUBLIC_UPI_ID=YOUR_UPI_ID
+NEXT_PUBLIC_UPI_NAME=Your Business Name
 
 # WhatsApp
-NEXT_PUBLIC_WHATSAPP_NUMBER=919876543210
+NEXT_PUBLIC_WHATSAPP_NUMBER=YOUR_WHATSAPP_NUMBER
 
 # Admin
 ADMIN_SECRET=your_admin_secret_key
@@ -282,8 +289,8 @@ CREATE TABLE order_items (
 ## 📞 Support & Contact
 
 For issues or questions:
-- WhatsApp: +91 98765 43210
-- Email: hello@funprints.com
+- WhatsApp: +91 XXXXX XXXXX
+- Email: hello@yoursite.com
 
 ## 📄 License
 
@@ -291,10 +298,11 @@ This project is proprietary and confidential.
 
 ## 🔮 Future Enhancements
 
-- [ ] Admin dashboard for order management
+- [x] Admin dashboard for order management ✅
+- [x] Email notifications ✅
+- [x] Logo upload and print file generation ✅
 - [ ] Real-time order tracking
-- [ ] Email notifications
-- [ ] WhatsApp order updates
+- [ ] WhatsApp order updates (automated)
 - [ ] Product reviews and ratings
 - [ ] Advanced customization tool
 - [ ] Multiple payment gateways

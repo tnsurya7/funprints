@@ -11,8 +11,8 @@ function UPIPaymentContent() {
   const router = useRouter();
   const amount = searchParams.get('amount') || '0';
 
-  const upiId = process.env.NEXT_PUBLIC_UPI_ID || 'funprint@upi';
-  const upiName = process.env.NEXT_PUBLIC_UPI_NAME || 'Fun Prints';
+  const upiId = process.env.NEXT_PUBLIC_UPI_ID || 'YOUR_UPI_ID';
+  const upiName = process.env.NEXT_PUBLIC_UPI_NAME || 'Your Business Name';
   const note = 'Fun Prints Order';
 
   useEffect(() => {
@@ -59,7 +59,7 @@ function UPIPaymentContent() {
     const customer = customerInfo ? JSON.parse(customerInfo) : { name: 'Customer', mobile: '' };
 
     // WhatsApp deep link
-    const phoneNumber = process.env.NEXT_PUBLIC_WHATSAPP_NUMBER || '919344925600';
+    const phoneNumber = process.env.NEXT_PUBLIC_WHATSAPP_NUMBER || 'YOUR_WHATSAPP_NUMBER';
     const message = `Hello Fun Prints,
 
 I have completed the payment.

@@ -1,13 +1,13 @@
 import fs from 'fs';
 import path from 'path';
 
-const ORDERS_FILE = path.join(process.cwd(), 'data', 'orders.json');
+const DATA_DIR = path.join(process.cwd(), 'data');
+const ORDERS_FILE = path.join(DATA_DIR, 'orders.json');
 
 // Ensure data directory exists
 function ensureDataDir() {
-  const dataDir = path.join(process.cwd(), 'data');
-  if (!fs.existsSync(dataDir)) {
-    fs.mkdirSync(dataDir, { recursive: true });
+  if (!fs.existsSync(DATA_DIR)) {
+    fs.mkdirSync(DATA_DIR, { recursive: true });
   }
   if (!fs.existsSync(ORDERS_FILE)) {
     fs.writeFileSync(ORDERS_FILE, JSON.stringify([], null, 2));
@@ -28,7 +28,7 @@ export interface Order {
     color: string;
     price: number;
     image: string;
-    logo?: string; // Customer logo URL
+    logo?: string;
   }>;
   totalAmount: number;
   paymentMethod: string;

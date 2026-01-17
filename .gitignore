@@ -23,8 +23,10 @@ yarn-debug.log*
 yarn-error.log*
 
 # local env files
-.env*.local
+.env*
 .env
+.env.local
+.env.production
 
 # vercel
 .vercel
@@ -33,9 +35,14 @@ yarn-error.log*
 *.tsbuildinfo
 next-env.d.ts
 
-# Documentation files (may contain sensitive info)
-*.md
-!README.md
+# Security files
+*.key
+*.secret
 
 # Data storage
 /data
+/logs
+
+# Documentation files (may contain sensitive info)
+*.md
+!README.md

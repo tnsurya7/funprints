@@ -1,0 +1,80 @@
+🎨 LOGO UPLOAD FEATURE - USER GUIDE
+====================================
+
+📍 WHERE TO FIND IT:
+-------------------
+Cart Page → Each product has a purple "Add Your Logo" section
+
+🎯 HOW IT WORKS:
+---------------
+
+FOR CUSTOMERS:
+1. Add products to cart
+2. Go to cart page
+3. See purple box below each product: "Add Your Logo (Optional)"
+4. Click or drag & drop logo file
+5. Preview appears instantly
+6. Can remove and re-upload if needed
+7. Proceed to checkout (logo is saved automatically)
+
+FOR ADMIN:
+1. Customer places order with logo
+2. Logo is saved with the order
+3. Go to Admin → Manage Orders
+4. Click "Download Print File" button
+5. System automatically:
+   - Loads t-shirt image
+   - Overlays customer logo on chest
+   - Merges into single high-res image
+   - Downloads as PNG file
+6. Use this file for printing!
+
+📋 TECHNICAL DETAILS:
+--------------------
+- Supported formats: PNG, JPG, SVG
+- Max file size: 5MB
+- Logo position: Chest area (centered)
+- Print file resolution: 3000x3000px
+- Logo size on print: 800px
+- Logo position Y: 1000px from top
+
+🎨 LOGO PLACEMENT:
+-----------------
+The logo is automatically positioned on the chest area:
+- Horizontally: Centered
+- Vertically: 1000px from top (chest level)
+- Size: 800px x 800px (maintains aspect ratio)
+
+✅ WHAT HAPPENS IF NO LOGO?
+---------------------------
+- Customer can skip logo upload (it's optional)
+- Order still processes normally
+- Print file downloads t-shirt image only
+- No errors or issues
+
+🔧 TROUBLESHOOTING:
+------------------
+Q: Logo not uploading?
+A: Check file size (must be under 5MB) and format (PNG/JPG/SVG only)
+
+Q: Logo preview not showing?
+A: Refresh page and try again
+
+Q: Print file not downloading?
+A: Make sure browser allows downloads, try different browser
+
+Q: Logo position wrong?
+A: Contact developer to adjust position in code
+
+💡 TIPS FOR BEST RESULTS:
+------------------------
+1. Use high-resolution logos (at least 800x800px)
+2. PNG with transparent background works best
+3. Square logos look better than rectangular
+4. Test print file before actual printing
+5. Keep logo simple and clear
+
+🎊 READY TO USE!
+===============
+The logo upload feature is fully functional and integrated.
+Customers can now customize their t-shirts with their own logos!

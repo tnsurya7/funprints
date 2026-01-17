@@ -30,7 +30,7 @@ export default function ContactPage() {
         setFormData({ name: '', email: '', mobile: '', message: '' });
         
         // Also open WhatsApp
-        const whatsappNumber = process.env.NEXT_PUBLIC_WHATSAPP_NUMBER || '919344925600';
+        const whatsappNumber = process.env.NEXT_PUBLIC_WHATSAPP_NUMBER || 'YOUR_WHATSAPP_NUMBER';
         const whatsappMessage = encodeURIComponent(
           `Hi Fun Prints,\n\nName: ${formData.name}\nEmail: ${formData.email}\nMobile: ${formData.mobile}\n\nMessage: ${formData.message}`
         );
@@ -171,7 +171,7 @@ export default function ContactPage() {
                 icon: MessageCircle,
                 title: 'WhatsApp',
                 content: 'Chat with us',
-                link: 'https://wa.me/919344925600',
+                link: `https://wa.me/${process.env.NEXT_PUBLIC_WHATSAPP_NUMBER}`,
                 gradient: 'from-green-500 to-emerald-500',
               },
               {

@@ -1,5 +1,6 @@
 'use client';
 
+import AuthGuard from '@/components/admin/AuthGuard';
 import { useState, useEffect } from 'react';
 import { motion } from 'framer-motion';
 import { Package, CheckCircle, Clock, XCircle, Download, Phone, Mail } from 'lucide-react';
@@ -7,16 +8,17 @@ import Image from 'next/image';
 import toast from 'react-hot-toast';
 
 interface Order {
-  orderId: string;
-  customerName: string;
-  customerEmail: string;
-  customerMobile: string;
-  customerAddress: string;
-  totalAmount: number;
-  paymentMethod: string;
-  paymentStatus: 'pending' | 'verified' | 'failed';
-  orderStatus: 'pending' | 'processing' | 'completed' | 'cancelled';
-  createdAt: string;
+  id: string;
+  order_id: string;
+  customer_name: string;
+  customer_email: string;
+  customer_mobile: string;
+  customer_address: string;
+  total_amount: number;
+  payment_method: string;
+  payment_status: 'PENDING' | 'VERIFIED' | 'FAILED';
+  order_status: 'PENDING' | 'PROCESSING' | 'COMPLETED' | 'CANCELLED';
+  created_at: string;
   items: Array<{
     id: string;
     name: string;
@@ -24,8 +26,8 @@ interface Order {
     size: string;
     color: string;
     price: number;
-    image: string;
-    logo?: string; // Customer logo URL
+    image_url: string;
+    logo_url?: string;
   }>;
 }
 
@@ -40,7 +42,12 @@ export default function AdminOrders() {
 
   const fetchOrders = async () => {
     try {
-      const res = await fetch('/api/orders');
+      const token = localStorage.getItem('adminToken');
+      const res = await fetch('/api/orders', {
+        headers: {
+          'Authorization': `Bearer ${token}`
+        }
+      });
       const data = await res.json();
       if (data.success) {
         setOrders(data.orders.reverse()); // Latest first
@@ -53,11 +60,15 @@ export default function AdminOrders() {
     }
   };
 
-  const updateOrderStatus = async (orderId: string, orderStatus: Order['orderStatus'], paymentStatus?: Order['paymentStatus']) => {
+  const updateOrderStatus = async (orderId: string, orderStatus: Order['order_status'], paymentStatus?: Order['payment_status']) => {
     try {
+      const token = localStorage.getItem('adminToken');
       const res = await fetch(`/api/orders/${orderId}`, {
         method: 'PATCH',
-        headers: { 'Content-Type': 'application/json' },
+        headers: { 
+          'Content-Type': 'application/json',
+          'Authorization': `Bearer ${token}`
+        },
         body: JSON.stringify({ orderStatus, paymentStatus }),
       });
 
@@ -74,7 +85,7 @@ export default function AdminOrders() {
 
   const filteredOrders = orders.filter(order => {
     if (filter === 'all') return true;
-    return order.orderStatus === filter;
+    return order.order_status === filter.toUpperCase();
   });
 
   const getStatusColor = (status: string) => {
@@ -115,7 +126,7 @@ export default function AdminOrders() {
         ctx.drawImage(img, 0, 0, 3000, 3000);
 
         // If logo exists, draw it
-        if (item.logo) {
+        if (item.logo_url) {
           const logoImg = new window.Image();
           logoImg.crossOrigin = 'anonymous';
           logoImg.onload = () => {
@@ -131,13 +142,13 @@ export default function AdminOrders() {
                 const url = URL.createObjectURL(blob);
                 const a = document.createElement('a');
                 a.href = url;
-                a.download = `print-${order.orderId}.png`;
+                a.download = `print-${order.order_id}.png`;
                 a.click();
                 URL.revokeObjectURL(url);
               }
             }, 'image/png');
           };
-          logoImg.src = item.logo;
+          logoImg.src = item.logo_url;
         } else {
           // No logo, just download t-shirt
           canvas.toBlob((blob) => {
@@ -145,14 +156,14 @@ export default function AdminOrders() {
               const url = URL.createObjectURL(blob);
               const a = document.createElement('a');
               a.href = url;
-              a.download = `print-${order.orderId}.png`;
+              a.download = `print-${order.order_id}.png`;
               a.click();
               URL.revokeObjectURL(url);
             }
           }, 'image/png');
         }
       };
-      img.src = item.image;
+      img.src = item.image_url;
     } catch (error) {
       console.error('Print generation error:', error);
       toast.error('Failed to generate print file');
@@ -160,8 +171,9 @@ export default function AdminOrders() {
   };
 
   return (
-    <div className="min-h-screen bg-gray-50 pt-24 pb-16">
-      <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
+    <AuthGuard>
+      <div className="min-h-screen bg-gray-50 pt-24 pb-16">
+        <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
         {/* Header */}
         <div className="mb-8">
           <h1 className="text-4xl font-bold mb-2">Manage Orders</h1>
@@ -181,7 +193,7 @@ export default function AdminOrders() {
               }`}
             >
               {f.charAt(0).toUpperCase() + f.slice(1)}
-              {f !== 'all' && ` (${orders.filter(o => o.orderStatus === f).length})`}
+              {f !== 'all' && ` (${orders.filter(o => o.order_status === f.toUpperCase()).length})`}
             </button>
           ))}
         </div>
@@ -204,7 +216,7 @@ export default function AdminOrders() {
           <div className="space-y-6">
             {filteredOrders.map((order) => (
               <motion.div
-                key={order.orderId}
+                key={order.order_id}
                 initial={{ opacity: 0, y: 20 }}
                 animate={{ opacity: 1, y: 0 }}
                 className="card p-6"
@@ -212,20 +224,20 @@ export default function AdminOrders() {
                 {/* Order Header */}
                 <div className="flex flex-col md:flex-row md:items-center md:justify-between mb-6 pb-4 border-b">
                   <div>
-                    <h3 className="text-2xl font-bold text-purple-600 mb-1">{order.orderId}</h3>
+                    <h3 className="text-2xl font-bold text-purple-600 mb-1">{order.order_id}</h3>
                     <p className="text-sm text-gray-500">
-                      {new Date(order.createdAt).toLocaleString('en-IN', {
+                      {new Date(order.created_at).toLocaleString('en-IN', {
                         dateStyle: 'medium',
                         timeStyle: 'short',
                       })}
                     </p>
                   </div>
                   <div className="flex gap-2 mt-4 md:mt-0">
-                    <span className={`px-3 py-1 rounded-full text-sm font-semibold ${getPaymentStatusColor(order.paymentStatus)}`}>
-                      {order.paymentStatus.toUpperCase()}
+                    <span className={`px-3 py-1 rounded-full text-sm font-semibold ${getPaymentStatusColor(order.payment_status.toLowerCase())}`}>
+                      {order.payment_status.toUpperCase()}
                     </span>
-                    <span className={`px-3 py-1 rounded-full text-sm font-semibold ${getStatusColor(order.orderStatus)}`}>
-                      {order.orderStatus.toUpperCase()}
+                    <span className={`px-3 py-1 rounded-full text-sm font-semibold ${getStatusColor(order.order_status.toLowerCase())}`}>
+                      {order.order_status.toUpperCase()}
                     </span>
                   </div>
                 </div>
@@ -235,25 +247,25 @@ export default function AdminOrders() {
                   <div className="lg:col-span-1">
                     <h4 className="font-semibold text-lg mb-3">👤 Customer</h4>
                     <div className="space-y-2 text-sm">
-                      <p className="font-semibold text-gray-900">{order.customerName}</p>
+                      <p className="font-semibold text-gray-900">{order.customer_name}</p>
                       <div className="flex items-center gap-2 text-gray-600">
                         <Phone className="w-4 h-4" />
-                        <a href={`tel:${order.customerMobile}`} className="hover:text-purple-600">
-                          {order.customerMobile}
+                        <a href={`tel:${order.customer_mobile}`} className="hover:text-purple-600">
+                          {order.customer_mobile}
                         </a>
                       </div>
-                      {order.customerEmail && (
+                      {order.customer_email && (
                         <div className="flex items-center gap-2 text-gray-600">
                           <Mail className="w-4 h-4" />
-                          <a href={`mailto:${order.customerEmail}`} className="hover:text-purple-600">
-                            {order.customerEmail}
+                          <a href={`mailto:${order.customer_email}`} className="hover:text-purple-600">
+                            {order.customer_email}
                           </a>
                         </div>
                       )}
-                      <p className="text-gray-600 mt-2">{order.customerAddress}</p>
+                      <p className="text-gray-600 mt-2">{order.customer_address}</p>
                       <div className="mt-3">
                         <span className="text-xs font-semibold text-gray-500">Payment Method</span>
-                        <p className="font-semibold">{order.paymentMethod}</p>
+                        <p className="font-semibold">{order.payment_method}</p>
                       </div>
                     </div>
                   </div>
@@ -265,9 +277,9 @@ export default function AdminOrders() {
                       {order.items.map((item, idx) => (
                         <div key={idx} className="flex gap-4 p-3 bg-gray-50 rounded-lg">
                           <div className="relative w-20 h-20 flex-shrink-0 bg-white rounded-lg overflow-hidden">
-                            {item.image ? (
+                            {item.image_url ? (
                               <Image
-                                src={item.image}
+                                src={item.image_url}
                                 alt={item.name}
                                 fill
                                 className="object-cover"
@@ -291,7 +303,7 @@ export default function AdminOrders() {
                       ))}
                       <div className="flex justify-between items-center pt-3 border-t-2 border-gray-200">
                         <span className="text-lg font-semibold">Total Amount</span>
-                        <span className="text-2xl font-bold text-purple-600">₹{order.totalAmount}</span>
+                        <span className="text-2xl font-bold text-purple-600">₹{order.total_amount}</span>
                       </div>
                     </div>
                   </div>
@@ -299,9 +311,9 @@ export default function AdminOrders() {
 
                 {/* Action Buttons */}
                 <div className="mt-6 pt-6 border-t flex flex-wrap gap-3">
-                  {order.paymentStatus === 'pending' && (
+                  {order.payment_status === 'PENDING' && (
                     <button
-                      onClick={() => updateOrderStatus(order.orderId, order.orderStatus, 'verified')}
+                      onClick={() => updateOrderStatus(order.order_id, order.order_status, 'VERIFIED')}
                       className="px-6 py-2 bg-green-600 text-white rounded-lg font-semibold hover:bg-green-700 transition-colors flex items-center gap-2"
                     >
                       <CheckCircle className="w-5 h-5" />
@@ -309,9 +321,9 @@ export default function AdminOrders() {
                     </button>
                   )}
                   
-                  {order.orderStatus === 'pending' && (
+                  {order.order_status === 'PENDING' && (
                     <button
-                      onClick={() => updateOrderStatus(order.orderId, 'processing')}
+                      onClick={() => updateOrderStatus(order.order_id, 'PROCESSING')}
                       className="px-6 py-2 bg-blue-600 text-white rounded-lg font-semibold hover:bg-blue-700 transition-colors flex items-center gap-2"
                     >
                       <Clock className="w-5 h-5" />
@@ -319,9 +331,9 @@ export default function AdminOrders() {
                     </button>
                   )}
                   
-                  {order.orderStatus === 'processing' && (
+                  {order.order_status === 'PROCESSING' && (
                     <button
-                      onClick={() => updateOrderStatus(order.orderId, 'completed')}
+                      onClick={() => updateOrderStatus(order.order_id, 'COMPLETED')}
                       className="px-6 py-2 bg-green-600 text-white rounded-lg font-semibold hover:bg-green-700 transition-colors flex items-center gap-2"
                     >
                       <CheckCircle className="w-5 h-5" />
@@ -338,7 +350,7 @@ export default function AdminOrders() {
                   </button>
 
                   <a
-                    href={`https://wa.me/${order.customerMobile}?text=Hi ${order.customerName}, your order ${order.orderId} update...`}
+                    href={`https://wa.me/${order.customer_mobile}?text=Hi ${order.customer_name}, your order ${order.order_id} update...`}
                     target="_blank"
                     rel="noopener noreferrer"
                     className="px-6 py-2 bg-green-500 text-white rounded-lg font-semibold hover:bg-green-600 transition-colors"
@@ -350,7 +362,8 @@ export default function AdminOrders() {
             ))}
           </div>
         )}
+        </div>
       </div>
-    </div>
+    </AuthGuard>
   );
 }
