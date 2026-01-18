@@ -1,4 +1,4 @@
-import { supabase, Product, ProductVariant, Order, OrderItem, OrderCustomization, OrderAddress, PaymentProof, EmailVerification, BulkEnquiry } from './supabase';
+import { supabase, supabaseAdmin, Product, ProductVariant, Order, OrderItem, OrderCustomization, OrderAddress, PaymentProof, EmailVerification, BulkEnquiry } from './supabase';
 
 // Single source of truth for pricing calculation
 export function calculatePrice(basePrice: number, gstPercent: number = 18, quantity: number = 1): {
@@ -21,7 +21,7 @@ export function calculatePrice(basePrice: number, gstPercent: number = 18, quant
 export class ProductsService {
   static async getAllProducts(): Promise<(Product & { variants: ProductVariant[] })[]> {
     try {
-      const { data: products, error: productsError } = await supabase
+      const { data: products, error: productsError } = await supabaseAdmin
         .from('products')
         .select('*')
         .eq('enabled', true)
@@ -37,7 +37,7 @@ export class ProductsService {
       }
 
       // Fetch variants for all products
-      const { data: variants, error: variantsError } = await supabase
+      const { data: variants, error: variantsError } = await supabaseAdmin
         .from('product_variants')
         .select('*')
         .eq('is_available', true)
@@ -63,7 +63,7 @@ export class ProductsService {
 
   static async getAllProductsAdmin(): Promise<(Product & { variants: ProductVariant[] })[]> {
     try {
-      const { data: products, error: productsError } = await supabase
+      const { data: products, error: productsError } = await supabaseAdmin
         .from('products')
         .select('*')
         .order('created_at', { ascending: false });
@@ -78,7 +78,7 @@ export class ProductsService {
       }
 
       // Fetch all variants for admin
-      const { data: variants, error: variantsError } = await supabase
+      const { data: variants, error: variantsError } = await supabaseAdmin
         .from('product_variants')
         .select('*')
         .in('product_id', products.map(p => p.id));
