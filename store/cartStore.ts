@@ -4,12 +4,15 @@ import { calculatePrice } from '@/lib/supabase-db';
 
 export interface CartItem {
   id: string;
+  productId?: string;
+  variantId?: string;
   name: string;
   price: number;
   image: string;
   size: string;
   color: string;
   quantity: number;
+  category?: string;
   logo?: string; // Logo image URL
   logoFile?: File; // Logo file for upload
 }

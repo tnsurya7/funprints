@@ -3,16 +3,21 @@
 import { useState, useEffect } from 'react';
 import ProductCard from '@/components/products/ProductCard';
 
+interface ProductVariant {
+  id: string;
+  color: string;
+  size: string;
+  stock: number;
+  image_url: string;
+  is_available: boolean;
+}
+
 interface Product {
   id: string;
   name: string;
   category: string;
   base_price: number;
-  colors: Array<{
-    name: string;
-    stock: number;
-    image_url: string;
-  }>;
+  variants: ProductVariant[];
   enabled: boolean;
 }
 
@@ -53,8 +58,8 @@ export default function ProductsPage() {
     }
   };
 
-  const getStockStatus = (colors: Product['colors']) => {
-    const totalStock = colors.reduce((sum, color) => sum + color.stock, 0);
+  const getStockStatus = (variants: ProductVariant[]) => {
+    const totalStock = variants.reduce((sum, variant) => sum + variant.stock, 0);
     if (totalStock === 0) return 'Out of Stock';
     if (totalStock <= 5) return `Only ${totalStock} left`;
     return 'In Stock';
@@ -98,15 +103,18 @@ export default function ProductsPage() {
         
         <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-8">
           {filteredProducts.map((product) => {
+            const firstVariant = product.variants.find(v => v.is_available);
+            if (!firstVariant) return null; // Hide products with no available variants
+            
             const productCard = {
               id: product.id,
               name: product.name,
               price: product.base_price,
-              image: product.colors[0]?.image_url || '',
+              image: firstVariant.image_url || '',
               category: product.category,
               gradient: getGradient(product.category),
-              stockStatus: getStockStatus(product.colors),
-              colors: product.colors.map(c => c.name),
+              stockStatus: getStockStatus(product.variants),
+              colors: Array.from(new Set(product.variants.map(v => v.color))),
             };
             
             return (
