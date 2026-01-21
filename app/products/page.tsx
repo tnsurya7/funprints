@@ -1,49 +1,13 @@
 'use client';
 
-import { useState, useEffect } from 'react';
+import { useState } from 'react';
 import ProductCard from '@/components/products/ProductCard';
-
-interface ProductVariant {
-  id: string;
-  color: string;
-  size: string;
-  stock: number;
-  image_url: string;
-  is_available: boolean;
-}
-
-interface Product {
-  id: string;
-  name: string;
-  category: string;
-  base_price: number;
-  variants: ProductVariant[];
-  enabled: boolean;
-}
+import { getAllEnhancedProducts } from '@/lib/enhanced-products';
 
 export default function ProductsPage() {
-  const [products, setProducts] = useState<Product[]>([]);
-  const [loading, setLoading] = useState(true);
   const [filter, setFilter] = useState<string>('all');
-
-  useEffect(() => {
-    fetchProducts();
-  }, []);
-
-  const fetchProducts = async () => {
-    try {
-      const res = await fetch('/api/products');
-      const data = await res.json();
-      if (data.success) {
-        setProducts(data.products);
-      }
-    } catch (error) {
-      console.error('Failed to fetch products:', error);
-    } finally {
-      setLoading(false);
-    }
-  };
-
+  
+  const products = getAllEnhancedProducts();
   const categories = ['all', ...new Set(products.map(p => p.category))];
   const filteredProducts = filter === 'all' ? products : products.filter(p => p.category === filter);
 
@@ -57,26 +21,6 @@ export default function ProductsPage() {
       default: return 'from-gray-500 to-gray-600';
     }
   };
-
-  const getStockStatus = (variants: ProductVariant[]) => {
-    const totalStock = variants.reduce((sum, variant) => sum + variant.stock, 0);
-    if (totalStock === 0) return 'Out of Stock';
-    if (totalStock <= 5) return `Only ${totalStock} left`;
-    return 'In Stock';
-  };
-
-  if (loading) {
-    return (
-      <div className="min-h-screen pt-24 pb-16 bg-gray-50">
-        <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
-          <div className="text-center py-12">
-            <div className="inline-block animate-spin rounded-full h-12 w-12 border-b-2 border-purple-600"></div>
-            <p className="mt-4 text-gray-600">Loading products...</p>
-          </div>
-        </div>
-      </div>
-    );
-  }
 
   return (
     <div className="min-h-screen pt-24 pb-16 bg-gray-50">
@@ -103,18 +47,14 @@ export default function ProductsPage() {
         
         <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-8">
           {filteredProducts.map((product) => {
-            const firstVariant = product.variants.find(v => v.is_available);
-            if (!firstVariant) return null; // Hide products with no available variants
-            
             const productCard = {
               id: product.id,
               name: product.name,
-              price: product.base_price,
-              image: firstVariant.image_url || '',
+              price: product.price,
+              image: product.images[product.colors[0]]?.front || '/placeholder-image.jpg',
               category: product.category,
               gradient: getGradient(product.category),
-              stockStatus: getStockStatus(product.variants),
-              colors: Array.from(new Set(product.variants.map(v => v.color))),
+              colors: product.colors,
             };
             
             return (

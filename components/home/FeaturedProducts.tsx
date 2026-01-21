@@ -3,28 +3,47 @@
 import { motion } from 'framer-motion';
 import Link from 'next/link';
 import ProductCard from '@/components/products/ProductCard';
-import { products } from '@/lib/products-data';
+import { enhancedProducts } from '@/lib/enhanced-products';
 
-// Get specific products for featured section
+// Get specific products for featured section with all available colors
 const featuredProducts = [
-  products.find(p => p.id === 'round-neck-white'),
-  products.find(p => p.id === 'polo-grey'),
-  products.find(p => p.id === 'hoodie-navy'),
-  products.find(p => p.id === 'zip-hoodie-maroon'),
-].filter(Boolean).map((product) => ({
-  id: product!.id,
-  name: product!.name,
-  price: product!.price,
-  image: product!.images.front,
-  category: product!.category,
-  gradient: product!.category === 'Round Neck' 
-    ? 'from-blue-500 to-cyan-500' 
-    : product!.category === 'Polo'
-    ? 'from-purple-500 to-pink-500'
-    : product!.category === 'Hoodie'
-    ? 'from-green-500 to-teal-500'
-    : 'from-orange-500 to-red-500',
-}));
+  {
+    id: enhancedProducts[0].id, // Round Neck
+    name: enhancedProducts[0].name,
+    price: enhancedProducts[0].price,
+    image: enhancedProducts[0].images["White"]?.front || '/placeholder-image.jpg',
+    category: enhancedProducts[0].category,
+    colors: enhancedProducts[0].colors, // Show all available colors
+    gradient: 'from-blue-500 to-cyan-500'
+  },
+  {
+    id: enhancedProducts[1].id, // V-Neck
+    name: enhancedProducts[1].name,
+    price: enhancedProducts[1].price,
+    image: enhancedProducts[1].images["Maroon"]?.front || '/placeholder-image.jpg',
+    category: enhancedProducts[1].category,
+    colors: enhancedProducts[1].colors, // Show all available colors
+    gradient: 'from-green-500 to-teal-500'
+  },
+  {
+    id: enhancedProducts[2].id, // Polo
+    name: enhancedProducts[2].name,
+    price: enhancedProducts[2].price,
+    image: enhancedProducts[2].images["Grey"]?.front || '/placeholder-image.jpg',
+    category: enhancedProducts[2].category,
+    colors: enhancedProducts[2].colors, // Show all available colors
+    gradient: 'from-purple-500 to-pink-500'
+  },
+  {
+    id: enhancedProducts[3].id, // Hoodie
+    name: enhancedProducts[3].name,
+    price: enhancedProducts[3].price,
+    image: enhancedProducts[3].images["Navy Blue"]?.front || '/placeholder-image.jpg',
+    category: enhancedProducts[3].category,
+    colors: enhancedProducts[3].colors, // Show all available colors
+    gradient: 'from-orange-500 to-red-500'
+  }
+];
 
 export default function FeaturedProducts() {
   return (

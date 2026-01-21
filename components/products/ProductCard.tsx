@@ -12,12 +12,37 @@ interface Product {
   price: number;
   image: string;
   category: string;
+  colors?: string[];
   gradient?: string;
 }
 
 export default function ProductCard({ product }: { product: Product }) {
   const [isWishlisted, setIsWishlisted] = useState(false);
   const gradient = product.gradient || 'from-blue-500 to-purple-500';
+
+  // Get available colors based on category
+  const getAvailableColors = (category: string) => {
+    const categoryColors: { [key: string]: string[] } = {
+      'Round Neck': ['White', 'Black', 'Grey', 'Navy Blue', 'Maroon'],
+      'V-Neck': ['White', 'Black', 'Grey', 'Navy Blue', 'Maroon'],
+      'Polo': ['White', 'Black', 'Grey', 'Navy Blue'],
+      'Hoodie': ['Black', 'Navy Blue'],
+      'Zip Hoodie': ['Black', 'Grey', 'Maroon']
+    };
+    return categoryColors[category] || ['White', 'Black'];
+  };
+
+  // Color mapping for display
+  const getColorDisplay = (color: string) => {
+    const colorMap: { [key: string]: string } = {
+      'White': '#FFFFFF',
+      'Black': '#000000',
+      'Grey': '#6B7280',
+      'Navy Blue': '#1E3A8A',
+      'Maroon': '#7F1D1D'
+    };
+    return colorMap[color] || '#6B7280';
+  };
 
   return (
     <motion.div
@@ -71,9 +96,24 @@ export default function ProductCard({ product }: { product: Product }) {
           <h3 className="text-lg font-semibold mb-2 text-gray-900 line-clamp-2">{product.name}</h3>
           
           {/* Price */}
-          <p className={`text-2xl font-bold bg-gradient-to-r ${gradient} bg-clip-text text-transparent mb-4`}>
+          <p className={`text-2xl font-bold bg-gradient-to-r ${gradient} bg-clip-text text-transparent mb-3`}>
             ₹{product.price}
           </p>
+          
+          {/* Available Colors */}
+          <div className="mb-4">
+            <p className="text-xs text-gray-600 mb-2">Available Colors:</p>
+            <div className="flex gap-1 flex-wrap">
+              {(product.colors || getAvailableColors(product.category)).map((color) => (
+                <div
+                  key={color}
+                  className="w-6 h-6 rounded-full border-2 border-gray-200 shadow-sm"
+                  style={{ backgroundColor: getColorDisplay(color) }}
+                  title={color}
+                />
+              ))}
+            </div>
+          </div>
           
           <Link href={`/products/${product.id}`} className="mt-auto">
             <motion.button
