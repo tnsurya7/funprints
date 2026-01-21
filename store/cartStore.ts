@@ -1,6 +1,5 @@
 import { create } from 'zustand';
 import { persist } from 'zustand/middleware';
-import { calculatePrice } from '@/lib/supabase-db';
 
 export interface CartItem {
   id: string;
@@ -70,8 +69,7 @@ export const useCartStore = create<CartStore>()(
 
       getTotalPrice: () => {
         return get().items.reduce((total, item) => {
-          const itemTotal = calculatePrice(item.price, 18, item.quantity);
-          return total + itemTotal.totalAmount;
+          return total + (item.price * item.quantity);
         }, 0);
       },
     }),

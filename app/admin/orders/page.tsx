@@ -1,7 +1,7 @@
 'use client';
 
 import { useState, useEffect } from 'react';
-import { Package, ShoppingBag, Users, TrendingUp, ArrowLeft, Eye, Edit, Trash2 } from 'lucide-react';
+import { Package, ShoppingBag, Users, TrendingUp, ArrowLeft, Eye, Edit, Trash2, Download } from 'lucide-react';
 import Link from 'next/link';
 import { useRouter } from 'next/navigation';
 
@@ -16,6 +16,11 @@ interface Order {
   payment_status: string;
   payment_method: string;
   created_at: string;
+  logo_file?: {
+    name: string;
+    data: string; // base64 data
+    type: string;
+  };
   order_items: Array<{
     quantity: number;
     unit_price: number;
@@ -67,6 +72,22 @@ export default function AdminOrdersPage() {
       }
     } catch (error) {
       console.error('Failed to update order status:', error);
+    }
+  };
+
+  const downloadLogo = (order: Order) => {
+    if (!order.logo_file) return;
+    
+    try {
+      // Create a download link for the logo
+      const link = document.createElement('a');
+      link.href = order.logo_file.data;
+      link.download = `${order.order_code}_logo_${order.logo_file.name}`;
+      document.body.appendChild(link);
+      link.click();
+      document.body.removeChild(link);
+    } catch (error) {
+      console.error('Failed to download logo:', error);
     }
   };
 
@@ -223,6 +244,24 @@ export default function AdminOrdersPage() {
                     </div>
                   ))}
                 </div>
+                {order.logo_file && (
+                  <div className="mt-3 p-3 bg-blue-50 rounded-lg">
+                    <div className="flex items-center justify-between">
+                      <div className="flex items-center gap-2">
+                        <Package className="w-4 h-4 text-blue-600" />
+                        <span className="text-sm font-medium text-blue-800">Custom Logo Uploaded</span>
+                      </div>
+                      <button
+                        onClick={() => downloadLogo(order)}
+                        className="flex items-center gap-1 px-3 py-1 bg-blue-600 text-white rounded text-xs hover:bg-blue-700 transition-colors"
+                      >
+                        <Download className="w-3 h-3" />
+                        Download Logo
+                      </button>
+                    </div>
+                    <p className="text-xs text-blue-600 mt-1">{order.logo_file.name}</p>
+                  </div>
+                )}
               </div>
 
               {/* Status Update Controls */}

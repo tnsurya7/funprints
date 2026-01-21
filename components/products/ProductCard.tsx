@@ -14,11 +14,18 @@ interface Product {
   category: string;
   colors?: string[];
   gradient?: string;
+  selectedColor?: string; // For color-specific cards
 }
 
 export default function ProductCard({ product }: { product: Product }) {
   const [isWishlisted, setIsWishlisted] = useState(false);
   const gradient = product.gradient || 'from-blue-500 to-purple-500';
+
+  // Create the product URL with color parameter if selectedColor exists
+  const getProductUrl = () => {
+    const baseUrl = `/products/${product.id}`;
+    return product.selectedColor ? `${baseUrl}?color=${encodeURIComponent(product.selectedColor)}` : baseUrl;
+  };
 
   // Get available colors based on category
   const getAvailableColors = (category: string) => {
@@ -54,7 +61,7 @@ export default function ProductCard({ product }: { product: Product }) {
       
       {/* Card */}
       <div className="relative card-gradient overflow-hidden h-full flex flex-col">
-        <Link href={`/products/${product.id}`}>
+        <Link href={getProductUrl()}>
           <div className="relative aspect-square overflow-hidden rounded-t-2xl bg-gray-100">
             {/* Product Image */}
             <Image
@@ -115,7 +122,7 @@ export default function ProductCard({ product }: { product: Product }) {
             </div>
           </div>
           
-          <Link href={`/products/${product.id}`} className="mt-auto">
+          <Link href={getProductUrl()} className="mt-auto">
             <motion.button
               whileHover={{ scale: 1.02 }}
               whileTap={{ scale: 0.98 }}

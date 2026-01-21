@@ -9,8 +9,7 @@ export default function ProductsPage() {
   
   const products = getAllEnhancedProducts();
   const categories = ['all', ...new Set(products.map(p => p.category))];
-  const filteredProducts = filter === 'all' ? products : products.filter(p => p.category === filter);
-
+  
   const getGradient = (category: string) => {
     switch (category) {
       case 'Round Neck': return 'from-blue-500 to-cyan-500';
@@ -20,6 +19,56 @@ export default function ProductsPage() {
       case 'Zip Hoodie': return 'from-red-500 to-pink-500';
       default: return 'from-gray-500 to-gray-600';
     }
+  };
+  
+  // Create individual product cards for each color when category is filtered
+  const getFilteredProducts = () => {
+    if (filter === 'all') {
+      // Show one card per product type with all colors
+      return products.map(product => ({
+        id: product.id,
+        name: product.name,
+        price: product.price,
+        image: product.images[product.colors[0]]?.front || '/placeholder-image.jpg',
+        category: product.category,
+        gradient: getGradient(product.category),
+        colors: product.colors,
+      }));
+    } else {
+      // Show separate cards for each color in the selected category
+      const categoryProducts = products.filter(p => p.category === filter);
+      const colorCards: any[] = [];
+      
+      categoryProducts.forEach(product => {
+        product.colors.forEach(color => {
+          if (product.images[color]?.front) {
+            colorCards.push({
+              id: `${product.id}-${color.toLowerCase().replace(/\s+/g, '-')}`,
+              name: `${product.name} - ${color}`,
+              price: product.price,
+              image: product.images[color].front,
+              category: product.category,
+              gradient: getGradient(product.category),
+              colors: [color], // Show only this specific color
+              originalProductId: product.id,
+              selectedColor: color
+            });
+          }
+        });
+      });
+      
+      return colorCards;
+    }
+  };
+
+  const filteredProducts = getFilteredProducts();
+  
+  const getCategoryCount = (category: string) => {
+    if (category === 'all') return products.length;
+    const categoryProducts = products.filter(p => p.category === category);
+    return categoryProducts.reduce((count, product) => {
+      return count + product.colors.filter(color => product.images[color]?.front).length;
+    }, 0);
   };
 
   return (
@@ -40,27 +89,22 @@ export default function ProductsPage() {
               }`}
             >
               {category === 'all' ? 'All Products' : category}
-              {category !== 'all' && ` (${products.filter(p => p.category === category).length})`}
+              {` (${getCategoryCount(category)})`}
             </button>
           ))}
         </div>
         
         <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-8">
-          {filteredProducts.map((product) => {
-            const productCard = {
-              id: product.id,
-              name: product.name,
-              price: product.price,
-              image: product.images[product.colors[0]]?.front || '/placeholder-image.jpg',
-              category: product.category,
-              gradient: getGradient(product.category),
-              colors: product.colors,
-            };
-            
-            return (
-              <ProductCard key={product.id} product={productCard} />
-            );
-          })}
+          {filteredProducts.map((product) => (
+            <ProductCard 
+              key={product.id} 
+              product={{
+                ...product,
+                // For color-specific cards, link to the original product with color pre-selected
+                id: product.originalProductId || product.id
+              }} 
+            />
+          ))}
         </div>
 
         {filteredProducts.length === 0 && (

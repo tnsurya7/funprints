@@ -13,7 +13,7 @@ export default function CartPage() {
   const router = useRouter();
   const [selectedState, setSelectedState] = useState('Tamil Nadu');
 
-  // Calculate totals
+  // Calculate totals without GST - only product price and shipping
   const subtotal = items.reduce((total, item) => total + (item.price * item.quantity), 0);
   const shipping = calculateShipping(subtotal, selectedState);
   const total = subtotal + shipping;
@@ -56,7 +56,8 @@ export default function CartPage() {
                     <p className="text-sm text-gray-600 mb-2">
                       {item.color} • {item.size}
                     </p>
-                    <p className="text-xl font-bold text-purple-600">₹{item.price}</p>
+                    <p className="text-lg font-bold text-purple-600">₹{item.price}</p>
+                    <p className="text-sm text-gray-600">Total: ₹{item.price * item.quantity}</p>
                     {item.logo && (
                       <p className="text-sm text-green-600 mt-1">✓ Custom logo added</p>
                     )}

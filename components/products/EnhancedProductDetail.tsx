@@ -1,6 +1,6 @@
 'use client';
 
-import { useState, useRef } from 'react';
+import { useState, useRef, useEffect } from 'react';
 import { motion, AnimatePresence } from 'framer-motion';
 import { ArrowLeft, ShoppingCart, Plus, Minus, Upload, X, RotateCcw } from 'lucide-react';
 import { useRouter } from 'next/navigation';
@@ -34,10 +34,23 @@ interface LogoCustomization {
 export default function EnhancedProductDetail({ product }: { product: Product }) {
   const router = useRouter();
   
+  // State for color selection - will be updated by useEffect for URL params
   const [selectedColor, setSelectedColor] = useState<string>(product.colors[0]);
   const [selectedSize, setSelectedSize] = useState<string>(product.sizes[0]);
   const [selectedView, setSelectedView] = useState<'front' | 'side' | 'back'>('front');
   const [quantity, setQuantity] = useState(1);
+  
+  // Handle URL parameters for color pre-selection
+  useEffect(() => {
+    if (typeof window !== 'undefined') {
+      const searchParams = new URLSearchParams(window.location.search);
+      const preSelectedColor = searchParams.get('color');
+      
+      if (preSelectedColor && product.colors.includes(preSelectedColor)) {
+        setSelectedColor(preSelectedColor);
+      }
+    }
+  }, [product.colors]);
   
   // Logo customization state
   const [logoCustomization, setLogoCustomization] = useState<LogoCustomization>({
