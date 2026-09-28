@@ -32,7 +32,7 @@ export default function ContactPage() {
         // Also open WhatsApp
         const whatsappNumber = process.env.NEXT_PUBLIC_WHATSAPP_NUMBER || 'YOUR_WHATSAPP_NUMBER';
         const whatsappMessage = encodeURIComponent(
-          `Hi Fun Prints,\n\nName: ${formData.name}\nEmail: ${formData.email}\nMobile: ${formData.mobile}\n\nMessage: ${formData.message}`
+          `Hi Fun Print,\n\nName: ${formData.name}\nEmail: ${formData.email}\nMobile: ${formData.mobile}\n\nMessage: ${formData.message}`
         );
         window.open(`https://wa.me/${whatsappNumber}?text=${whatsappMessage}`, '_blank');
       } else {
@@ -66,7 +66,7 @@ export default function ContactPage() {
             </span>
           </motion.div>
           <h1 className="text-5xl font-bold mb-4 text-gradient">Contact Us</h1>
-          <p className="text-xl text-gray-600">We'd love to hear from you!</p>
+          <p className="text-xl text-gray-600">We&apos;d love to hear from you!</p>
         </motion.div>
 
         <div className="grid grid-cols-1 lg:grid-cols-2 gap-12">
@@ -163,8 +163,8 @@ export default function ContactPage() {
               {
                 icon: Mail,
                 title: 'Email',
-                content: 'hello@funprints.com',
-                link: 'mailto:hello@funprints.com',
+                content: 'hello@funprint.com',
+                link: 'mailto:hello@funprint.com',
                 gradient: 'from-purple-500 to-pink-500',
               },
               {

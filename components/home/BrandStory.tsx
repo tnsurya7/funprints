@@ -1,6 +1,7 @@
 'use client';
 
 import { motion } from 'framer-motion';
+import Image from 'next/image';
 
 export default function BrandStory() {
   return (
@@ -31,7 +32,7 @@ export default function BrandStory() {
             
             <div className="space-y-4">
               <p className="text-lg text-gray-700 leading-relaxed">
-                Fun Prints was born from a passion for self-expression and quality craftsmanship. 
+                Fun Print was born from a passion for self-expression and quality craftsmanship. 
                 We believe everyone deserves to wear something that truly represents who they are.
               </p>
               <p className="text-lg text-gray-700 leading-relaxed">
@@ -39,7 +40,7 @@ export default function BrandStory() {
                 to excellence. Our team works closely with you to bring your vision to life.
               </p>
               <p className="text-lg text-gray-700 leading-relaxed">
-                Join thousands of satisfied customers who trust Fun Prints for their custom apparel needs.
+                Join thousands of satisfied customers who trust Fun Print for their custom apparel needs.
               </p>
             </div>
 
@@ -80,21 +81,21 @@ export default function BrandStory() {
             <div className="absolute inset-0 bg-gradient-to-r from-cyan-500 via-blue-500 to-indigo-500 rounded-3xl blur-2xl opacity-30"></div>
             
             {/* Image card */}
-            <div className="relative card-gradient p-2">
-              <div className="aspect-square rounded-2xl overflow-hidden bg-gradient-to-br from-cyan-500 via-blue-500 to-indigo-600 flex items-center justify-center">
+            <div className="relative card-gradient p-3 sm:p-4 rounded-3xl overflow-hidden border border-white/60 shadow-2xl bg-white/80 backdrop-blur-md">
+              <div className="relative aspect-square rounded-2xl overflow-hidden bg-gradient-to-br from-cyan-50/50 via-white to-indigo-50/50 flex items-center justify-center p-6 sm:p-8">
                 <motion.div
-                  animate={{
-                    rotate: [0, 5, -5, 0],
-                  }}
-                  transition={{
-                    duration: 5,
-                    repeat: Infinity,
-                    ease: "easeInOut"
-                  }}
-                  className="text-center"
+                  whileHover={{ scale: 1.03 }}
+                  transition={{ type: "spring", stiffness: 200, damping: 15 }}
+                  className="relative w-full h-full flex items-center justify-center"
                 >
-                  <p className="text-white text-3xl font-bold mb-2">Fun Prints</p>
-                  <p className="text-white/80 text-lg">Brand Story Image</p>
+                  <Image
+                    src="/logo.png"
+                    alt="Fun Print Brand Story Logo"
+                    fill
+                    sizes="(max-width: 768px) 100vw, 50vw"
+                    className="object-contain p-6 drop-shadow-xl"
+                    priority
+                  />
                 </motion.div>
               </div>
             </div>

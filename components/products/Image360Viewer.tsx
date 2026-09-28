@@ -126,11 +126,14 @@ export default function Image360Viewer({
             </div>
           </div>
         ) : (
-          <img
+          <Image
             src={frames[currentFrame]}
             alt={`360° view - frame ${currentFrame}`}
+            fill
+            sizes="(max-width: 768px) 100vw, 50vw"
             draggable={false}
-            className="w-full h-full object-cover"
+            className="object-cover"
+            priority={currentFrame === 0}
           />
         )}
 

@@ -47,7 +47,7 @@ export default function Benefits() {
               Why Choose Us
             </span>
           </motion.div>
-          <h2 className="text-5xl font-bold mb-4 text-gradient">Why Choose Fun Prints?</h2>
+          <h2 className="text-5xl font-bold mb-4 text-gradient">Why Choose Fun Print?</h2>
           <p className="text-xl text-gray-600">Excellence in every stitch</p>
         </motion.div>
 

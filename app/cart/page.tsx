@@ -24,7 +24,7 @@ export default function CartPage() {
         <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 text-center py-16">
           <h1 className="text-4xl font-bold mb-4">Your Cart is Empty</h1>
           <p className="text-gray-600 mb-8">Add some products to get started</p>
-          <Link href="/products" className="inline-block px-6 py-3 bg-purple-600 text-white rounded-lg hover:bg-purple-700 transition-colors">
+          <Link href="/products" className="inline-block px-6 py-3 bg-purple-600 text-white rounded-lg hover:bg-purple-700 transition-colors font-semibold shadow-md">
             Browse Products
           </Link>
         </div>
@@ -40,7 +40,7 @@ export default function CartPage() {
         <div className="grid grid-cols-1 lg:grid-cols-3 gap-8">
           <div className="lg:col-span-2 space-y-4">
             {items.map((item) => (
-              <div key={`${item.id}-${item.size}-${item.color}`} className="bg-white rounded-xl shadow-sm p-6">
+              <div key={`${item.id}-${item.size}-${item.color}`} className="bg-white rounded-xl shadow-sm p-6 border border-gray-100">
                 <div className="flex gap-6">
                   <div className="w-24 h-24 bg-gray-100 rounded-lg flex-shrink-0 relative overflow-hidden">
                     <Image
@@ -52,21 +52,20 @@ export default function CartPage() {
                   </div>
                   
                   <div className="flex-1">
-                    <h3 className="text-lg font-semibold mb-2">{item.name}</h3>
+                    <h3 className="text-lg font-semibold mb-1 text-gray-900">{item.name}</h3>
                     <p className="text-sm text-gray-600 mb-2">
                       {item.color} • {item.size}
                     </p>
                     <p className="text-lg font-bold text-purple-600">₹{item.price}</p>
-                    <p className="text-sm text-gray-600">Total: ₹{item.price * item.quantity}</p>
-                    {item.logo && (
-                      <p className="text-sm text-green-600 mt-1">✓ Custom logo added</p>
-                    )}
+                    <p className="text-sm text-gray-500 mt-1">Total: ₹{item.price * item.quantity}</p>
                   </div>
 
                   <div className="flex flex-col items-end justify-between">
                     <button
                       onClick={() => removeItem(item.id)}
-                      className="text-red-500 hover:text-red-700 p-2"
+                      className="text-red-500 hover:text-red-700 p-2 transition-colors"
+                      title="Remove item"
+                      aria-label="Remove item"
                     >
                       <Trash2 className="w-5 h-5" />
                     </button>
@@ -74,14 +73,16 @@ export default function CartPage() {
                     <div className="flex items-center gap-2">
                       <button
                         onClick={() => updateQuantity(item.id, item.quantity - 1)}
-                        className="w-8 h-8 rounded border border-gray-300 hover:bg-gray-100 flex items-center justify-center"
+                        className="w-8 h-8 rounded border border-gray-300 hover:bg-gray-100 flex items-center justify-center text-gray-700"
+                        aria-label="Decrease quantity"
                       >
                         <Minus className="w-4 h-4" />
                       </button>
-                      <span className="w-8 text-center font-semibold">{item.quantity}</span>
+                      <span className="w-8 text-center font-semibold text-gray-900">{item.quantity}</span>
                       <button
                         onClick={() => updateQuantity(item.id, item.quantity + 1)}
-                        className="w-8 h-8 rounded border border-gray-300 hover:bg-gray-100 flex items-center justify-center"
+                        className="w-8 h-8 rounded border border-gray-300 hover:bg-gray-100 flex items-center justify-center text-gray-700"
+                        aria-label="Increase quantity"
                       >
                         <Plus className="w-4 h-4" />
                       </button>
@@ -93,16 +94,16 @@ export default function CartPage() {
           </div>
 
           <div className="lg:col-span-1">
-            <div className="bg-white rounded-xl shadow-sm p-6 sticky top-24">
-              <h2 className="text-xl font-bold mb-6">Order Summary</h2>
+            <div className="bg-white rounded-xl shadow-sm p-6 sticky top-24 border border-gray-100">
+              <h2 className="text-xl font-bold mb-6 text-gray-900">Order Summary</h2>
               
               {/* State Selection for Shipping */}
               <div className="mb-6">
-                <label className="block text-sm font-medium mb-2">Shipping Location</label>
+                <label className="block text-sm font-medium mb-2 text-gray-700">Shipping Location</label>
                 <select
                   value={selectedState}
                   onChange={(e) => setSelectedState(e.target.value)}
-                  className="w-full p-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-purple-500 focus:border-transparent"
+                  className="w-full p-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-purple-500 focus:border-transparent bg-white text-gray-800"
                 >
                   <option value="Tamil Nadu">Tamil Nadu</option>
                   <option value="Other">Outside Tamil Nadu</option>
@@ -112,19 +113,19 @@ export default function CartPage() {
               <div className="space-y-3 mb-6">
                 <div className="flex justify-between">
                   <span className="text-gray-600">Subtotal ({items.length} item{items.length > 1 ? 's' : ''})</span>
-                  <span className="font-semibold">₹{subtotal}</span>
+                  <span className="font-semibold text-gray-900">₹{subtotal}</span>
                 </div>
                 <div className="flex justify-between">
                   <span className="text-gray-600">Shipping</span>
-                  <span className={`font-semibold ${shipping === 0 ? 'text-green-600' : ''}`}>
+                  <span className={`font-semibold ${shipping === 0 ? 'text-green-600' : 'text-gray-900'}`}>
                     {shipping === 0 ? 'FREE' : `₹${shipping}`}
                   </span>
                 </div>
                 {shipping === 0 && (
-                  <p className="text-sm text-green-600">🎉 Free shipping on orders ₹1000+</p>
+                  <p className="text-sm text-green-600 font-medium">🎉 Free shipping on orders ₹1000+</p>
                 )}
-                <div className="border-t pt-3 flex justify-between">
-                  <span className="font-bold text-lg">Total</span>
+                <div className="border-t border-gray-200 pt-3 flex justify-between items-baseline">
+                  <span className="font-bold text-lg text-gray-900">Total</span>
                   <span className="font-bold text-2xl text-purple-600">₹{total}</span>
                 </div>
               </div>
@@ -132,14 +133,14 @@ export default function CartPage() {
               <div className="space-y-3">
                 <button
                   onClick={() => router.push('/checkout')}
-                  className="w-full px-6 py-4 bg-gradient-to-r from-purple-600 to-pink-600 text-white rounded-lg hover:from-purple-700 hover:to-pink-700 transition-colors font-semibold"
+                  className="w-full px-6 py-4 bg-gradient-to-r from-purple-600 to-pink-600 text-white rounded-lg hover:from-purple-700 hover:to-pink-700 transition-colors font-semibold shadow-md"
                 >
                   Proceed to Checkout
                 </button>
                 
                 <button
                   onClick={clearCart}
-                  className="w-full px-6 py-3 border border-gray-300 text-gray-700 rounded-lg hover:bg-gray-50 transition-colors"
+                  className="w-full px-6 py-3 border border-gray-300 text-gray-700 rounded-lg hover:bg-gray-50 transition-colors font-medium"
                 >
                   Clear Cart
                 </button>

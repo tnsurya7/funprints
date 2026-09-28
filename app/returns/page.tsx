@@ -1,6 +1,6 @@
 export const metadata = {
-  title: 'Returns & Refunds - Fun Prints',
-  description: 'Return and refund policy for Fun Prints',
+  title: 'Returns & Refunds - Fun Print',
+  description: 'Return and refund policy for Fun Print',
 };
 
 export default function Returns() {
@@ -30,7 +30,7 @@ export default function Returns() {
                 <li>Contact us within 48 hours of receiving the product</li>
                 <li>Provide order ID and photos of the issue</li>
                 <li>Our team will review and approve the return</li>
-                <li>Ship the product back to us (we'll provide the address)</li>
+                <li>Ship the product back to us (we&apos;ll provide the address)</li>
                 <li>Refund will be processed within 7-10 business days</li>
               </ol>
             </section>
@@ -69,7 +69,7 @@ export default function Returns() {
               <p className="text-gray-600">
                 For return requests or queries:
                 <br />
-                Email: returns@funprints.com
+                Email: returns@funprint.com
                 <br />
                 Phone: +91 98765 43210
                 <br />

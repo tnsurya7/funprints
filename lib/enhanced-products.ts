@@ -1,10 +1,11 @@
-// Enhanced product data with proper image mapping
+// Enhanced product data with proper image and 3D model mapping
 export interface EnhancedProduct {
   id: string;
   name: string;
   description: string;
   price: number;
   category: string;
+  modelPath?: string;
   colors: string[];
   sizes: string[];
   images: {
@@ -23,6 +24,7 @@ export const enhancedProducts: EnhancedProduct[] = [
     description: "Comfortable cotton round neck t-shirt perfect for daily wear",
     price: 499,
     category: "Round Neck",
+    modelPath: "/models/tshirts/round-neck.glb",
     colors: ["White", "Black", "Grey", "Navy Blue", "Maroon"],
     sizes: ["S", "M", "L", "XL", "XXL"],
     images: {
@@ -51,6 +53,7 @@ export const enhancedProducts: EnhancedProduct[] = [
     description: "Stylish v-neck t-shirt for a modern look",
     price: 549,
     category: "V-Neck",
+    modelPath: "/models/tshirts/v-neck.glb",
     colors: ["White", "Black", "Grey", "Navy Blue", "Maroon"],
     sizes: ["S", "M", "L", "XL", "XXL"],
     images: {
@@ -77,6 +80,7 @@ export const enhancedProducts: EnhancedProduct[] = [
     description: "Premium quality polo t-shirt with collar",
     price: 699,
     category: "Polo",
+    modelPath: "/models/tshirts/polo.glb",
     colors: ["White", "Black", "Grey", "Navy Blue"],
     sizes: ["S", "M", "L", "XL", "XXL"],
     images: {
@@ -100,6 +104,7 @@ export const enhancedProducts: EnhancedProduct[] = [
     description: "Warm and comfortable hoodie for cold weather",
     price: 999,
     category: "Hoodie",
+    modelPath: "/models/tshirts/hoodie.glb",
     colors: ["Black", "Navy Blue"],
     sizes: ["S", "M", "L", "XL", "XXL"],
     images: {
@@ -117,6 +122,7 @@ export const enhancedProducts: EnhancedProduct[] = [
     description: "Zip-up hoodie with premium quality fabric",
     price: 1099,
     category: "Zip Hoodie",
+    modelPath: "/models/tshirts/hoodie.glb",
     colors: ["Black", "Grey", "Maroon"],
     sizes: ["S", "M", "L", "XL", "XXL"],
     images: {

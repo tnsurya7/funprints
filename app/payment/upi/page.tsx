@@ -13,7 +13,7 @@ function UPIPaymentContent() {
 
   const upiId = process.env.NEXT_PUBLIC_UPI_ID || 'YOUR_UPI_ID';
   const upiName = process.env.NEXT_PUBLIC_UPI_NAME || 'Your Business Name';
-  const note = 'Fun Prints Order';
+  const note = 'Fun Print Order';
 
   useEffect(() => {
     // Generate UPI deep links
@@ -60,7 +60,7 @@ function UPIPaymentContent() {
 
     // WhatsApp deep link
     const phoneNumber = process.env.NEXT_PUBLIC_WHATSAPP_NUMBER || 'YOUR_WHATSAPP_NUMBER';
-    const message = `Hello Fun Prints,
+    const message = `Hello Fun Print,
 
 I have completed the payment.
 
@@ -156,8 +156,8 @@ Please find the payment screenshot attached.`;
 
           <div className="mt-6 p-4 bg-blue-50 rounded-lg">
             <p className="text-sm text-blue-900">
-              <strong>How it works:</strong> We'll open WhatsApp with a pre-filled message. 
-              Simply attach your payment screenshot and send it to us. We'll verify and confirm your order within 24 hours.
+              <strong>How it works:</strong> We&apos;ll open WhatsApp with a pre-filled message. 
+              Simply attach your payment screenshot and send it to us. We&apos;ll verify and confirm your order within 24 hours.
             </p>
           </div>
         </motion.div>

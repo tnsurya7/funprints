@@ -5,7 +5,7 @@ import { motion } from 'framer-motion';
 
 export default function WhatsAppButton() {
   const whatsappNumber = process.env.NEXT_PUBLIC_WHATSAPP_NUMBER || '919876543210';
-  const message = encodeURIComponent('Hi! I want to know more about Fun Prints custom t-shirts.');
+  const message = encodeURIComponent('Hi! I want to know more about Fun Print custom t-shirts.');
 
   return (
     <motion.a

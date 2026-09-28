@@ -59,9 +59,9 @@ export async function sendOrderConfirmationToCustomer(data: OrderEmailData) {
     .join('');
 
   const mailOptions = {
-    from: `"Fun Prints" <${process.env.SMTP_USER}>`,
+    from: `"Fun Print" <${process.env.SMTP_USER}>`,
     to: data.customerEmail,
-    subject: `✨ Order Confirmed - ${data.orderId} | Fun Prints`,
+    subject: `✨ Order Confirmed - ${data.orderId} | Fun Print`,
     html: `
       <!DOCTYPE html>
       <html>
@@ -78,7 +78,7 @@ export async function sendOrderConfirmationToCustomer(data: OrderEmailData) {
                 <tr>
                   <td style="background-color:#7c3aed;padding:30px;text-align:center;">
                     <h1 style="margin:0;color:#ffffff;font-size:28px;font-weight:bold;">🎉 Order Confirmed!</h1>
-                    <p style="margin:10px 0 0 0;color:#ffffff;font-size:14px;">Thank you for shopping with Fun Prints</p>
+                    <p style="margin:10px 0 0 0;color:#ffffff;font-size:14px;">Thank you for shopping with Fun Print</p>
                   </td>
                 </tr>
                 
@@ -187,14 +187,14 @@ export async function sendOrderConfirmationToCustomer(data: OrderEmailData) {
                 <!-- Footer -->
                 <tr>
                   <td style="background-color:#f9fafb;padding:20px;text-align:center;border-top:1px solid #e5e7eb;">
-                    <p style="margin:0 0 10px 0;color:#7c3aed;font-size:18px;font-weight:bold;">Fun Prints</p>
+                    <p style="margin:0 0 10px 0;color:#7c3aed;font-size:18px;font-weight:bold;">Fun Print</p>
                     <p style="margin:0 0 15px 0;color:#6b7280;font-size:12px;">Premium Custom T-Shirts with Quality Assurance</p>
                     <p style="margin:0;color:#6b7280;font-size:12px;">
                       <a href="tel:+91XXXXXXXXXX" style="color:#7c3aed;text-decoration:none;margin:0 8px;">📞 Call Us</a>
                       <a href="https://wa.me/${process.env.NEXT_PUBLIC_WHATSAPP_NUMBER}" style="color:#7c3aed;text-decoration:none;margin:0 8px;">💬 WhatsApp</a>
                       <a href="mailto:${process.env.SMTP_USER}" style="color:#7c3aed;text-decoration:none;margin:0 8px;">📧 Email</a>
                     </p>
-                    <p style="margin:15px 0 0 0;color:#9ca3af;font-size:11px;">© 2026 Fun Prints. All rights reserved.</p>
+                    <p style="margin:15px 0 0 0;color:#9ca3af;font-size:11px;">© 2026 Fun Print. All rights reserved.</p>
                   </td>
                 </tr>
               </table>
@@ -231,7 +231,7 @@ export async function sendOrderNotificationToAdmin(data: OrderEmailData) {
     .join('');
 
   const mailOptions = {
-    from: `"Fun Prints System" <${process.env.SMTP_USER}>`,
+    from: `"Fun Print System" <${process.env.SMTP_USER}>`,
     to: process.env.ADMIN_EMAIL || process.env.SMTP_USER,
     subject: `🎉 New Order - ${data.orderId} | ₹${data.totalAmount}`,
     html: `
@@ -410,7 +410,7 @@ export async function sendContactFormEmail(data: {
   message: string;
 }) {
   const mailOptions = {
-    from: `"Fun Prints Contact Form" <${process.env.SMTP_USER}>`,
+    from: `"Fun Print Contact Form" <${process.env.SMTP_USER}>`,
     to: process.env.ADMIN_EMAIL || process.env.SMTP_USER,
     replyTo: data.email,
     subject: `📧 New Contact Form - ${data.name}`,

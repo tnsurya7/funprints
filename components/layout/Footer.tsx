@@ -1,5 +1,6 @@
 import Link from 'next/link';
-import { Facebook, Instagram, Twitter, Mail, Phone, Sparkles } from 'lucide-react';
+import Image from 'next/image';
+import { Facebook, Instagram, Twitter, Mail, Phone } from 'lucide-react';
 
 export default function Footer() {
   return (
@@ -15,10 +16,18 @@ export default function Footer() {
         <div className="grid grid-cols-1 md:grid-cols-4 gap-12 mb-12">
           {/* Brand */}
           <div>
-            <div className="flex items-center gap-2 mb-4">
-              <Sparkles className="w-6 h-6 text-purple-400" />
+            <div className="flex items-center gap-3 mb-4">
+              <div className="relative w-9 h-9 rounded-xl overflow-hidden bg-white/10 p-1 border border-white/10 shadow-lg flex items-center justify-center">
+                <Image
+                  src="/logo.png"
+                  alt="Fun Print Logo"
+                  width={36}
+                  height={36}
+                  className="object-contain w-full h-full brightness-110"
+                />
+              </div>
               <h3 className="text-2xl font-bold bg-gradient-to-r from-blue-400 via-purple-400 to-pink-400 bg-clip-text text-transparent">
-                Fun Prints
+                Fun Print
               </h3>
             </div>
             <p className="text-gray-400 leading-relaxed">
@@ -107,7 +116,7 @@ export default function Footer() {
                 </div>
                 <div>
                   <p className="text-sm text-gray-500">Email</p>
-                  <p>hello@funprints.com</p>
+                  <p>hello@funprint.com</p>
                 </div>
               </div>
             </div>
@@ -118,7 +127,7 @@ export default function Footer() {
         <div className="border-t border-gray-800 pt-8">
           <div className="flex flex-col md:flex-row justify-between items-center gap-4">
             <p className="text-gray-400 text-sm">
-              &copy; 2026 Fun Prints. All rights reserved.
+              &copy; 2026 Fun Print. All rights reserved.
             </p>
             
             {/* Trust badges */}

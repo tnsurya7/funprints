@@ -1,6 +1,6 @@
 export const metadata = {
-  title: 'Terms & Conditions - Fun Prints',
-  description: 'Terms and conditions for Fun Prints services',
+  title: 'Terms & Conditions - Fun Print',
+  description: 'Terms and conditions for Fun Print services',
 };
 
 export default function Terms() {
@@ -14,7 +14,7 @@ export default function Terms() {
             <section>
               <h2 className="text-2xl font-semibold mb-4">1. Acceptance of Terms</h2>
               <p className="text-gray-600">
-                By accessing and using Fun Prints services, you accept and agree to be bound by 
+                By accessing and using Fun Print services, you accept and agree to be bound by 
                 these Terms and Conditions.
               </p>
             </section>
@@ -65,7 +65,7 @@ export default function Terms() {
             <section>
               <h2 className="text-2xl font-semibold mb-4">7. Limitation of Liability</h2>
               <p className="text-gray-600">
-                Fun Prints shall not be liable for any indirect, incidental, or consequential 
+                Fun Print shall not be liable for any indirect, incidental, or consequential 
                 damages arising from the use of our products or services.
               </p>
             </section>
@@ -75,7 +75,7 @@ export default function Terms() {
               <p className="text-gray-600">
                 For questions about these Terms, contact us at:
                 <br />
-                Email: support@funprints.com
+                Email: support@funprint.com
                 <br />
                 Phone: +91 98765 43210
               </p>

@@ -2,7 +2,23 @@
 
 import { motion } from 'framer-motion';
 import Link from 'next/link';
+import dynamic from 'next/dynamic';
 import { ArrowRight, Sparkles, Zap } from 'lucide-react';
+
+const ThreeDTshirtViewer = dynamic(
+  () => import('@/components/products/ThreeDTshirtViewer'),
+  {
+    ssr: false,
+    loading: () => (
+      <div className="aspect-video w-full rounded-2xl flex items-center justify-center bg-gray-50/80 animate-pulse border border-gray-100">
+        <div className="text-center text-gray-400">
+          <Sparkles className="w-8 h-8 mx-auto mb-2 animate-spin text-purple-500" />
+          <p className="font-medium text-sm">Loading 3D Experience...</p>
+        </div>
+      </div>
+    )
+  }
+);
 
 export default function Hero() {
   return (
@@ -123,38 +139,21 @@ export default function Hero() {
             </Link>
           </motion.div>
 
-          {/* Hero image/3D model placeholder with premium card */}
-          <motion.div
-            initial={{ opacity: 0, scale: 0.8 }}
-            animate={{ opacity: 1, scale: 1 }}
-            transition={{ duration: 1, delay: 0.8 }}
-            className="mt-20"
-          >
+          {/* 360° Interactive 3D Product Viewer with Classic Round Neck Grey T-Shirt */}
+          <div className="mt-16 sm:mt-20">
             <div className="relative w-full max-w-5xl mx-auto">
-              {/* Glow effect behind card */}
-              <div className="absolute inset-0 bg-gradient-to-r from-blue-600 via-purple-600 to-pink-600 rounded-3xl blur-3xl opacity-30 animate-pulse"></div>
-              
               {/* Main card */}
-              <div className="relative card-gradient p-2">
-                <div className="aspect-video rounded-2xl overflow-hidden bg-gradient-to-br from-blue-500 via-purple-500 to-pink-500 flex items-center justify-center relative">
-                  {/* Animated shimmer effect */}
-                  <div className="absolute inset-0 bg-gradient-to-r from-transparent via-white/20 to-transparent animate-shimmer"></div>
-                  
-                  <div className="text-center z-10">
-                    <motion.div
-                      animate={{ rotate: 360 }}
-                      transition={{ duration: 20, repeat: Infinity, ease: "linear" }}
-                      className="w-32 h-32 mx-auto mb-4 rounded-full bg-white/20 backdrop-blur-sm flex items-center justify-center"
-                    >
-                      <Sparkles className="w-16 h-16 text-white" />
-                    </motion.div>
-                    <p className="text-white text-2xl font-bold">360° Product Viewer</p>
-                    <p className="text-white/80 mt-2">Interactive 3D Experience</p>
-                  </div>
-                </div>
+              <div className="relative rounded-3xl overflow-hidden shadow-2xl border border-gray-200/80 bg-white">
+                <ThreeDTshirtViewer
+                  color="Grey"
+                  modelPath="/models/tshirts/round-neck.glb"
+                  productName="Classic Round Neck T-Shirt - Grey"
+                  className="aspect-[4/3] sm:aspect-video h-[380px] sm:h-[480px] md:h-[560px]"
+                  initialAutoRotate={true}
+                />
               </div>
             </div>
-          </motion.div>
+          </div>
 
           {/* Stats */}
           <motion.div

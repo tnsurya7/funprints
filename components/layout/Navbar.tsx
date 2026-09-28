@@ -2,7 +2,8 @@
 
 import { useState, useEffect } from 'react';
 import Link from 'next/link';
-import { ShoppingCart, Menu, X, Sparkles } from 'lucide-react';
+import Image from 'next/image';
+import { ShoppingCart, Menu, X } from 'lucide-react';
 import { motion, AnimatePresence } from 'framer-motion';
 import { useCartStore } from '@/store/cartStore';
 
@@ -45,11 +46,20 @@ export default function Navbar() {
             <motion.div
               whileHover={{ scale: 1.05 }}
               whileTap={{ scale: 0.95 }}
-              className="flex items-center gap-2"
+              className="flex items-center gap-2.5"
             >
-              <Sparkles className="w-6 h-6 text-purple-600 animate-pulse" />
+              <div className="relative w-9 h-9 rounded-xl overflow-hidden flex items-center justify-center bg-white/90 p-1 border border-purple-100 shadow-sm">
+                <Image
+                  src="/logo.png"
+                  alt="Fun Print Logo"
+                  width={36}
+                  height={36}
+                  className="object-contain w-full h-full"
+                  priority
+                />
+              </div>
               <span className="text-2xl font-bold text-gradient">
-                Fun Prints
+                Fun Print
               </span>
               <div className="absolute -inset-2 bg-gradient-to-r from-blue-600 via-purple-600 to-pink-600 rounded-lg opacity-0 group-hover:opacity-20 blur-xl transition-opacity duration-500"></div>
             </motion.div>

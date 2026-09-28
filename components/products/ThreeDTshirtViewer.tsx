@@ -1,249 +1,317 @@
 'use client';
 
-import { Suspense, useState, useRef, useEffect } from 'react';
-import { Canvas, useFrame, useThree } from '@react-three/fiber';
-import { OrbitControls, PerspectiveCamera, Environment, ContactShadows } from '@react-three/drei';
-import { motion, AnimatePresence } from 'framer-motion';
-import { Loader2, RotateCw, ZoomIn, ZoomOut, Maximize2, Upload, X } from 'lucide-react';
+import { Suspense, useState, useRef, useEffect, Component, ReactNode } from 'react';
+import { Canvas } from '@react-three/fiber';
+import { OrbitControls, PerspectiveCamera, ContactShadows } from '@react-three/drei';
 import * as THREE from 'three';
+import type { OrbitControls as OrbitControlsImpl } from 'three-stdlib';
+import { X } from 'lucide-react';
 
-interface TShirtViewerProps {
-  color?: string;
-  onClose?: () => void;
+import TshirtModel from './TshirtModel';
+import ProductViewerControls from './ProductViewerControls';
+import ProductViewerSkeleton from './ProductViewerSkeleton';
+import ProductViewerFallback from './ProductViewerFallback';
+
+// Error Boundary for WebGL / Canvas errors
+interface ErrorBoundaryProps {
+  fallback: ReactNode;
+  children: ReactNode;
 }
 
-// T-Shirt 3D Model Component
-function TShirtModel({ color = '#ffffff', logoTexture }: { color: string; logoTexture?: THREE.Texture | null }) {
-  const meshRef = useRef<THREE.Mesh>(null);
-  
-  useFrame((state) => {
-    if (meshRef.current) {
-      // Subtle idle animation
-      meshRef.current.rotation.y = Math.sin(state.clock.elapsedTime * 0.3) * 0.05;
+interface ErrorBoundaryState {
+  hasError: boolean;
+}
+
+class WebGLErrorBoundary extends Component<ErrorBoundaryProps, ErrorBoundaryState> {
+  constructor(props: ErrorBoundaryProps) {
+    super(props);
+    this.state = { hasError: false };
+  }
+
+  static getDerivedStateFromError() {
+    return { hasError: true };
+  }
+
+  componentDidCatch(error: any) {
+    console.warn('3D Viewer WebGL Error, falling back to 2D image:', error);
+  }
+
+  render() {
+    if (this.state.hasError) {
+      return this.props.fallback;
     }
-  });
-
-  return (
-    <mesh ref={meshRef} castShadow receiveShadow>
-      {/* T-Shirt Geometry - Simple box for now, replace with GLB model */}
-      <boxGeometry args={[2, 2.5, 0.3]} />
-      <meshStandardMaterial
-        color={color}
-        roughness={0.8}
-        metalness={0.1}
-      />
-      
-      {/* Logo on front */}
-      {logoTexture && (
-        <mesh position={[0, 0.3, 0.16]}>
-          <planeGeometry args={[0.8, 0.8]} />
-          <meshBasicMaterial map={logoTexture} transparent />
-        </mesh>
-      )}
-    </mesh>
-  );
+    return this.props.children;
+  }
 }
 
-// Scene Component
-function Scene({ color, logoTexture }: { color: string; logoTexture?: THREE.Texture | null }) {
-  const isMobile = typeof window !== 'undefined' && window.innerWidth <= 768;
-  
+interface ThreeDTshirtViewerProps {
+  color?: string;
+  modelPath?: string;
+  productName?: string;
+  images?: {
+    front?: string;
+    back?: string;
+    side?: string;
+  };
+  fallbackImageUrl?: string;
+  onClose?: () => void;
+  className?: string;
+  initialAutoRotate?: boolean;
+}
+
+// Internal 3D Scene
+function SceneContent({
+  color,
+  modelPath,
+  isAutoRotating,
+  controlsRef,
+  onStartInteraction,
+  onEndInteraction
+}: {
+  color: string;
+  modelPath?: string;
+  isAutoRotating: boolean;
+  controlsRef: React.RefObject<OrbitControlsImpl>;
+  onStartInteraction: () => void;
+  onEndInteraction: () => void;
+}) {
   return (
     <>
-      {/* Camera */}
-      <PerspectiveCamera makeDefault position={[0, 0, 5]} fov={50} />
-      
-      {/* Lights */}
-      <ambientLight intensity={0.5} />
-      <directionalLight position={[5, 5, 5]} intensity={1} castShadow={!isMobile} />
-      <directionalLight position={[-5, 5, -5]} intensity={0.5} />
-      <pointLight position={[0, 5, 0]} intensity={0.5} />
-      
-      {/* T-Shirt Model */}
-      <TShirtModel color={color} logoTexture={logoTexture} />
-      
-      {/* Environment */}
-      <Environment preset="studio" />
-      
-      {/* Shadow - Disabled on mobile for performance */}
-      {!isMobile && (
-        <ContactShadows
-          position={[0, -1.5, 0]}
-          opacity={0.4}
-          scale={10}
-          blur={2}
-          far={4}
-        />
-      )}
-      
-      {/* Controls */}
+      {/* Studio Camera */}
+      <PerspectiveCamera makeDefault position={[0, 0, 4.2]} fov={45} near={0.1} far={100} />
+
+      {/* Professional Studio 3-Point Lighting */}
+      {/* 1. Soft Ambient fill */}
+      <ambientLight intensity={0.75} />
+
+      {/* 2. Key Light (Front-Right high) */}
+      <directionalLight
+        position={[4, 5, 4]}
+        intensity={1.3}
+        castShadow
+        shadow-mapSize-width={1024}
+        shadow-mapSize-height={1024}
+        shadow-camera-near={0.5}
+        shadow-camera-far={15}
+        shadow-bias={-0.0001}
+      />
+
+      {/* 3. Fill Light (Front-Left mid) */}
+      <directionalLight position={[-4, 2.5, 3]} intensity={0.65} />
+
+      {/* 4. Rim / Silhouette Backlight (Top-Back) to highlight fabric shoulders */}
+      <directionalLight position={[0, 4, -4]} intensity={0.9} color="#f8fafc" />
+
+      {/* 5. Subtle warm under-bounce */}
+      <directionalLight position={[0, -3, 2]} intensity={0.25} color="#ffffff" />
+
+      {/* 3D T-Shirt Model */}
+      <TshirtModel color={color} modelPath={modelPath} isAutoRotating={isAutoRotating} />
+
+      {/* Ground Contact Shadow */}
+      <ContactShadows
+        position={[0, -1.65, 0]}
+        opacity={0.45}
+        scale={6}
+        blur={2}
+        far={3.5}
+        color="#1f2937"
+      />
+
+      {/* Damped 360° Orbit Controls */}
       <OrbitControls
+        ref={controlsRef}
         enablePan={false}
         enableZoom={true}
-        minDistance={3}
-        maxDistance={8}
-        maxPolarAngle={Math.PI / 2}
+        enableRotate={true}
+        enableDamping={true}
+        dampingFactor={0.06}
+        rotateSpeed={0.8}
+        zoomSpeed={0.7}
+        minDistance={2.4}
+        maxDistance={6.0}
+        minPolarAngle={Math.PI / 3.4}
+        maxPolarAngle={Math.PI / 1.75}
+        autoRotate={isAutoRotating}
+        autoRotateSpeed={1.8}
+        onStart={onStartInteraction}
+        onEnd={onEndInteraction}
       />
     </>
   );
 }
 
-export default function ThreeDTshirtViewer({ color = '#ffffff', onClose }: TShirtViewerProps) {
-  const [isLoading, setIsLoading] = useState(true);
-  const [selectedColor, setSelectedColor] = useState(color);
-  const [logoFile, setLogoFile] = useState<File | null>(null);
-  const [logoTexture, setLogoTexture] = useState<THREE.Texture | null>(null);
-  const fileInputRef = useRef<HTMLInputElement>(null);
+// Color map helper
+const COLOR_HEX_MAP: Record<string, string> = {
+  white: '#FFFFFF',
+  black: '#171717',
+  grey: '#6B7280',
+  gray: '#6B7280',
+  'navy blue': '#1E3A8A',
+  navy: '#1E3A8A',
+  maroon: '#7F1D1D',
+  red: '#DC2626',
+  blue: '#2563EB',
+  green: '#16A34A',
+  yellow: '#EAB308',
+  orange: '#EA580C',
+  purple: '#7C3AED',
+  pink: '#DB2777'
+};
 
+function resolveColorHex(colorInput: string = 'White'): string {
+  if (colorInput.startsWith('#')) return colorInput;
+  const normalized = colorInput.trim().toLowerCase();
+  return COLOR_HEX_MAP[normalized] || '#FFFFFF';
+}
+
+export default function ThreeDTshirtViewer({
+  color = 'White',
+  modelPath,
+  productName = 'T-Shirt',
+  images,
+  fallbackImageUrl,
+  onClose,
+  className,
+  initialAutoRotate = false
+}: ThreeDTshirtViewerProps) {
+  const [isAutoRotating, setIsAutoRotating] = useState(initialAutoRotate);
+  const [isInteracting, setIsInteracting] = useState(false);
+  const [activeAngle, setActiveAngle] = useState<string>('threeQuarter');
+  const [hasWebGL, setHasWebGL] = useState<boolean | null>(null);
+
+  const controlsRef = useRef<OrbitControlsImpl>(null);
+
+  // Check WebGL availability on mount
   useEffect(() => {
-    // Simulate loading
-    const timer = setTimeout(() => setIsLoading(false), 1000);
-    return () => clearTimeout(timer);
+    try {
+      const canvas = document.createElement('canvas');
+      const gl = canvas.getContext('webgl') || canvas.getContext('experimental-webgl');
+      setHasWebGL(Boolean(gl));
+    } catch {
+      setHasWebGL(false);
+    }
   }, []);
 
-  const colors = [
-    { name: 'White', value: '#ffffff' },
-    { name: 'Black', value: '#000000' },
-    { name: 'Grey', value: '#6b7280' },
-    { name: 'Navy', value: '#1e3a8a' },
-    { name: 'Green', value: '#065f46' },
-    { name: 'Maroon', value: '#7f1d1d' },
-  ];
+  const resolvedHex = resolveColorHex(color);
 
-  const handleLogoUpload = (e: React.ChangeEvent<HTMLInputElement>) => {
-    const file = e.target.files?.[0];
-    if (file) {
-      setLogoFile(file);
-      const reader = new FileReader();
-      reader.onload = (event) => {
-        const img = new Image();
-        img.onload = () => {
-          const texture = new THREE.Texture(img);
-          texture.needsUpdate = true;
-          setLogoTexture(texture);
-        };
-        img.src = event.target?.result as string;
-      };
-      reader.readAsDataURL(file);
+  // Handle Preset Angle Setting
+  const handleSetAngle = (angle: 'front' | 'side' | 'back' | 'threeQuarter') => {
+    setActiveAngle(angle);
+    setIsAutoRotating(false);
+
+    if (!controlsRef.current) return;
+
+    const controls = controlsRef.current;
+    const distance = 4.2;
+
+    switch (angle) {
+      case 'front':
+        controls.object.position.set(0, 0, distance);
+        break;
+      case 'side':
+        controls.object.position.set(distance, 0, 0);
+        break;
+      case 'back':
+        controls.object.position.set(0, 0, -distance);
+        break;
+      case 'threeQuarter':
+        controls.object.position.set(distance * 0.7, distance * 0.2, distance * 0.7);
+        break;
+    }
+
+    controls.target.set(0, 0, 0);
+    controls.update();
+  };
+
+  const handleZoomIn = () => {
+    if (!controlsRef.current) return;
+    const camera = controlsRef.current.object;
+    const dir = new THREE.Vector3().subVectors(controlsRef.current.target, camera.position).normalize();
+    if (camera.position.length() > 2.6) {
+      camera.position.addScaledVector(dir, 0.4);
+      controlsRef.current.update();
     }
   };
 
+  const handleZoomOut = () => {
+    if (!controlsRef.current) return;
+    const camera = controlsRef.current.object;
+    const dir = new THREE.Vector3().subVectors(camera.position, controlsRef.current.target).normalize();
+    if (camera.position.length() < 5.8) {
+      camera.position.addScaledVector(dir, 0.4);
+      controlsRef.current.update();
+    }
+  };
+
+  const handleReset = () => {
+    handleSetAngle('front');
+  };
+
+  const fallbackView = (
+    <ProductViewerFallback
+      productName={productName}
+      selectedColor={color}
+      images={images}
+      fallbackImageUrl={fallbackImageUrl}
+    />
+  );
+
+  if (hasWebGL === false) {
+    return fallbackView;
+  }
+
   return (
-    <motion.div
-      initial={{ opacity: 0 }}
-      animate={{ opacity: 1 }}
-      exit={{ opacity: 0 }}
-      className="fixed inset-0 z-50 bg-black/50 backdrop-blur-sm flex items-center justify-center p-4"
-    >
-      <motion.div
-        initial={{ scale: 0.9, opacity: 0 }}
-        animate={{ scale: 1, opacity: 1 }}
-        exit={{ scale: 0.9, opacity: 0 }}
-        className="relative w-full max-w-6xl h-[90vh] bg-white rounded-3xl shadow-2xl overflow-hidden"
-      >
-        {/* Close Button */}
+    <WebGLErrorBoundary fallback={fallbackView}>
+      <div className={`relative w-full ${className || 'aspect-square'} bg-gradient-to-br from-gray-50 via-white to-gray-100 rounded-3xl overflow-hidden shadow-sm border border-gray-200/80 select-none group`}>
+        {/* Interactive Overlay Controls */}
+        <ProductViewerControls
+          onSetAngle={handleSetAngle}
+          isAutoRotating={isAutoRotating}
+          onToggleAutoRotate={() => setIsAutoRotating((prev) => !prev)}
+          onZoomIn={handleZoomIn}
+          onZoomOut={handleZoomOut}
+          onReset={handleReset}
+          activeAngle={activeAngle}
+          isInteracting={isInteracting}
+        />
+
+        {/* Close Button if rendered as modal */}
         {onClose && (
           <button
+            type="button"
             onClick={onClose}
-            className="absolute top-4 right-4 z-10 p-2 bg-white/90 backdrop-blur-sm rounded-xl shadow-lg hover:bg-white transition-colors"
+            aria-label="Close 3D Viewer"
+            className="absolute top-4 right-4 z-30 p-2 bg-white/90 hover:bg-white text-gray-700 rounded-full shadow-md transition-all"
           >
-            <X className="w-6 h-6 text-gray-700" />
+            <X className="w-5 h-5" />
           </button>
         )}
 
-        <div className="flex flex-col lg:flex-row h-full">
-          {/* 3D Viewer */}
-          <div className="flex-1 relative bg-gradient-to-br from-gray-50 to-gray-100">
-            {isLoading && (
-              <div className="absolute inset-0 flex items-center justify-center bg-white z-10">
-                <div className="text-center">
-                  <Loader2 className="w-12 h-12 text-purple-600 animate-spin mx-auto mb-4" />
-                  <p className="text-gray-600 font-medium">Loading 3D Viewer...</p>
-                </div>
-              </div>
-            )}
-            
-            <Canvas shadows dpr={[1, 1.5]}>
-              <Suspense fallback={null}>
-                <Scene color={selectedColor} logoTexture={logoTexture} />
-              </Suspense>
-            </Canvas>
-
-            {/* Instructions */}
-            <div className="absolute bottom-4 left-4 bg-white/90 backdrop-blur-sm rounded-xl p-3 shadow-lg">
-              <p className="text-sm text-gray-700 font-medium">
-                🖱️ Drag to rotate • 🔍 Scroll to zoom
-              </p>
-            </div>
-          </div>
-
-          {/* Control Panel */}
-          <div className="w-full lg:w-80 bg-white p-6 overflow-y-auto">
-            <h3 className="text-2xl font-bold mb-6 bg-gradient-to-r from-blue-600 via-purple-600 to-pink-600 bg-clip-text text-transparent">
-              Customize
-            </h3>
-
-            {/* Color Selection */}
-            <div className="mb-6">
-              <label className="block text-sm font-semibold text-gray-900 mb-3">
-                T-Shirt Color
-              </label>
-              <div className="grid grid-cols-3 gap-3">
-                {colors.map((c) => (
-                  <button
-                    key={c.value}
-                    onClick={() => setSelectedColor(c.value)}
-                    className={`relative p-4 rounded-xl border-2 transition-all ${
-                      selectedColor === c.value
-                        ? 'border-purple-500 shadow-lg'
-                        : 'border-gray-200 hover:border-gray-300'
-                    }`}
-                  >
-                    <div
-                      className="w-full h-12 rounded-lg mb-2"
-                      style={{ backgroundColor: c.value }}
-                    />
-                    <p className="text-xs font-medium text-gray-700">{c.name}</p>
-                  </button>
-                ))}
-              </div>
-            </div>
-
-            {/* Logo Upload */}
-            <div className="mb-6">
-              <label className="block text-sm font-semibold text-gray-900 mb-3">
-                Upload Logo
-              </label>
-              <input
-                ref={fileInputRef}
-                type="file"
-                accept="image/*"
-                onChange={handleLogoUpload}
-                className="hidden"
-              />
-              <button
-                onClick={() => fileInputRef.current?.click()}
-                className="w-full p-4 border-2 border-dashed border-gray-300 rounded-xl hover:border-purple-500 transition-colors"
-              >
-                <Upload className="w-8 h-8 text-gray-400 mx-auto mb-2" />
-                <p className="text-sm text-gray-600">
-                  {logoFile ? logoFile.name : 'Click to upload'}
-                </p>
-              </button>
-            </div>
-
-            {/* Action Buttons */}
-            <div className="space-y-3">
-              <button className="w-full py-3 bg-gradient-to-r from-blue-500 via-purple-500 to-pink-500 text-white font-semibold rounded-xl shadow-lg hover:shadow-xl transition-all">
-                Add to Cart
-              </button>
-              <button className="w-full py-3 border-2 border-gray-300 text-gray-700 font-semibold rounded-xl hover:bg-gray-50 transition-colors">
-                Save Design
-              </button>
-            </div>
-          </div>
-        </div>
-      </motion.div>
-    </motion.div>
+        {/* 3D Canvas */}
+        <Suspense fallback={<ProductViewerSkeleton />}>
+          <Canvas
+            shadows
+            dpr={[1, 2]}
+            gl={{
+              antialias: true,
+              powerPreference: 'high-performance',
+              toneMapping: THREE.ACESFilmicToneMapping,
+              toneMappingExposure: 1.05
+            }}
+            className="w-full h-full cursor-grab active:cursor-grabbing touch-none"
+          >
+            <SceneContent
+              color={resolvedHex}
+              modelPath={modelPath}
+              isAutoRotating={isAutoRotating}
+              controlsRef={controlsRef}
+              onStartInteraction={() => setIsInteracting(true)}
+              onEndInteraction={() => setIsInteracting(false)}
+            />
+          </Canvas>
+        </Suspense>
+      </div>
+    </WebGLErrorBoundary>
   );
 }

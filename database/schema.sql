@@ -1,4 +1,4 @@
--- Fun Prints Database Schema
+-- Fun Print Database Schema
 -- PostgreSQL
 
 -- Products Table
@@ -99,7 +99,7 @@ CREATE INDEX idx_products_active ON products(is_active);
 -- Sample Admin User (Password: admin123 - CHANGE IN PRODUCTION!)
 -- Password hash generated with bcrypt
 INSERT INTO admin_users (email, password_hash, name, role) 
-VALUES ('admin@funprints.com', '$2a$10$rKvVPZhJZhJZhJZhJZhJZeO', 'Admin User', 'SUPER_ADMIN');
+VALUES ('admin@funprint.com', '$2a$10$rKvVPZhJZhJZhJZhJZhJZeO', 'Admin User', 'SUPER_ADMIN');
 
 -- Sample Products
 INSERT INTO products (product_id, name, description, price, category, fabric, gsm, colors, sizes) VALUES

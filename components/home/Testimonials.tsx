@@ -95,7 +95,7 @@ export default function Testimonials() {
                   </defs>
                 </svg>
                 
-                <p className="text-gray-700 mb-6 italic text-lg leading-relaxed">"{testimonial.content}"</p>
+                <p className="text-gray-700 mb-6 italic text-lg leading-relaxed">&ldquo;{testimonial.content}&rdquo;</p>
                 
                 <div className="flex items-center gap-4">
                   {/* Avatar with gradient */}

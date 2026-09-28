@@ -67,7 +67,7 @@ export default function PaymentMethod({
       {paymentMethod === 'UPI' && (
         <div className="mb-6 p-4 bg-blue-50 rounded-lg">
           <p className="text-sm text-blue-900">
-            You'll be redirected to your UPI app. After payment, upload the screenshot for verification.
+            You&apos;ll be redirected to your UPI app. After payment, upload the screenshot for verification.
           </p>
         </div>
       )}

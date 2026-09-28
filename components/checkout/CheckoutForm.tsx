@@ -8,11 +8,11 @@ import PaymentMethod from './PaymentMethod';
 import OrderSummary from './OrderSummary';
 import IndianAddressForm from './IndianAddressForm';
 import toast from 'react-hot-toast';
-import { Home, Briefcase, User, Mail, Phone, Upload, X } from 'lucide-react';
+import { Home, Briefcase, User, Mail, Phone } from 'lucide-react';
 
 export default function CheckoutForm() {
   const router = useRouter();
-  const { items, getTotalPrice, clearCart } = useCartStore();
+  const { items, clearCart } = useCartStore();
   const [step, setStep] = useState(1);
   const [formData, setFormData] = useState({
     name: '',
@@ -28,8 +28,6 @@ export default function CheckoutForm() {
   });
   const [errors, setErrors] = useState<Partial<typeof formData>>({});
   const [paymentMethod, setPaymentMethod] = useState<'COD' | 'UPI'>('COD');
-  const [logoFile, setLogoFile] = useState<File | null>(null);
-  const [logoPreview, setLogoPreview] = useState<string>('');
 
   if (items.length === 0) {
     return (
@@ -44,7 +42,6 @@ export default function CheckoutForm() {
 
   const handleInputChange = (e: React.ChangeEvent<HTMLInputElement>) => {
     setFormData({ ...formData, [e.target.name]: e.target.value });
-    // Clear error when user starts typing
     if (errors[e.target.name as keyof typeof formData]) {
       setErrors({ ...errors, [e.target.name]: undefined });
     }
@@ -52,40 +49,11 @@ export default function CheckoutForm() {
 
   const handleAddressChange = (data: Partial<typeof formData>) => {
     setFormData({ ...formData, ...data });
-    // Clear errors for changed fields
     const newErrors = { ...errors };
     Object.keys(data).forEach((key) => {
       delete newErrors[key as keyof typeof formData];
     });
     setErrors(newErrors);
-  };
-
-  const handleLogoUpload = (e: React.ChangeEvent<HTMLInputElement>) => {
-    const file = e.target.files?.[0];
-    if (file) {
-      // Validate file size (10MB max)
-      if (file.size > 10 * 1024 * 1024) {
-        toast.error('Logo file size must be less than 10MB');
-        return;
-      }
-      
-      // Validate file type
-      if (!file.type.startsWith('image/')) {
-        toast.error('Please upload a valid image file');
-        return;
-      }
-      
-      setLogoFile(file);
-      
-      // Create preview
-      const reader = new FileReader();
-      reader.onload = (e) => {
-        setLogoPreview(e.target?.result as string);
-      };
-      reader.readAsDataURL(file);
-      
-      toast.success('Logo uploaded successfully!');
-    }
   };
 
   const validateForm = () => {
@@ -142,13 +110,7 @@ export default function CheckoutForm() {
       items,
       customer: formData,
       paymentMethod,
-      total: finalTotal,
-      logoFile: logoFile ? {
-        name: logoFile.name,
-        size: logoFile.size,
-        type: logoFile.type,
-        data: logoPreview // base64 data for storage
-      } : null
+      total: finalTotal
     };
 
     if (paymentMethod === 'UPI') {
@@ -274,67 +236,6 @@ export default function CheckoutForm() {
                 onChange={handleAddressChange}
                 errors={errors}
               />
-
-              {/* Logo Upload Section */}
-              <div className="pt-6 border-t border-gray-200">
-                <div className="flex items-center gap-3 mb-4">
-                  <div className="p-2 rounded-xl bg-gradient-to-br from-purple-500 to-pink-600">
-                    <Upload className="w-5 h-5 text-white" />
-                  </div>
-                  <h3 className="text-lg font-bold text-gray-900">Logo Upload (Optional)</h3>
-                </div>
-                
-                <div className="space-y-4">
-                  <p className="text-sm text-gray-600">
-                    Upload your logo to be printed on your t-shirts. Supported formats: PNG, JPG, SVG
-                  </p>
-                  
-                  <div className="border-2 border-dashed border-gray-300 rounded-xl p-6 text-center hover:border-purple-400 transition-colors">
-                    <input
-                      type="file"
-                      accept="image/*"
-                      onChange={handleLogoUpload}
-                      className="hidden"
-                      id="logo-upload"
-                    />
-                    <label htmlFor="logo-upload" className="cursor-pointer">
-                      <div className="flex flex-col items-center">
-                        <Upload className="w-8 h-8 text-gray-400 mb-2" />
-                        <p className="text-sm font-medium text-gray-700">Click to upload logo</p>
-                        <p className="text-xs text-gray-500">PNG, JPG, SVG up to 10MB</p>
-                      </div>
-                    </label>
-                  </div>
-                  
-                  {logoFile && (
-                    <div className="bg-green-50 border border-green-200 rounded-lg p-4">
-                      <div className="flex items-center gap-3">
-                        <div className="w-12 h-12 bg-white rounded-lg border border-gray-200 flex items-center justify-center overflow-hidden">
-                          <img 
-                            src={logoPreview} 
-                            alt="Logo preview" 
-                            className="w-full h-full object-contain"
-                          />
-                        </div>
-                        <div className="flex-1">
-                          <p className="text-sm font-medium text-green-800">{logoFile.name}</p>
-                          <p className="text-xs text-green-600">✓ Logo uploaded successfully</p>
-                        </div>
-                        <button
-                          type="button"
-                          onClick={() => {
-                            setLogoFile(null);
-                            setLogoPreview('');
-                          }}
-                          className="text-red-500 hover:text-red-700"
-                        >
-                          <X className="w-4 h-4" />
-                        </button>
-                      </div>
-                    </div>
-                  )}
-                </div>
-              </div>
 
               {/* Address Type */}
               <div className="pt-6 border-t border-gray-200">

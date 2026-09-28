@@ -10,12 +10,17 @@ import WhatsAppButton from "@/components/ui/WhatsAppButton";
 const inter = Inter({ subsets: ["latin"] });
 
 export const metadata: Metadata = {
-  title: "Fun Prints - Premium Custom T-Shirts",
-  description: "Create your perfect custom t-shirt with Fun Prints. Premium quality, personalized designs, and creative collaboration.",
+  title: "Fun Print - Premium Custom T-Shirts",
+  description: "Create your perfect custom t-shirt with Fun Print. Premium quality, personalized designs, and creative collaboration.",
   keywords: "custom t-shirts, personalized clothing, premium t-shirts, custom printing",
+  icons: {
+    icon: "/favicon.png",
+    shortcut: "/favicon.png",
+    apple: "/apple-icon.png",
+  },
   openGraph: {
-    title: "Fun Prints - Premium Custom T-Shirts",
-    description: "Create your perfect custom t-shirt with Fun Prints",
+    title: "Fun Print - Premium Custom T-Shirts",
+    description: "Create your perfect custom t-shirt with Fun Print",
     type: "website",
   },
 };

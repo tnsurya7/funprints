@@ -12,7 +12,7 @@ interface OrderSummaryProps {
 
 export default function OrderSummary({ items, total, shippingState = "Tamil Nadu" }: OrderSummaryProps) {
   // Calculate breakdown without GST - only product price and shipping
-  const subtotal = items.reduce((total, item) => total + (item.price * item.quantity), 0);
+  const subtotal = items.reduce((sum, item) => sum + (item.price * item.quantity), 0);
   const shipping = calculateShipping(subtotal, shippingState);
   const finalTotal = subtotal + shipping;
 
@@ -32,14 +32,11 @@ export default function OrderSummary({ items, total, shippingState = "Tamil Nadu
               />
             </div>
             <div className="flex-1">
-              <h3 className="font-medium text-sm">{item.name}</h3>
+              <h3 className="font-medium text-sm text-gray-900">{item.name}</h3>
               <p className="text-xs text-gray-500">
                 {item.color} • {item.size} • Qty: {item.quantity}
               </p>
-              {item.logo && (
-                <p className="text-xs text-purple-600 font-semibold">✓ With Logo</p>
-              )}
-              <p className="text-sm font-semibold mt-1">₹{item.price * item.quantity}</p>
+              <p className="text-sm font-semibold text-purple-600 mt-1">₹{item.price * item.quantity}</p>
             </div>
           </div>
         ))}
@@ -48,20 +45,20 @@ export default function OrderSummary({ items, total, shippingState = "Tamil Nadu
       <div className="border-t pt-4 space-y-2">
         <div className="flex justify-between text-sm">
           <span className="text-gray-600">Subtotal</span>
-          <span className="font-medium">₹{subtotal}</span>
+          <span className="font-medium text-gray-900">₹{subtotal}</span>
         </div>
         <div className="flex justify-between text-sm">
           <span className="text-gray-600">Shipping</span>
-          <span className={`font-medium ${shipping === 0 ? 'text-green-600' : ''}`}>
+          <span className={`font-medium ${shipping === 0 ? 'text-green-600' : 'text-gray-900'}`}>
             {shipping === 0 ? 'FREE' : `₹${shipping}`}
           </span>
         </div>
         {shipping === 0 && (
-          <p className="text-xs text-green-600">🎉 Free shipping on orders ₹1000+</p>
+          <p className="text-xs text-green-600 font-medium">🎉 Free shipping on orders ₹1000+</p>
         )}
-        <div className="border-t pt-2 flex justify-between">
-          <span className="font-bold">Total</span>
-          <span className="font-bold text-xl text-brand-600">₹{finalTotal}</span>
+        <div className="border-t pt-2 flex justify-between items-baseline">
+          <span className="font-bold text-gray-900">Total</span>
+          <span className="font-bold text-xl text-purple-600">₹{finalTotal}</span>
         </div>
       </div>
     </div>

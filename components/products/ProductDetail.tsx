@@ -1,6 +1,7 @@
 'use client';
 
 import { useState, useEffect } from 'react';
+import Image from 'next/image';
 import { motion } from 'framer-motion';
 import { ShoppingCart, Heart, Ruler, Sparkles } from 'lucide-react';
 import Simple3DViewer from './Simple3DViewer';
@@ -84,7 +85,7 @@ export default function ProductDetail({ productId }: { productId: string }) {
         <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
           <div className="text-center py-12">
             <h1 className="text-2xl font-bold text-gray-900 mb-4">Product Not Found</h1>
-            <p className="text-gray-600 mb-8">The product you're looking for doesn't exist.</p>
+            <p className="text-gray-600 mb-8">The product you&apos;re looking for doesn&apos;t exist.</p>
             <button
               onClick={() => router.push('/products')}
               className="btn-primary"
@@ -139,12 +140,15 @@ export default function ProductDetail({ productId }: { productId: string }) {
             animate={{ opacity: 1, x: 0 }}
             className="space-y-4"
           >
-            <div className="relative w-full h-96 bg-gray-100 rounded-lg overflow-hidden">
+            <div className="relative w-full h-96 bg-gray-100 rounded-2xl overflow-hidden">
               {currentImage ? (
-                <img
+                <Image
                   src={currentImage}
                   alt={product.name}
-                  className="w-full h-full object-cover"
+                  fill
+                  sizes="(max-width: 1024px) 100vw, 50vw"
+                  className="object-contain p-4"
+                  priority
                 />
               ) : (
                 <div className="w-full h-full flex items-center justify-center">

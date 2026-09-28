@@ -19,17 +19,17 @@ export default function ProductSchema({ product }: ProductSchemaProps) {
     sku: product.id,
     brand: {
       '@type': 'Brand',
-      name: 'Fun Prints',
+      name: 'Fun Print',
     },
     offers: {
       '@type': 'Offer',
-      url: `https://funprints.com/products/${product.id}`,
+      url: `https://funprint.com/products/${product.id}`,
       priceCurrency: 'INR',
       price: product.price,
       availability: 'https://schema.org/InStock',
       seller: {
         '@type': 'Organization',
-        name: 'Fun Prints',
+        name: 'Fun Print',
       },
     },
     aggregateRating: {

@@ -4,7 +4,8 @@ import { useState, useEffect } from 'react';
 import Link from 'next/link';
 import { usePathname } from 'next/navigation';
 import { motion, AnimatePresence } from 'framer-motion';
-import { ShoppingCart, Menu, X, Sparkles } from 'lucide-react';
+import Image from 'next/image';
+import { ShoppingCart, Menu, X } from 'lucide-react';
 import { useCartStore } from '@/store/cartStore';
 
 export default function FloatingHeader() {
@@ -65,16 +66,19 @@ export default function FloatingHeader() {
           >
             <div className="flex items-center justify-between h-16 sm:h-18 px-4 sm:px-6">
               {/* Logo */}
-              <Link href="/" className="flex items-center gap-2 group">
-                <motion.div
-                  whileHover={{ rotate: 180 }}
-                  transition={{ duration: 0.6 }}
-                  className="w-8 h-8 sm:w-10 sm:h-10 rounded-xl bg-gradient-to-br from-blue-500 via-purple-500 to-pink-500 flex items-center justify-center shadow-lg"
-                >
-                  <Sparkles className="w-5 h-5 sm:w-6 sm:h-6 text-white" />
-                </motion.div>
+              <Link href="/" className="flex items-center gap-2.5 group">
+                <div className="relative w-8 h-8 sm:w-10 sm:h-10 rounded-xl overflow-hidden flex items-center justify-center bg-white/90 p-0.5 border border-purple-100/60 shadow-sm group-hover:scale-105 transition-transform duration-300">
+                  <Image
+                    src="/logo.png"
+                    alt="Fun Print Logo"
+                    width={40}
+                    height={40}
+                    className="object-contain w-full h-full"
+                    priority
+                  />
+                </div>
                 <span className="text-lg sm:text-xl font-bold bg-gradient-to-r from-blue-600 via-purple-600 to-pink-600 bg-clip-text text-transparent">
-                  Fun Prints
+                  Fun Print
                 </span>
               </Link>
 

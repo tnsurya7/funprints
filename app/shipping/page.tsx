@@ -1,6 +1,6 @@
 export const metadata = {
-  title: 'Shipping Policy - Fun Prints',
-  description: 'Shipping and delivery information for Fun Prints',
+  title: 'Shipping Policy - Fun Print',
+  description: 'Shipping and delivery information for Fun Print',
 };
 
 export default function Shipping() {
@@ -81,7 +81,7 @@ export default function Shipping() {
               </p>
               <ul className="list-disc pl-6 text-gray-600 space-y-2">
                 <li>Courier will attempt delivery 2-3 times</li>
-                <li>You'll be contacted for address confirmation</li>
+                <li>You&apos;ll be contacted for address confirmation</li>
                 <li>Additional charges may apply for re-delivery</li>
               </ul>
             </section>
@@ -91,7 +91,7 @@ export default function Shipping() {
               <p className="text-gray-600">
                 For shipping queries:
                 <br />
-                Email: shipping@funprints.com
+                Email: shipping@funprint.com
                 <br />
                 Phone: +91 98765 43210
                 <br />

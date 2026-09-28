@@ -1,4 +1,4 @@
-# Fun Prints - Premium T-Shirt E-Commerce Platform
+# Fun Print - Premium T-Shirt E-Commerce Platform
 
 A next-generation, production-ready e-commerce web application for custom t-shirt business with 360° product viewing, UPI payment integration, WhatsApp deep linking, and premium UI/UX.
 
@@ -106,7 +106,7 @@ cp .env.example .env
 Edit `.env` and add your configuration:
 ```env
 # Database
-DATABASE_URL=postgresql://user:password@localhost:5432/funprints
+DATABASE_URL=postgresql://user:password@localhost:5432/funprint
 
 # Cloudinary
 NEXT_PUBLIC_CLOUDINARY_CLOUD_NAME=your_cloud_name
@@ -207,8 +207,8 @@ To enable PWA features, add `manifest.json` and service worker:
 ```json
 // public/manifest.json
 {
-  "name": "Fun Prints",
-  "short_name": "Fun Prints",
+  "name": "Fun Print",
+  "short_name": "Fun Print",
   "description": "Premium Custom T-Shirts",
   "start_url": "/",
   "display": "standalone",
@@ -311,4 +311,4 @@ This project is proprietary and confidential.
 
 ---
 
-Built with ❤️ for Fun Prints
+Built with ❤️ for Fun Print

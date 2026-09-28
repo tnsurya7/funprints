@@ -1,7 +1,7 @@
 # Product 360° Images Directory
 
 ## Purpose
-This directory contains 360° rotation images for each product in the Fun Prints catalog.
+This directory contains 360° rotation images for each product in the Fun Print catalog.
 
 ## Structure
 Each product has its own folder with a `360` subdirectory containing 36 frames:

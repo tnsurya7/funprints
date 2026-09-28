@@ -39,7 +39,7 @@ function OrderSuccessContent() {
 
           <h1 className="text-3xl font-bold mb-4">Order Placed Successfully!</h1>
           <p className="text-gray-600 mb-8">
-            Thank you for your order. We'll send you a confirmation shortly.
+            Thank you for your order. We&apos;ll send you a confirmation shortly.
           </p>
 
           <div className="bg-brand-50 rounded-xl p-6 mb-8">
@@ -52,7 +52,7 @@ function OrderSuccessContent() {
               <Package className="w-8 h-8 text-brand-600 mx-auto mb-3" />
               <h3 className="font-semibold mb-2">Track Your Order</h3>
               <p className="text-sm text-gray-600">
-                We'll send you tracking details via email and WhatsApp
+                We&apos;ll send you tracking details via email and WhatsApp
               </p>
             </div>
 

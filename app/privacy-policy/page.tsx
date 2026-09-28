@@ -1,6 +1,6 @@
 export const metadata = {
-  title: 'Privacy Policy - Fun Prints',
-  description: 'Privacy policy for Fun Prints custom t-shirt services',
+  title: 'Privacy Policy - Fun Print',
+  description: 'Privacy policy for Fun Print custom t-shirt services',
 };
 
 export default function PrivacyPolicy() {
@@ -64,7 +64,7 @@ export default function PrivacyPolicy() {
               <p className="text-gray-600">
                 If you have questions about this Privacy Policy, please contact us at:
                 <br />
-                Email: privacy@funprints.com
+                Email: privacy@funprint.com
                 <br />
                 Phone: +91 98765 43210
               </p>

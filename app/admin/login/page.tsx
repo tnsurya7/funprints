@@ -56,7 +56,7 @@ export default function AdminLogin() {
               <Lock className="w-8 h-8 text-white" />
             </div>
             <h1 className="text-2xl font-bold text-white mb-2">Admin Login</h1>
-            <p className="text-gray-300">Access the Fun Prints admin dashboard</p>
+            <p className="text-gray-300">Access the Fun Print admin dashboard</p>
           </div>
 
           <form onSubmit={handleSubmit} className="space-y-6">
@@ -121,7 +121,7 @@ export default function AdminLogin() {
 
           <div className="mt-6 text-center">
             <p className="text-gray-400 text-sm">
-              Secure admin access for Fun Prints management
+              Secure admin access for Fun Print management
             </p>
           </div>
         </div>

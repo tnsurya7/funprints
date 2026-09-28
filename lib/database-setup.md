@@ -126,17 +126,17 @@
 
 2. **Create Database**
    ```bash
-   createdb funprints
+   createdb funprint
    ```
 
 3. **Run Schema**
    ```bash
-   psql funprints < database/schema.sql
+   psql funprint < database/schema.sql
    ```
 
 4. **Add to .env**
    ```env
-   DATABASE_URL=postgresql://localhost:5432/funprints
+   DATABASE_URL=postgresql://localhost:5432/funprint
    ```
 
 ---
@@ -174,7 +174,7 @@
 
 The schema includes:
 - ✅ 4 sample products
-- ✅ 1 admin user (email: admin@funprints.com)
+- ✅ 1 admin user (email: admin@funprint.com)
 - ✅ All necessary indexes
 
 ---
@@ -317,10 +317,10 @@ psql $DATABASE_URL
 # Neon/Supabase: Use dashboard backup feature
 
 # Local:
-pg_dump funprints > backup.sql
+pg_dump funprint > backup.sql
 
 # Restore:
-psql funprints < backup.sql
+psql funprint < backup.sql
 ```
 
 ### View Data

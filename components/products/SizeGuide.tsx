@@ -51,9 +51,9 @@ export default function SizeGuide({ onClose }: { onClose: () => void }) {
                 {sizeData.map((row) => (
                   <tr key={row.size} className="border-b border-gray-100">
                     <td className="py-3 px-4 font-semibold">{row.size}</td>
-                    <td className="py-3 px-4">{row.chest}"</td>
-                    <td className="py-3 px-4">{row.length}"</td>
-                    <td className="py-3 px-4">{row.shoulder}"</td>
+                    <td className="py-3 px-4">{row.chest}&quot;</td>
+                    <td className="py-3 px-4">{row.length}&quot;</td>
+                    <td className="py-3 px-4">{row.shoulder}&quot;</td>
                   </tr>
                 ))}
               </tbody>
