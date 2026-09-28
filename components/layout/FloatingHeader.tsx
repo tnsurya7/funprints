@@ -64,9 +64,9 @@ export default function FloatingHeader() {
                 : 'linear-gradient(135deg, rgba(255,255,255,0.9) 0%, rgba(255,255,255,0.75) 100%)',
             }}
           >
-            <div className="flex items-center justify-between h-16 sm:h-18 px-4 sm:px-6">
+            <div className="flex items-center justify-between h-14 sm:h-18 px-3 sm:px-6">
               {/* Logo */}
-              <Link href="/" className="flex items-center gap-2.5 group">
+              <Link href="/" className="flex items-center gap-2 sm:gap-2.5 group">
                 <div className="relative w-8 h-8 sm:w-10 sm:h-10 rounded-xl overflow-hidden flex items-center justify-center bg-white/90 p-0.5 border border-purple-100/60 shadow-sm group-hover:scale-105 transition-transform duration-300">
                   <Image
                     src="/logo.png"

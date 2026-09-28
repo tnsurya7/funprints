@@ -46,7 +46,7 @@ export default function ContactPage() {
   };
 
   return (
-    <div className="min-h-screen pt-32 pb-16 relative overflow-hidden">
+    <div className="min-h-screen pt-24 sm:pt-32 pb-16 relative overflow-hidden">
       {/* Gradient background */}
       <div className="absolute inset-0 bg-gradient-to-br from-blue-50 via-purple-50 to-pink-50"></div>
 
@@ -54,30 +54,30 @@ export default function ContactPage() {
         <motion.div
           initial={{ opacity: 0, y: 20 }}
           animate={{ opacity: 1, y: 0 }}
-          className="text-center mb-16"
+          className="text-center mb-10 sm:mb-16"
         >
           <motion.div
             initial={{ scale: 0 }}
             animate={{ scale: 1 }}
-            className="inline-block mb-4"
+            className="inline-block mb-3 sm:mb-4"
           >
-            <span className="px-6 py-2 rounded-full bg-gradient-to-r from-blue-600 via-purple-600 to-pink-600 text-white text-sm font-semibold shadow-lg">
+            <span className="px-5 sm:px-6 py-1.5 sm:py-2 rounded-full bg-gradient-to-r from-blue-600 via-purple-600 to-pink-600 text-white text-xs sm:text-sm font-semibold shadow-lg">
               Get In Touch
             </span>
           </motion.div>
-          <h1 className="text-5xl font-bold mb-4 text-gradient">Contact Us</h1>
-          <p className="text-xl text-gray-600">We&apos;d love to hear from you!</p>
+          <h1 className="text-3xl sm:text-5xl font-bold mb-3 sm:mb-4 text-gradient">Contact Us</h1>
+          <p className="text-base sm:text-xl text-gray-600">We&apos;d love to hear from you!</p>
         </motion.div>
 
-        <div className="grid grid-cols-1 lg:grid-cols-2 gap-12">
+        <div className="grid grid-cols-1 lg:grid-cols-2 gap-8 sm:gap-12">
           {/* Contact Form */}
           <motion.div
             initial={{ opacity: 0, x: -50 }}
             animate={{ opacity: 1, x: 0 }}
             transition={{ delay: 0.2 }}
           >
-            <div className="card-gradient p-8">
-              <h2 className="text-2xl font-bold mb-6 text-gradient">Send us a Message</h2>
+            <div className="card-gradient p-5 sm:p-8">
+              <h2 className="text-xl sm:text-2xl font-bold mb-4 sm:mb-6 text-gradient">Send us a Message</h2>
               
               <form onSubmit={handleSubmit} className="space-y-6">
                 <div>

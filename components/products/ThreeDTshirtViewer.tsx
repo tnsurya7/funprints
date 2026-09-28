@@ -78,7 +78,7 @@ function SceneContent({
   return (
     <>
       {/* Studio Camera */}
-      <PerspectiveCamera makeDefault position={[0, 0, 4.2]} fov={45} near={0.1} far={100} />
+      <PerspectiveCamera makeDefault position={[0, -0.05, 3.8]} fov={42} near={0.1} far={100} />
 
       {/* Professional Studio 3-Point Lighting */}
       {/* 1. Soft Ambient fill */}

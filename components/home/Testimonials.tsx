@@ -29,7 +29,7 @@ const testimonials = [
 
 export default function Testimonials() {
   return (
-    <section className="py-20 relative overflow-hidden">
+    <section className="py-12 sm:py-20 relative overflow-hidden">
       {/* Gradient background */}
       <div className="absolute inset-0 bg-gradient-to-br from-purple-50 via-pink-50 to-blue-50"></div>
       
@@ -38,23 +38,23 @@ export default function Testimonials() {
           initial={{ opacity: 0, y: 20 }}
           whileInView={{ opacity: 1, y: 0 }}
           viewport={{ once: true }}
-          className="text-center mb-16"
+          className="text-center mb-10 sm:mb-16"
         >
           <motion.div
             initial={{ scale: 0 }}
             whileInView={{ scale: 1 }}
             viewport={{ once: true }}
-            className="inline-block mb-4"
+            className="inline-block mb-3 sm:mb-4"
           >
-            <span className="px-6 py-2 rounded-full bg-gradient-to-r from-purple-600 via-pink-600 to-red-600 text-white text-sm font-semibold shadow-lg">
+            <span className="px-5 sm:px-6 py-1.5 sm:py-2 rounded-full bg-gradient-to-r from-purple-600 via-pink-600 to-red-600 text-white text-xs sm:text-sm font-semibold shadow-lg">
               Testimonials
             </span>
           </motion.div>
-          <h2 className="text-5xl font-bold mb-4 text-gradient">What Our Customers Say</h2>
-          <p className="text-xl text-gray-600">Real feedback from real people</p>
+          <h2 className="text-3xl sm:text-5xl font-bold mb-3 sm:mb-4 text-gradient">What Our Customers Say</h2>
+          <p className="text-base sm:text-xl text-gray-600">Real feedback from real people</p>
         </motion.div>
 
-        <div className="grid grid-cols-1 md:grid-cols-3 gap-8">
+        <div className="grid grid-cols-1 md:grid-cols-3 gap-6 sm:gap-8">
           {testimonials.map((testimonial, index) => (
             <motion.div
               key={testimonial.name}
@@ -69,9 +69,9 @@ export default function Testimonials() {
               <div className={`absolute inset-0 bg-gradient-to-r ${testimonial.gradient} rounded-3xl blur-xl opacity-20 group-hover:opacity-40 transition-opacity duration-500`}></div>
               
               {/* Card */}
-              <div className="relative card-gradient p-8 h-full">
+              <div className="relative card-gradient p-6 sm:p-8 h-full">
                 {/* Stars with gradient */}
-                <div className="flex gap-1 mb-4">
+                <div className="flex gap-1 mb-3 sm:mb-4">
                   {[...Array(testimonial.rating)].map((_, i) => (
                     <motion.div
                       key={i}
@@ -80,7 +80,7 @@ export default function Testimonials() {
                       transition={{ delay: index * 0.2 + i * 0.1 }}
                       viewport={{ once: true }}
                     >
-                      <Star className={`w-5 h-5 fill-current bg-gradient-to-r ${testimonial.gradient} bg-clip-text text-transparent`} style={{ fill: 'url(#star-gradient)' }} />
+                      <Star className={`w-4 sm:w-5 h-4 sm:h-5 fill-current bg-gradient-to-r ${testimonial.gradient} bg-clip-text text-transparent`} style={{ fill: 'url(#star-gradient)' }} />
                     </motion.div>
                   ))}
                 </div>
@@ -95,7 +95,7 @@ export default function Testimonials() {
                   </defs>
                 </svg>
                 
-                <p className="text-gray-700 mb-6 italic text-lg leading-relaxed">&ldquo;{testimonial.content}&rdquo;</p>
+                <p className="text-gray-700 mb-5 sm:mb-6 italic text-base sm:text-lg leading-relaxed">&ldquo;{testimonial.content}&rdquo;</p>
                 
                 <div className="flex items-center gap-4">
                   {/* Avatar with gradient */}

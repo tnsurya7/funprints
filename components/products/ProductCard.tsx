@@ -94,27 +94,27 @@ export default function ProductCard({ product }: { product: Product }) {
           />
         </motion.button>
 
-        <div className="p-6 flex-1 flex flex-col">
+        <div className="p-4 sm:p-6 flex-1 flex flex-col">
           {/* Category badge */}
-          <span className={`inline-block px-3 py-1 rounded-full bg-gradient-to-r ${gradient} text-white text-xs font-semibold mb-3 shadow-md self-start`}>
+          <span className={`inline-block px-2.5 sm:px-3 py-1 rounded-full bg-gradient-to-r ${gradient} text-white text-[11px] sm:text-xs font-semibold mb-2 sm:mb-3 shadow-md self-start`}>
             {product.category}
           </span>
           
-          <h3 className="text-lg font-semibold mb-2 text-gray-900 line-clamp-2">{product.name}</h3>
+          <h3 className="text-base sm:text-lg font-semibold mb-1.5 sm:mb-2 text-gray-900 line-clamp-2">{product.name}</h3>
           
           {/* Price */}
-          <p className={`text-2xl font-bold bg-gradient-to-r ${gradient} bg-clip-text text-transparent mb-3`}>
+          <p className={`text-xl sm:text-2xl font-bold bg-gradient-to-r ${gradient} bg-clip-text text-transparent mb-2 sm:mb-3`}>
             ₹{product.price}
           </p>
           
           {/* Available Colors */}
-          <div className="mb-4">
-            <p className="text-xs text-gray-600 mb-2">Available Colors:</p>
-            <div className="flex gap-1 flex-wrap">
+          <div className="mb-3 sm:mb-4">
+            <p className="text-[11px] sm:text-xs text-gray-600 mb-1.5">Available Colors:</p>
+            <div className="flex gap-1 sm:gap-1.5 flex-wrap">
               {(product.colors || getAvailableColors(product.category)).map((color) => (
                 <div
                   key={color}
-                  className="w-6 h-6 rounded-full border-2 border-gray-200 shadow-sm"
+                  className="w-5 sm:w-6 h-5 sm:h-6 rounded-full border-2 border-gray-200 shadow-sm"
                   style={{ backgroundColor: getColorDisplay(color) }}
                   title={color}
                 />
@@ -126,7 +126,7 @@ export default function ProductCard({ product }: { product: Product }) {
             <motion.button
               whileHover={{ scale: 1.02 }}
               whileTap={{ scale: 0.98 }}
-              className={`w-full py-3 rounded-xl font-semibold text-white bg-gradient-to-r ${gradient} shadow-lg hover:shadow-xl transition-all duration-300`}
+              className={`w-full py-2.5 sm:py-3 rounded-xl font-semibold text-white text-xs sm:text-sm bg-gradient-to-r ${gradient} shadow-md hover:shadow-lg transition-all duration-300`}
             >
               View Details
             </motion.button>

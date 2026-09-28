@@ -124,14 +124,14 @@ export default function Footer() {
         </div>
 
         {/* Bottom bar with gradient border */}
-        <div className="border-t border-gray-800 pt-8">
-          <div className="flex flex-col md:flex-row justify-between items-center gap-4">
-            <p className="text-gray-400 text-sm">
+        <div className="border-t border-gray-800 pt-6 sm:pt-8">
+          <div className="flex flex-col md:flex-row justify-between items-center gap-4 text-center md:text-left">
+            <p className="text-gray-400 text-xs sm:text-sm">
               &copy; 2026 Fun Print. All rights reserved.
             </p>
             
             {/* Trust badges */}
-            <div className="flex gap-4 text-xs text-gray-500">
+            <div className="flex flex-wrap justify-center gap-2 sm:gap-4 text-[11px] sm:text-xs text-gray-500">
               <span className="px-3 py-1 rounded-full bg-gradient-to-r from-green-500/20 to-emerald-500/20 border border-green-500/30 text-green-400">
                 ✓ Secure Payment
               </span>

@@ -47,7 +47,7 @@ const featuredProducts = [
 
 export default function FeaturedProducts() {
   return (
-    <section className="py-20 relative overflow-hidden">
+    <section className="py-12 sm:py-20 relative overflow-hidden">
       {/* Gradient background */}
       <div className="absolute inset-0 bg-gradient-to-br from-indigo-50 via-purple-50 to-pink-50"></div>
       
@@ -56,23 +56,23 @@ export default function FeaturedProducts() {
           initial={{ opacity: 0, y: 20 }}
           whileInView={{ opacity: 1, y: 0 }}
           viewport={{ once: true }}
-          className="text-center mb-16"
+          className="text-center mb-10 sm:mb-16"
         >
           <motion.div
             initial={{ scale: 0 }}
             whileInView={{ scale: 1 }}
             viewport={{ once: true }}
-            className="inline-block mb-4"
+            className="inline-block mb-3 sm:mb-4"
           >
-            <span className="px-6 py-2 rounded-full bg-gradient-to-r from-indigo-600 via-purple-600 to-pink-600 text-white text-sm font-semibold shadow-lg">
+            <span className="px-5 sm:px-6 py-1.5 sm:py-2 rounded-full bg-gradient-to-r from-indigo-600 via-purple-600 to-pink-600 text-white text-xs sm:text-sm font-semibold shadow-lg">
               Featured Collection
             </span>
           </motion.div>
-          <h2 className="text-5xl font-bold mb-4 text-gradient">Featured Products</h2>
-          <p className="text-xl text-gray-600">Discover our most popular designs</p>
+          <h2 className="text-3xl sm:text-5xl font-bold mb-3 sm:mb-4 text-gradient">Featured Products</h2>
+          <p className="text-base sm:text-xl text-gray-600">Discover our most popular designs</p>
         </motion.div>
 
-        <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-8 items-stretch">
+        <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-6 sm:gap-8 items-stretch">
           {featuredProducts.map((product, index) => (
             <motion.div
               key={product.id}
@@ -91,13 +91,13 @@ export default function FeaturedProducts() {
           initial={{ opacity: 0 }}
           whileInView={{ opacity: 1 }}
           viewport={{ once: true }}
-          className="text-center mt-12"
+          className="text-center mt-10 sm:mt-12"
         >
           <Link href="/products">
             <motion.button
               whileHover={{ scale: 1.05 }}
               whileTap={{ scale: 0.95 }}
-              className="btn-primary btn-glow"
+              className="btn-primary btn-glow w-full sm:w-auto"
             >
               View All Products
             </motion.button>

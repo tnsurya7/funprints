@@ -7,8 +7,8 @@ export default function Returns() {
   return (
     <div className="min-h-screen pt-24 pb-16 bg-gray-50">
       <div className="max-w-4xl mx-auto px-4 sm:px-6 lg:px-8">
-        <div className="card p-8">
-          <h1 className="text-4xl font-bold mb-8">Returns & Refunds Policy</h1>
+        <div className="card p-5 sm:p-8">
+          <h1 className="text-2xl sm:text-4xl font-bold mb-6 sm:mb-8 text-gray-900">Returns & Refunds Policy</h1>
           
           <div className="prose prose-gray max-w-none space-y-6">
             <section>

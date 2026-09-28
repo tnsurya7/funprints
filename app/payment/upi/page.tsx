@@ -113,35 +113,35 @@ Please find the payment screenshot attached.`;
         <motion.div
           initial={{ opacity: 0, y: 20 }}
           animate={{ opacity: 1, y: 0 }}
-          className="card p-8"
+          className="card p-5 sm:p-8"
         >
-          <h1 className="text-3xl font-bold mb-6">UPI Payment</h1>
+          <h1 className="text-2xl sm:text-3xl font-bold mb-4 sm:mb-6 text-gray-900">UPI Payment</h1>
 
-          <div className="mb-8 p-6 bg-brand-50 rounded-xl">
-            <p className="text-sm text-gray-600 mb-2">Amount to Pay</p>
-            <p className="text-4xl font-bold text-brand-600">₹{amount}</p>
+          <div className="mb-6 sm:mb-8 p-4 sm:p-6 bg-purple-50/70 border border-purple-100 rounded-2xl">
+            <p className="text-xs sm:text-sm text-gray-600 mb-1.5 sm:mb-2">Amount to Pay</p>
+            <p className="text-3xl sm:text-4xl font-bold text-purple-600">₹{amount}</p>
           </div>
 
-          <div className="mb-8">
-            <div className="flex items-center gap-2 mb-4">
-              <div className="w-8 h-8 bg-brand-600 text-white rounded-full flex items-center justify-center font-bold">
+          <div className="mb-6 sm:mb-8">
+            <div className="flex items-center gap-2.5 mb-2.5 sm:mb-4">
+              <div className="w-7 h-7 sm:w-8 sm:h-8 bg-purple-600 text-white rounded-full flex items-center justify-center font-bold text-xs sm:text-sm flex-shrink-0">
                 1
               </div>
-              <h2 className="text-lg font-semibold">Open your UPI app</h2>
+              <h2 className="text-base sm:text-lg font-semibold text-gray-900">Open your UPI app</h2>
             </div>
-            <p className="text-gray-600 ml-10">
+            <p className="text-xs sm:text-sm text-gray-600 ml-9 sm:ml-10">
               Your UPI app should open automatically. Complete the payment of ₹{amount} to {upiId}
             </p>
           </div>
 
-          <div className="mb-8">
-            <div className="flex items-center gap-2 mb-4">
-              <div className="w-8 h-8 bg-brand-600 text-white rounded-full flex items-center justify-center font-bold">
+          <div className="mb-6 sm:mb-8">
+            <div className="flex items-center gap-2.5 mb-2.5 sm:mb-4">
+              <div className="w-7 h-7 sm:w-8 sm:h-8 bg-purple-600 text-white rounded-full flex items-center justify-center font-bold text-xs sm:text-sm flex-shrink-0">
                 2
               </div>
-              <h2 className="text-lg font-semibold">Send screenshot via WhatsApp</h2>
+              <h2 className="text-base sm:text-lg font-semibold text-gray-900">Send screenshot via WhatsApp</h2>
             </div>
-            <p className="text-gray-600 ml-10">
+            <p className="text-xs sm:text-sm text-gray-600 ml-9 sm:ml-10">
               Click the button below to open WhatsApp and send your payment screenshot directly to us
             </p>
           </div>

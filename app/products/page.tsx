@@ -74,18 +74,18 @@ export default function ProductsPage() {
   return (
     <div className="min-h-screen pt-24 pb-16 bg-gray-50">
       <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
-        <h1 className="text-4xl font-bold mb-8">Our Products</h1>
+        <h1 className="text-3xl sm:text-4xl font-bold mb-6 sm:mb-8 text-gray-900">Our Products</h1>
         
         {/* Category Filter */}
-        <div className="flex gap-2 mb-8 overflow-x-auto pb-2">
+        <div className="flex gap-2 mb-6 sm:mb-8 overflow-x-auto pb-2 scrollbar-thin">
           {categories.map((category) => (
             <button
               key={category}
               onClick={() => setFilter(category)}
-              className={`px-6 py-2 rounded-lg font-semibold whitespace-nowrap transition-all ${
+              className={`px-4 sm:px-6 py-2 rounded-xl text-xs sm:text-sm font-semibold whitespace-nowrap transition-all ${
                 filter === category
-                  ? 'bg-purple-600 text-white shadow-lg'
-                  : 'bg-white text-gray-700 hover:bg-gray-100'
+                  ? 'bg-purple-600 text-white shadow-md'
+                  : 'bg-white text-gray-700 hover:bg-gray-100 border border-gray-200'
               }`}
             >
               {category === 'all' ? 'All Products' : category}
@@ -94,7 +94,7 @@ export default function ProductsPage() {
           ))}
         </div>
         
-        <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-8">
+        <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-4 sm:gap-8">
           {filteredProducts.map((product) => (
             <ProductCard 
               key={product.id} 

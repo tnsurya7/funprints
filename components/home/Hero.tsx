@@ -66,20 +66,20 @@ export default function Hero() {
         className="absolute top-1/2 left-1/2 w-64 h-64 bg-gradient-to-r from-cyan-400 to-blue-600 rounded-full blur-3xl opacity-20"
       ></motion.div>
       
-      <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-32 relative z-10">
+      <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-10 sm:py-20 md:py-28 relative z-10">
         <div className="text-center">
           {/* Floating badge */}
           <motion.div
             initial={{ opacity: 0, y: -20 }}
             animate={{ opacity: 1, y: 0 }}
             transition={{ duration: 0.6 }}
-            className="inline-flex items-center gap-2 px-6 py-3 rounded-full glass mb-8 animate-float"
+            className="inline-flex items-center gap-1.5 sm:gap-2 px-3.5 sm:px-6 py-1.5 sm:py-3 rounded-full glass mb-4 sm:mb-8 animate-float"
           >
-            <Sparkles className="w-5 h-5 text-purple-600 animate-pulse" />
-            <span className="text-sm font-semibold bg-gradient-to-r from-blue-600 via-purple-600 to-pink-600 bg-clip-text text-transparent">
+            <Sparkles className="w-3.5 sm:w-5 h-3.5 sm:h-5 text-purple-600 animate-pulse" />
+            <span className="text-xs sm:text-sm font-semibold bg-gradient-to-r from-blue-600 via-purple-600 to-pink-600 bg-clip-text text-transparent">
               Premium Custom T-Shirts
             </span>
-            <Zap className="w-5 h-5 text-yellow-500 animate-pulse" />
+            <Zap className="w-3.5 sm:w-5 h-3.5 sm:h-5 text-yellow-500 animate-pulse" />
           </motion.div>
 
           {/* Main heading with gradient */}
@@ -87,7 +87,7 @@ export default function Hero() {
             initial={{ opacity: 0, y: 30 }}
             animate={{ opacity: 1, y: 0 }}
             transition={{ duration: 0.8, delay: 0.2 }}
-            className="text-6xl md:text-8xl font-bold mb-6 leading-tight"
+            className="text-3xl sm:text-5xl md:text-7xl font-bold mb-3 sm:mb-5 leading-tight tracking-tight"
           >
             Create Your
             <br />
@@ -102,7 +102,7 @@ export default function Hero() {
             initial={{ opacity: 0, y: 30 }}
             animate={{ opacity: 1, y: 0 }}
             transition={{ duration: 0.8, delay: 0.4 }}
-            className="text-xl md:text-2xl text-gray-600 mb-12 max-w-3xl mx-auto leading-relaxed"
+            className="text-xs sm:text-base md:text-xl text-gray-600 mb-6 sm:mb-10 max-w-2xl mx-auto leading-relaxed px-4"
           >
             Premium quality custom t-shirts with{' '}
             <span className="font-semibold text-gradient-blue">personalized designs</span>.
@@ -114,41 +114,41 @@ export default function Hero() {
             initial={{ opacity: 0, y: 30 }}
             animate={{ opacity: 1, y: 0 }}
             transition={{ duration: 0.8, delay: 0.6 }}
-            className="flex flex-col sm:flex-row gap-6 justify-center items-center"
+            className="flex flex-col sm:flex-row gap-2.5 sm:gap-6 justify-center items-center w-full max-w-xs sm:max-w-none mx-auto"
           >
-            <Link href="/products">
+            <Link href="/products" className="w-full sm:w-auto">
               <motion.button
                 whileHover={{ scale: 1.05 }}
                 whileTap={{ scale: 0.95 }}
-                className="btn-primary btn-glow inline-flex items-center gap-3 group"
+                className="btn-primary btn-glow w-full sm:w-auto inline-flex items-center justify-center gap-2.5 sm:gap-3 group py-3 sm:py-4 px-6 sm:px-8 text-xs sm:text-base font-semibold rounded-xl sm:rounded-2xl"
               >
                 <span>Shop Now</span>
-                <ArrowRight className="w-5 h-5 group-hover:translate-x-1 transition-transform" />
+                <ArrowRight className="w-4 sm:w-5 h-4 sm:h-5 group-hover:translate-x-1 transition-transform" />
               </motion.button>
             </Link>
             
-            <Link href="/bulk-order">
+            <Link href="/bulk-order" className="w-full sm:w-auto">
               <motion.button
                 whileHover={{ scale: 1.05 }}
                 whileTap={{ scale: 0.95 }}
-                className="btn-secondary inline-flex items-center gap-3"
+                className="btn-secondary w-full sm:w-auto inline-flex items-center justify-center gap-2 py-3 sm:py-4 px-6 sm:px-8 text-xs sm:text-base font-semibold rounded-xl sm:rounded-2xl"
               >
-                <Sparkles className="w-5 h-5" />
+                <Sparkles className="w-3.5 sm:w-5 h-3.5 sm:h-5" />
                 <span>Bulk Orders</span>
               </motion.button>
             </Link>
           </motion.div>
 
           {/* 360° Interactive 3D Product Viewer with Classic Round Neck Grey T-Shirt */}
-          <div className="mt-16 sm:mt-20">
+          <div className="mt-8 sm:mt-16">
             <div className="relative w-full max-w-5xl mx-auto">
               {/* Main card */}
-              <div className="relative rounded-3xl overflow-hidden shadow-2xl border border-gray-200/80 bg-white">
+              <div className="relative rounded-2xl sm:rounded-3xl overflow-hidden shadow-xl sm:shadow-2xl border border-gray-200/80 bg-white">
                 <ThreeDTshirtViewer
                   color="Grey"
                   modelPath="/models/tshirts/round-neck.glb"
                   productName="Classic Round Neck T-Shirt - Grey"
-                  className="aspect-[4/3] sm:aspect-video h-[380px] sm:h-[480px] md:h-[560px]"
+                  className="h-[260px] sm:h-[380px] md:h-[500px]"
                   initialAutoRotate={true}
                 />
               </div>
@@ -160,7 +160,7 @@ export default function Hero() {
             initial={{ opacity: 0, y: 30 }}
             animate={{ opacity: 1, y: 0 }}
             transition={{ duration: 0.8, delay: 1 }}
-            className="mt-20 grid grid-cols-2 md:grid-cols-4 gap-8 max-w-4xl mx-auto"
+            className="mt-10 sm:mt-16 grid grid-cols-2 md:grid-cols-4 gap-3 sm:gap-6 max-w-4xl mx-auto"
           >
             {[
               { number: '10K+', label: 'Happy Customers' },
@@ -173,12 +173,12 @@ export default function Hero() {
                 initial={{ opacity: 0, scale: 0.5 }}
                 animate={{ opacity: 1, scale: 1 }}
                 transition={{ delay: 1.2 + index * 0.1 }}
-                className="glass p-6 rounded-2xl hover:scale-105 transition-transform duration-300"
+                className="glass p-4 sm:p-6 rounded-2xl hover:scale-105 transition-transform duration-300"
               >
-                <div className="text-3xl md:text-4xl font-bold text-gradient mb-2">
+                <div className="text-2xl sm:text-3xl md:text-4xl font-bold text-gradient mb-1 sm:mb-2">
                   {stat.number}
                 </div>
-                <div className="text-sm text-gray-600">{stat.label}</div>
+                <div className="text-xs sm:text-sm text-gray-600">{stat.label}</div>
               </motion.div>
             ))}
           </motion.div>

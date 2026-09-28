@@ -26,7 +26,7 @@ const benefits = [
 
 export default function Benefits() {
   return (
-    <section className="py-20 relative overflow-hidden">
+    <section className="py-12 sm:py-20 relative overflow-hidden">
       {/* Animated background */}
       <div className="absolute inset-0 bg-gradient-to-br from-blue-50 via-purple-50 to-pink-50"></div>
       
@@ -35,7 +35,7 @@ export default function Benefits() {
           initial={{ opacity: 0, y: 20 }}
           whileInView={{ opacity: 1, y: 0 }}
           viewport={{ once: true }}
-          className="text-center mb-16"
+          className="text-center mb-10 sm:mb-16"
         >
           <motion.div
             initial={{ scale: 0 }}
@@ -43,12 +43,12 @@ export default function Benefits() {
             viewport={{ once: true }}
             className="inline-block mb-4"
           >
-            <span className="px-6 py-2 rounded-full bg-gradient-to-r from-blue-600 via-purple-600 to-pink-600 text-white text-sm font-semibold shadow-lg">
+            <span className="px-5 sm:px-6 py-1.5 sm:py-2 rounded-full bg-gradient-to-r from-blue-600 via-purple-600 to-pink-600 text-white text-xs sm:text-sm font-semibold shadow-lg">
               Why Choose Us
             </span>
           </motion.div>
-          <h2 className="text-5xl font-bold mb-4 text-gradient">Why Choose Fun Print?</h2>
-          <p className="text-xl text-gray-600">Excellence in every stitch</p>
+          <h2 className="text-3xl sm:text-5xl font-bold mb-3 sm:mb-4 text-gradient">Why Choose Fun Print?</h2>
+          <p className="text-base sm:text-xl text-gray-600">Excellence in every stitch</p>
         </motion.div>
 
         <div className="grid grid-cols-1 md:grid-cols-3 gap-8">

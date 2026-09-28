@@ -54,30 +54,30 @@ export default function CTASection() {
             </span>
           </motion.div>
 
-          <h2 className="text-4xl md:text-6xl font-bold mb-6 text-white">
+          <h2 className="text-3xl sm:text-4xl md:text-6xl font-bold mb-4 sm:mb-6 text-white leading-tight">
             Ready to Create Your Custom T-Shirt?
           </h2>
-          <p className="text-xl md:text-2xl mb-10 text-white/90">
+          <p className="text-base sm:text-xl md:text-2xl mb-8 sm:mb-10 text-white/90">
             Start designing today and wear your creativity
           </p>
           
-          <div className="flex flex-col sm:flex-row gap-6 justify-center">
-            <Link href="/products">
+          <div className="flex flex-col sm:flex-row gap-4 sm:gap-6 justify-center items-center w-full max-w-xs sm:max-w-none mx-auto">
+            <Link href="/products" className="w-full sm:w-auto">
               <motion.button
                 whileHover={{ scale: 1.05, y: -2 }}
                 whileTap={{ scale: 0.95 }}
-                className="px-10 py-5 rounded-2xl font-semibold bg-white text-purple-600 shadow-2xl hover:shadow-white/50 transition-all inline-flex items-center gap-3 group"
+                className="w-full sm:w-auto px-6 sm:px-10 py-3.5 sm:py-5 rounded-2xl font-semibold bg-white text-purple-600 shadow-2xl hover:shadow-white/50 transition-all inline-flex items-center justify-center gap-3 group text-sm sm:text-base"
               >
                 <span>Browse Products</span>
-                <ArrowRight className="w-5 h-5 group-hover:translate-x-1 transition-transform" />
+                <ArrowRight className="w-4 sm:w-5 h-4 sm:h-5 group-hover:translate-x-1 transition-transform" />
               </motion.button>
             </Link>
             
-            <Link href="/bulk-order">
+            <Link href="/bulk-order" className="w-full sm:w-auto">
               <motion.button
                 whileHover={{ scale: 1.05, y: -2 }}
                 whileTap={{ scale: 0.95 }}
-                className="px-10 py-5 rounded-2xl font-semibold bg-transparent border-2 border-white text-white hover:bg-white hover:text-purple-600 transition-all shadow-lg"
+                className="w-full sm:w-auto px-6 sm:px-10 py-3.5 sm:py-5 rounded-2xl font-semibold bg-transparent border-2 border-white text-white hover:bg-white hover:text-purple-600 transition-all shadow-lg text-sm sm:text-base"
               >
                 Request Bulk Quote
               </motion.button>
@@ -90,7 +90,7 @@ export default function CTASection() {
             whileInView={{ opacity: 1, y: 0 }}
             viewport={{ once: true }}
             transition={{ delay: 0.3 }}
-            className="mt-16 flex flex-wrap justify-center gap-8 text-white/80"
+            className="mt-12 sm:mt-16 flex flex-wrap justify-center gap-4 sm:gap-8 text-xs sm:text-sm text-white/80"
           >
             <div className="flex items-center gap-2">
               <div className="w-2 h-2 bg-green-400 rounded-full animate-pulse"></div>

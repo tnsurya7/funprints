@@ -13,12 +13,13 @@
   }
   
   body {
-    @apply bg-gradient-to-br from-slate-50 via-blue-50 to-indigo-50 text-gray-900;
+    @apply bg-gradient-to-br from-slate-50 via-blue-50 to-indigo-50 text-gray-900 overflow-x-hidden;
     background-attachment: fixed;
   }
 
   html {
     scroll-behavior: smooth;
+    overflow-x: hidden;
   }
 }
 
@@ -52,7 +53,7 @@
   }
 
   .btn-primary {
-    @apply relative px-8 py-4 rounded-2xl font-semibold text-white overflow-hidden;
+    @apply relative px-6 sm:px-8 py-3.5 sm:py-4 rounded-2xl font-semibold text-white overflow-hidden text-sm sm:text-base;
     @apply bg-gradient-to-r from-blue-600 via-purple-600 to-pink-600;
     @apply hover:shadow-2xl hover:shadow-purple-500/50 hover:scale-105;
     @apply transition-all duration-500;
@@ -68,7 +69,7 @@
   }
 
   .btn-secondary {
-    @apply relative px-8 py-4 rounded-2xl font-semibold overflow-hidden;
+    @apply relative px-6 sm:px-8 py-3.5 sm:py-4 rounded-2xl font-semibold overflow-hidden text-sm sm:text-base;
     @apply bg-gradient-to-r from-gray-100 to-gray-200 text-gray-900;
     @apply hover:from-gray-200 hover:to-gray-300;
     @apply hover:shadow-xl hover:scale-105;

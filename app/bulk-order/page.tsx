@@ -36,12 +36,12 @@ export default function BulkOrderPage() {
           initial={{ opacity: 0, y: 20 }}
           animate={{ opacity: 1, y: 0 }}
         >
-          <h1 className="text-4xl font-bold mb-4">Bulk Order Enquiry</h1>
-          <p className="text-xl text-gray-600 mb-8">
+          <h1 className="text-2xl sm:text-4xl font-bold mb-3 sm:mb-4 text-gray-900">Bulk Order Enquiry</h1>
+          <p className="text-base sm:text-xl text-gray-600 mb-6 sm:mb-8">
             Get special pricing for bulk orders. Perfect for events, teams, and corporate gifting.
           </p>
 
-          <div className="card p-8">
+          <div className="card p-5 sm:p-8">
             <form onSubmit={handleSubmit} className="space-y-6">
               <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
                 <div>
