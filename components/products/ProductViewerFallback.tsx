@@ -52,7 +52,7 @@ export default function ProductViewerFallback({
               onClick={() => setActiveView(view)}
               className={`px-3 py-1.5 rounded-lg text-xs font-semibold transition-all ${
                 activeView === view
-                  ? 'bg-purple-600 text-white shadow-sm'
+                  ? 'bg-[#FFC006] text-gray-950 font-bold border border-amber-400/80 shadow-xs'
                   : 'bg-gray-100 text-gray-700 hover:bg-gray-200'
               }`}
             >

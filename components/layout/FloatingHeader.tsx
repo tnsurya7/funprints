@@ -30,6 +30,7 @@ export default function FloatingHeader() {
   const navLinks = [
     { href: '/', label: 'Home' },
     { href: '/products', label: 'Products' },
+    { href: '/retail-orders', label: 'Retail Orders' },
     { href: '/bulk-order', label: 'Bulk Orders' },
     { href: '/contact', label: 'Contact' },
   ];
@@ -40,98 +41,71 @@ export default function FloatingHeader() {
       <motion.header
         initial={{ y: -100, opacity: 0 }}
         animate={{ y: 0, opacity: 1 }}
-        transition={{ duration: 0.6, ease: [0.16, 1, 0.3, 1] }}
-        className={`fixed top-0 left-0 right-0 z-50 transition-all duration-500 ${
-          isScrolled ? 'pt-3' : 'pt-5'
+        transition={{ duration: 0.5, ease: [0.16, 1, 0.3, 1] }}
+        className={`fixed top-0 left-0 right-0 z-50 transition-all duration-300 ${
+          isScrolled ? 'pt-2.5 sm:pt-3' : 'pt-4 sm:pt-5'
         }`}
       >
-        <motion.nav
-          animate={{
-            scale: isScrolled ? 0.96 : 1,
-          }}
-          transition={{ duration: 0.3, ease: 'easeOut' }}
-          className={`max-w-7xl mx-auto px-4 sm:px-6 lg:px-8`}
-        >
+        <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
           <div
-            className={`relative rounded-[24px] transition-all duration-300 ${
+            className={`rounded-full transition-all duration-300 border ${
               isScrolled
-                ? 'bg-white/85 backdrop-blur-2xl shadow-2xl shadow-black/10'
-                : 'bg-white/80 backdrop-blur-xl shadow-xl shadow-black/5'
-            } border border-white/40`}
-            style={{
-              background: isScrolled
-                ? 'linear-gradient(135deg, rgba(255,255,255,0.95) 0%, rgba(255,255,255,0.85) 100%)'
-                : 'linear-gradient(135deg, rgba(255,255,255,0.9) 0%, rgba(255,255,255,0.75) 100%)',
-            }}
+                ? 'bg-white/95 backdrop-blur-md shadow-md border-gray-200'
+                : 'bg-white/90 backdrop-blur-md shadow-sm border-gray-200/80'
+            }`}
           >
-            <div className="flex items-center justify-between h-14 sm:h-18 px-3 sm:px-6">
+            <div className="flex items-center justify-between h-14 sm:h-16 px-4 sm:px-6">
               {/* Logo */}
-              <Link href="/" className="flex items-center gap-2 sm:gap-2.5 group">
-                <div className="relative w-8 h-8 sm:w-10 sm:h-10 rounded-xl overflow-hidden flex items-center justify-center bg-white/90 p-0.5 border border-purple-100/60 shadow-sm group-hover:scale-105 transition-transform duration-300">
+              <Link href="/" className="flex items-center gap-2.5 group py-1">
+                <div className="relative h-11 sm:h-13 w-auto flex items-center justify-center group-hover:scale-105 transition-transform duration-200">
                   <Image
-                    src="/logo.png"
-                    alt="Fun Print Logo"
-                    width={40}
-                    height={40}
-                    className="object-contain w-full h-full"
+                    src="/fun-print-logo.avif"
+                    alt="FunPrint Logo"
+                    width={68}
+                    height={54}
+                    className="object-contain h-10 sm:h-12 w-auto"
                     priority
                   />
                 </div>
-                <span className="text-lg sm:text-xl font-bold bg-gradient-to-r from-blue-600 via-purple-600 to-pink-600 bg-clip-text text-transparent">
-                  Fun Print
+                <span className="text-xl sm:text-2xl font-black tracking-tight text-gray-950 font-serif">
+                  FunPrint
                 </span>
               </Link>
 
               {/* Desktop Navigation */}
               <div className="hidden md:flex items-center gap-1">
-                {navLinks.map((link) => (
-                  <Link key={link.href} href={link.href}>
-                    <motion.div
-                      className={`relative px-4 py-2 rounded-xl transition-all duration-300 ${
-                        pathname === link.href
-                          ? 'text-purple-600 font-semibold'
-                          : 'text-gray-700 hover:text-purple-600'
-                      }`}
-                      whileHover={{ y: -2 }}
-                      whileTap={{ scale: 0.95 }}
-                    >
-                      {link.label}
-                      {pathname === link.href && (
-                        <motion.div
-                          layoutId="activeTab"
-                          className="absolute inset-0 bg-gradient-to-r from-blue-50 via-purple-50 to-pink-50 rounded-xl -z-10"
-                          transition={{ type: 'spring', bounce: 0.2, duration: 0.6 }}
-                        />
-                      )}
-                      <motion.div
-                        className={`absolute bottom-0 left-1/2 -translate-x-1/2 h-0.5 bg-gradient-to-r from-blue-500 via-purple-500 to-pink-500 rounded-full ${
-                          pathname === link.href ? 'w-full' : 'w-0 group-hover:w-full'
+                {navLinks.map((link) => {
+                  const isActive = pathname === link.href;
+                  return (
+                    <Link key={link.href} href={link.href}>
+                      <div
+                        className={`relative px-4 py-2 rounded-full text-sm font-semibold transition-all duration-200 ${
+                          isActive
+                            ? 'bg-gray-900 text-white shadow-sm'
+                            : 'text-gray-700 hover:text-gray-950 hover:bg-gray-100'
                         }`}
-                        transition={{ duration: 0.3 }}
-                      />
-                    </motion.div>
-                  </Link>
-                ))}
+                      >
+                        {link.label}
+                      </div>
+                    </Link>
+                  );
+                })}
               </div>
 
               {/* Right Side Actions */}
-              <div className="flex items-center gap-2 sm:gap-3">
+              <div className="flex items-center gap-2.5 sm:gap-3">
                 {/* Cart Button */}
                 <Link href="/cart">
                   <motion.div
                     whileHover={{ scale: 1.05 }}
                     whileTap={{ scale: 0.95 }}
-                    className="relative flex items-center justify-center w-10 h-10 rounded-xl bg-gray-100 hover:bg-gray-200 transition-colors"
+                    className="relative flex items-center justify-center w-10 h-10 rounded-full bg-gray-100 hover:bg-gray-200 text-gray-800 transition-colors"
                   >
-                    <ShoppingCart className="w-5 h-5 text-gray-700" />
+                    <ShoppingCart className="w-5 h-5 text-gray-800" />
                     {cartItems.length > 0 && (
-                      <motion.span
-                        initial={{ scale: 0 }}
-                        animate={{ scale: 1 }}
-                        className="absolute -top-1 -right-1 w-5 h-5 bg-gradient-to-r from-pink-500 to-red-500 text-white text-xs font-bold rounded-full flex items-center justify-center shadow-lg"
-                      >
+                      <span className="absolute -top-1 -right-1 min-w-[20px] h-5 px-1 bg-[#FFC006] text-gray-950 text-[11px] font-extrabold rounded-full flex items-center justify-center border-2 border-white shadow-sm">
                         {cartItems.length}
-                      </motion.span>
+                      </span>
                     )}
                   </motion.div>
                 </Link>
@@ -139,31 +113,30 @@ export default function FloatingHeader() {
                 {/* CTA Button - Desktop */}
                 <Link href="/products" className="hidden md:block">
                   <motion.button
-                    whileHover={{ scale: 1.05, boxShadow: '0 10px 30px rgba(168, 85, 247, 0.4)' }}
-                    whileTap={{ scale: 0.95 }}
-                    className="px-5 py-2.5 rounded-xl bg-gradient-to-r from-blue-500 via-purple-500 to-pink-500 text-white font-semibold shadow-lg hover:shadow-xl transition-all duration-300"
+                    whileHover={{ scale: 1.02 }}
+                    whileTap={{ scale: 0.98 }}
+                    className="px-5 py-2.5 rounded-full bg-[#FFC006] hover:bg-[#E5AC00] text-gray-950 font-bold text-sm shadow-sm hover:shadow transition-all border border-amber-400/60"
                   >
                     Shop Now
                   </motion.button>
                 </Link>
 
                 {/* Mobile Menu Button */}
-                <motion.button
-                  whileTap={{ scale: 0.9 }}
+                <button
                   onClick={() => setIsMobileMenuOpen(!isMobileMenuOpen)}
-                  className="md:hidden flex items-center justify-center w-10 h-10 rounded-xl bg-gray-100 hover:bg-gray-200 transition-colors"
+                  className="md:hidden flex items-center justify-center w-10 h-10 rounded-full bg-gray-100 hover:bg-gray-200 text-gray-800 transition-colors"
                   aria-label="Toggle menu"
                 >
                   {isMobileMenuOpen ? (
-                    <X className="w-5 h-5 text-gray-700" />
+                    <X className="w-5 h-5 text-gray-800" />
                   ) : (
-                    <Menu className="w-5 h-5 text-gray-700" />
+                    <Menu className="w-5 h-5 text-gray-800" />
                   )}
-                </motion.button>
+                </button>
               </div>
             </div>
           </div>
-        </motion.nav>
+        </div>
       </motion.header>
 
       {/* Mobile Menu Dropdown */}
@@ -176,63 +149,42 @@ export default function FloatingHeader() {
               animate={{ opacity: 1 }}
               exit={{ opacity: 0 }}
               transition={{ duration: 0.2 }}
-              className="fixed inset-0 bg-black/20 backdrop-blur-sm z-40 md:hidden"
+              className="fixed inset-0 bg-black/30 backdrop-blur-xs z-40 md:hidden"
               onClick={() => setIsMobileMenuOpen(false)}
             />
 
             {/* Menu Panel */}
             <motion.div
-              initial={{ opacity: 0, y: -20 }}
+              initial={{ opacity: 0, y: -15 }}
               animate={{ opacity: 1, y: 0 }}
-              exit={{ opacity: 0, y: -20 }}
-              transition={{ duration: 0.3, ease: [0.16, 1, 0.3, 1] }}
+              exit={{ opacity: 0, y: -15 }}
+              transition={{ duration: 0.2 }}
               className="fixed top-20 left-4 right-4 z-50 md:hidden"
             >
-              <div
-                className="rounded-[24px] bg-white/95 backdrop-blur-2xl shadow-2xl border border-white/40 overflow-hidden"
-                style={{
-                  background: 'linear-gradient(135deg, rgba(255,255,255,0.98) 0%, rgba(255,255,255,0.92) 100%)',
-                }}
-              >
-                <div className="p-4 space-y-2">
-                  {navLinks.map((link, index) => (
-                    <motion.div
-                      key={link.href}
-                      initial={{ opacity: 0, x: -20 }}
-                      animate={{ opacity: 1, x: 0 }}
-                      transition={{ delay: index * 0.1 }}
-                    >
-                      <Link href={link.href}>
-                        <motion.div
-                          whileTap={{ scale: 0.98 }}
-                          className={`w-full px-4 py-3 rounded-xl text-left font-medium transition-all duration-200 ${
-                            pathname === link.href
-                              ? 'bg-gradient-to-r from-blue-50 via-purple-50 to-pink-50 text-purple-600'
-                              : 'text-gray-700 hover:bg-gray-50'
-                          }`}
-                        >
-                          {link.label}
-                        </motion.div>
-                      </Link>
-                    </motion.div>
-                  ))}
-
-                  {/* CTA Button - Mobile */}
-                  <motion.div
-                    initial={{ opacity: 0, x: -20 }}
-                    animate={{ opacity: 1, x: 0 }}
-                    transition={{ delay: navLinks.length * 0.1 }}
-                    className="pt-2"
-                  >
-                    <Link href="/products">
-                      <motion.button
-                        whileTap={{ scale: 0.98 }}
-                        className="w-full px-4 py-3 rounded-xl bg-gradient-to-r from-blue-500 via-purple-500 to-pink-500 text-white font-semibold shadow-lg"
+              <div className="rounded-3xl bg-white shadow-xl border border-gray-200 overflow-hidden p-4 space-y-2">
+                {navLinks.map((link) => {
+                  const isActive = pathname === link.href;
+                  return (
+                    <Link key={link.href} href={link.href}>
+                      <div
+                        className={`w-full px-4 py-3 rounded-full text-sm font-semibold transition-colors ${
+                          isActive
+                            ? 'bg-gray-900 text-white'
+                            : 'text-gray-800 hover:bg-gray-100'
+                        }`}
                       >
-                        Shop Now
-                      </motion.button>
+                        {link.label}
+                      </div>
                     </Link>
-                  </motion.div>
+                  );
+                })}
+
+                <div className="pt-2">
+                  <Link href="/products">
+                    <button className="w-full py-3 rounded-full bg-[#FFC006] hover:bg-[#E5AC00] text-gray-950 font-bold text-sm shadow-sm transition-all border border-amber-400/60">
+                      Shop Now
+                    </button>
+                  </Link>
                 </div>
               </div>
             </motion.div>

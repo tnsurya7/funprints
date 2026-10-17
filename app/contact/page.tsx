@@ -30,9 +30,9 @@ export default function ContactPage() {
         setFormData({ name: '', email: '', mobile: '', message: '' });
         
         // Also open WhatsApp
-        const whatsappNumber = process.env.NEXT_PUBLIC_WHATSAPP_NUMBER || 'YOUR_WHATSAPP_NUMBER';
+        const whatsappNumber = process.env.NEXT_PUBLIC_WHATSAPP_NUMBER || '919344925600';
         const whatsappMessage = encodeURIComponent(
-          `Hi Fun Print,\n\nName: ${formData.name}\nEmail: ${formData.email}\nMobile: ${formData.mobile}\n\nMessage: ${formData.message}`
+          `Hi FunPrint,\n\nName: ${formData.name}\nEmail: ${formData.email}\nMobile: ${formData.mobile}\n\nMessage: ${formData.message}`
         );
         window.open(`https://wa.me/${whatsappNumber}?text=${whatsappMessage}`, '_blank');
       } else {
@@ -46,191 +46,174 @@ export default function ContactPage() {
   };
 
   return (
-    <div className="min-h-screen pt-24 sm:pt-32 pb-16 relative overflow-hidden">
-      {/* Gradient background */}
-      <div className="absolute inset-0 bg-gradient-to-br from-blue-50 via-purple-50 to-pink-50"></div>
-
-      <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 relative z-10">
-        <motion.div
-          initial={{ opacity: 0, y: 20 }}
-          animate={{ opacity: 1, y: 0 }}
-          className="text-center mb-10 sm:mb-16"
-        >
-          <motion.div
-            initial={{ scale: 0 }}
-            animate={{ scale: 1 }}
-            className="inline-block mb-3 sm:mb-4"
-          >
-            <span className="px-5 sm:px-6 py-1.5 sm:py-2 rounded-full bg-gradient-to-r from-blue-600 via-purple-600 to-pink-600 text-white text-xs sm:text-sm font-semibold shadow-lg">
+    <div className="min-h-screen pt-24 sm:pt-28 pb-16 bg-slate-50/70">
+      <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
+        <div className="text-center mb-10 sm:mb-14">
+          <div className="inline-block mb-3 sm:mb-4">
+            <span className="px-4 py-1.5 rounded-full bg-gray-100 text-gray-800 text-xs sm:text-sm font-semibold border border-gray-200">
               Get In Touch
             </span>
-          </motion.div>
-          <h1 className="text-3xl sm:text-5xl font-bold mb-3 sm:mb-4 text-gradient">Contact Us</h1>
-          <p className="text-base sm:text-xl text-gray-600">We&apos;d love to hear from you!</p>
-        </motion.div>
+          </div>
+          <h1 className="text-3xl sm:text-5xl font-black text-gray-950 tracking-tight mb-3">
+            Contact FunPrint
+          </h1>
+          <p className="text-base sm:text-lg text-gray-600 max-w-lg mx-auto">
+            Have questions about custom printing, bulk quantities, or fabric weights? We are here to help.
+          </p>
+        </div>
 
-        <div className="grid grid-cols-1 lg:grid-cols-2 gap-8 sm:gap-12">
+        <div className="grid grid-cols-1 lg:grid-cols-2 gap-8 sm:gap-12 items-start max-w-5xl mx-auto">
           {/* Contact Form */}
-          <motion.div
-            initial={{ opacity: 0, x: -50 }}
-            animate={{ opacity: 1, x: 0 }}
-            transition={{ delay: 0.2 }}
-          >
-            <div className="card-gradient p-5 sm:p-8">
-              <h2 className="text-xl sm:text-2xl font-bold mb-4 sm:mb-6 text-gradient">Send us a Message</h2>
-              
-              <form onSubmit={handleSubmit} className="space-y-6">
-                <div>
-                  <label className="block text-sm font-semibold mb-2">Name *</label>
-                  <input
-                    type="text"
-                    value={formData.name}
-                    onChange={(e) => setFormData({ ...formData, name: e.target.value })}
-                    className="w-full px-4 py-3 border border-gray-300 rounded-xl focus:ring-2 focus:ring-purple-500 focus:border-transparent transition-all"
-                    required
-                  />
-                </div>
+          <div className="bg-white p-6 sm:p-8 rounded-3xl border border-gray-200 shadow-xs">
+            <h2 className="text-xl sm:text-2xl font-black mb-5 text-gray-950">Send Us a Message</h2>
+            
+            <form onSubmit={handleSubmit} className="space-y-4 sm:space-y-5">
+              <div>
+                <label className="block text-xs font-bold uppercase tracking-wider text-gray-700 mb-1.5">
+                  Full Name *
+                </label>
+                <input
+                  type="text"
+                  value={formData.name}
+                  onChange={(e) => setFormData({ ...formData, name: e.target.value })}
+                  className="w-full px-4 py-3 border border-gray-300 rounded-2xl focus:ring-2 focus:ring-gray-950 focus:border-gray-950 transition-all text-sm outline-none"
+                  placeholder="John Doe"
+                  required
+                />
+              </div>
 
-                <div>
-                  <label className="block text-sm font-semibold mb-2">Email *</label>
-                  <input
-                    type="email"
-                    value={formData.email}
-                    onChange={(e) => setFormData({ ...formData, email: e.target.value })}
-                    className="w-full px-4 py-3 border border-gray-300 rounded-xl focus:ring-2 focus:ring-purple-500 focus:border-transparent transition-all"
-                    required
-                  />
-                </div>
+              <div>
+                <label className="block text-xs font-bold uppercase tracking-wider text-gray-700 mb-1.5">
+                  Email Address *
+                </label>
+                <input
+                  type="email"
+                  value={formData.email}
+                  onChange={(e) => setFormData({ ...formData, email: e.target.value })}
+                  className="w-full px-4 py-3 border border-gray-300 rounded-2xl focus:ring-2 focus:ring-gray-950 focus:border-gray-950 transition-all text-sm outline-none"
+                  placeholder="john@example.com"
+                  required
+                />
+              </div>
 
-                <div>
-                  <label className="block text-sm font-semibold mb-2">Mobile *</label>
-                  <input
-                    type="tel"
-                    value={formData.mobile}
-                    onChange={(e) => setFormData({ ...formData, mobile: e.target.value })}
-                    className="w-full px-4 py-3 border border-gray-300 rounded-xl focus:ring-2 focus:ring-purple-500 focus:border-transparent transition-all"
-                    required
-                  />
-                </div>
+              <div>
+                <label className="block text-xs font-bold uppercase tracking-wider text-gray-700 mb-1.5">
+                  Mobile Number *
+                </label>
+                <input
+                  type="tel"
+                  value={formData.mobile}
+                  onChange={(e) => setFormData({ ...formData, mobile: e.target.value })}
+                  className="w-full px-4 py-3 border border-gray-300 rounded-2xl focus:ring-2 focus:ring-gray-950 focus:border-gray-950 transition-all text-sm outline-none"
+                  placeholder="9876543210"
+                  required
+                />
+              </div>
 
-                <div>
-                  <label className="block text-sm font-semibold mb-2">Message *</label>
-                  <textarea
-                    value={formData.message}
-                    onChange={(e) => setFormData({ ...formData, message: e.target.value })}
-                    rows={5}
-                    className="w-full px-4 py-3 border border-gray-300 rounded-xl focus:ring-2 focus:ring-purple-500 focus:border-transparent transition-all resize-none"
-                    required
-                  />
-                </div>
+              <div>
+                <label className="block text-xs font-bold uppercase tracking-wider text-gray-700 mb-1.5">
+                  Message *
+                </label>
+                <textarea
+                  value={formData.message}
+                  onChange={(e) => setFormData({ ...formData, message: e.target.value })}
+                  rows={4}
+                  className="w-full px-4 py-3 border border-gray-300 rounded-2xl focus:ring-2 focus:ring-gray-950 focus:border-gray-950 transition-all resize-none text-sm outline-none"
+                  placeholder="Describe your design, quantity, or query..."
+                  required
+                />
+              </div>
 
-                <motion.button
-                  whileHover={{ scale: 1.02 }}
-                  whileTap={{ scale: 0.98 }}
-                  type="submit"
-                  disabled={isSubmitting}
-                  className="w-full btn-primary btn-glow flex items-center justify-center gap-2 disabled:opacity-50"
-                >
-                  {isSubmitting ? (
-                    'Sending...'
-                  ) : (
-                    <>
-                      <Send className="w-5 h-5" />
-                      Send Message
-                    </>
-                  )}
-                </motion.button>
-              </form>
-            </div>
-          </motion.div>
+              {/* Curvly Submit Button */}
+              <button
+                type="submit"
+                disabled={isSubmitting}
+                className="w-full py-3.5 rounded-full font-bold bg-[#FFC006] hover:bg-[#E5AC00] text-gray-950 shadow-xs hover:shadow transition-all border border-amber-400/60 flex items-center justify-center gap-2 text-sm sm:text-base disabled:opacity-50"
+              >
+                {isSubmitting ? (
+                  <span>Sending...</span>
+                ) : (
+                  <>
+                    <Send className="w-4 h-4" />
+                    <span>Send Message</span>
+                  </>
+                )}
+              </button>
+            </form>
+          </div>
 
-          {/* Contact Info */}
-          <motion.div
-            initial={{ opacity: 0, x: 50 }}
-            animate={{ opacity: 1, x: 0 }}
-            transition={{ delay: 0.4 }}
-            className="space-y-6"
-          >
-            {/* Contact Cards */}
+          {/* Contact Details Cards */}
+          <div className="space-y-4 font-serif">
             {[
               {
                 icon: Phone,
-                title: 'Phone',
-                content: '+91 98765 43210',
-                link: 'tel:+919876543210',
-                gradient: 'from-blue-500 to-cyan-500',
+                title: 'Phone Support & WhatsApp',
+                content: '+91 93449 25600',
+                link: 'tel:+919344925600',
               },
               {
                 icon: Mail,
-                title: 'Email',
-                content: 'hello@funprint.com',
-                link: 'mailto:hello@funprint.com',
-                gradient: 'from-purple-500 to-pink-500',
-              },
-              {
-                icon: MessageCircle,
-                title: 'WhatsApp',
-                content: 'Chat with us',
-                link: `https://wa.me/${process.env.NEXT_PUBLIC_WHATSAPP_NUMBER}`,
-                gradient: 'from-green-500 to-emerald-500',
+                title: 'Official Email',
+                content: 'contact@funprint.in',
+                link: 'mailto:contact@funprint.in',
               },
               {
                 icon: MapPin,
-                title: 'Address',
-                content: 'Mumbai, Maharashtra, India',
+                title: 'Head Office',
+                content: 'FunPrint (OSHIVO EXIM OPC PVT LTD), Savithri Palace No: 325, Paper Mills Road, Perambur, Chennai - 600011, Tamil Nadu, India.',
                 link: null,
-                gradient: 'from-orange-500 to-red-500',
               },
-            ].map((item, index) => (
-              <motion.div
+              {
+                icon: MapPin,
+                title: 'Production Unit',
+                content: '105, Linga Gounder Street, Odakkadu, Tirupur - 641602',
+                link: null,
+              },
+            ].map((item) => (
+              <div
                 key={item.title}
-                initial={{ opacity: 0, y: 20 }}
-                animate={{ opacity: 1, y: 0 }}
-                transition={{ delay: 0.6 + index * 0.1 }}
-                whileHover={{ y: -5, scale: 1.02 }}
-                className="relative group"
+                className="bg-white p-5 rounded-2xl border border-gray-200/90 shadow-xs flex items-center gap-4"
               >
-                <div className={`absolute inset-0 bg-gradient-to-r ${item.gradient} rounded-2xl blur-xl opacity-20 group-hover:opacity-40 transition-opacity`}></div>
-                
-                <div className="relative card-gradient p-6">
-                  <div className="flex items-start gap-4">
-                    <div className={`p-3 rounded-xl bg-gradient-to-r ${item.gradient} shadow-lg`}>
-                      <item.icon className="w-6 h-6 text-white" />
-                    </div>
-                    <div className="flex-1">
-                      <h3 className="font-semibold text-gray-900 mb-1">{item.title}</h3>
-                      {item.link ? (
-                        <a
-                          href={item.link}
-                          target={item.link.startsWith('http') ? '_blank' : undefined}
-                          rel={item.link.startsWith('http') ? 'noopener noreferrer' : undefined}
-                          className="text-gray-600 hover:text-transparent hover:bg-clip-text hover:bg-gradient-to-r hover:from-blue-600 hover:to-purple-600 transition-all"
-                        >
-                          {item.content}
-                        </a>
-                      ) : (
-                        <p className="text-gray-600">{item.content}</p>
-                      )}
-                    </div>
-                  </div>
+                <div className="w-10 h-10 rounded-full bg-gray-100 border border-gray-200 flex items-center justify-center text-gray-800 flex-shrink-0">
+                  <item.icon className="w-5 h-5 text-[#FFC006]" />
                 </div>
-              </motion.div>
+                <div className="flex-1 min-w-0">
+                  <h3 className="font-bold text-xs uppercase tracking-wider text-gray-500 mb-0.5">
+                    {item.title}
+                  </h3>
+                  {item.link ? (
+                    <a
+                      href={item.link}
+                      target={item.link.startsWith('http') ? '_blank' : undefined}
+                      rel={item.link.startsWith('http') ? 'noopener noreferrer' : undefined}
+                      className="text-sm sm:text-base font-bold text-gray-900 hover:text-amber-700 transition-colors"
+                    >
+                      {item.content}
+                    </a>
+                  ) : (
+                    <p className="text-xs sm:text-sm font-bold text-gray-900">{item.content}</p>
+                  )}
+                </div>
+              </div>
             ))}
 
             {/* Business Hours */}
-            <motion.div
-              initial={{ opacity: 0, y: 20 }}
-              animate={{ opacity: 1, y: 0 }}
-              transition={{ delay: 1 }}
-              className="card-gradient p-6"
-            >
-              <h3 className="font-semibold text-gray-900 mb-4">Business Hours</h3>
-              <div className="space-y-2 text-gray-600">
-                <p>Monday - Saturday: 10:00 AM - 8:00 PM</p>
-                <p>Sunday: 11:00 AM - 6:00 PM</p>
+            <div className="bg-white p-6 rounded-2xl border border-gray-200 shadow-xs">
+              <h3 className="font-extrabold text-sm uppercase tracking-wider text-gray-950 mb-3">
+                Working Hours
+              </h3>
+              <div className="space-y-1.5 text-xs sm:text-sm text-gray-600">
+                <p className="flex justify-between">
+                  <span>Monday – Saturday:</span>
+                  <strong className="text-gray-900">9:30 AM – 7:30 PM</strong>
+                </p>
+                <p className="flex justify-between">
+                  <span>Sunday:</span>
+                  <strong className="text-gray-900">10:00 AM – 4:00 PM</strong>
+                </p>
               </div>
-            </motion.div>
-          </motion.div>
+            </div>
+          </div>
         </div>
       </div>
     </div>

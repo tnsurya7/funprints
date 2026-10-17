@@ -1,124 +1,78 @@
 'use client';
 
-import { useState, useEffect } from 'react';
+import { useState } from 'react';
 import Link from 'next/link';
-import Image from 'next/image';
-import { ShoppingCart, Menu, X } from 'lucide-react';
 import { motion, AnimatePresence } from 'framer-motion';
+import { ShoppingCart, Menu, X } from 'lucide-react';
+import Image from 'next/image';
 import { useCartStore } from '@/store/cartStore';
 
 export default function Navbar() {
-  const [isScrolled, setIsScrolled] = useState(false);
   const [isMobileMenuOpen, setIsMobileMenuOpen] = useState(false);
   const cartItems = useCartStore((state) => state.items);
-
-  useEffect(() => {
-    const handleScroll = () => setIsScrolled(window.scrollY > 20);
-    window.addEventListener('scroll', handleScroll);
-    return () => window.removeEventListener('scroll', handleScroll);
-  }, []);
 
   const navLinks = [
     { href: '/', label: 'Home' },
     { href: '/products', label: 'Products' },
+    { href: '/retail-orders', label: 'Retail Orders' },
     { href: '/bulk-order', label: 'Bulk Orders' },
-    { href: '/about', label: 'About' },
+    { href: '/contact', label: 'Contact' },
   ];
 
   return (
-    <motion.nav
-      initial={{ y: -100 }}
-      animate={{ y: 0 }}
-      transition={{ duration: 0.6, ease: 'easeOut' }}
-      className={`fixed top-0 w-full z-50 transition-all duration-500 ${
-        isScrolled 
-          ? 'glass shadow-2xl shadow-blue-500/10' 
-          : 'bg-transparent'
-      }`}
-      style={{
-        borderRadius: isScrolled ? '0 0 30px 30px' : '0',
-      }}
-    >
+    <nav className="fixed top-0 left-0 right-0 z-50 bg-white/95 backdrop-blur-md border-b border-gray-200">
       <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
-        <div className="flex justify-between items-center h-20">
-          {/* Logo with gradient and glow */}
-          <Link href="/" className="relative group">
-            <motion.div
-              whileHover={{ scale: 1.05 }}
-              whileTap={{ scale: 0.95 }}
-              className="flex items-center gap-2.5"
-            >
-              <div className="relative w-9 h-9 rounded-xl overflow-hidden flex items-center justify-center bg-white/90 p-1 border border-purple-100 shadow-sm">
-                <Image
-                  src="/logo.png"
-                  alt="Fun Print Logo"
-                  width={36}
-                  height={36}
-                  className="object-contain w-full h-full"
-                  priority
-                />
-              </div>
-              <span className="text-2xl font-bold text-gradient">
-                Fun Print
-              </span>
-              <div className="absolute -inset-2 bg-gradient-to-r from-blue-600 via-purple-600 to-pink-600 rounded-lg opacity-0 group-hover:opacity-20 blur-xl transition-opacity duration-500"></div>
-            </motion.div>
+        <div className="flex items-center justify-between h-16 sm:h-20">
+          {/* Logo */}
+          <Link href="/" className="flex items-center space-x-3 group">
+            <div className="relative h-12 sm:h-14 w-auto flex items-center justify-center group-hover:scale-105 transition-transform duration-200">
+              <Image
+                src="/fun-print-logo.avif"
+                alt="FunPrint Logo"
+                width={70}
+                height={56}
+                className="object-contain h-11 sm:h-13 w-auto"
+                priority
+              />
+            </div>
+            <span className="text-xl sm:text-2xl font-black tracking-tight text-gray-950">
+              FunPrint
+            </span>
           </Link>
 
           {/* Desktop Menu */}
           <div className="hidden md:flex items-center space-x-1">
-            {navLinks.map((link, index) => (
-              <motion.div
+            {navLinks.map((link) => (
+              <Link
                 key={link.href}
-                initial={{ opacity: 0, y: -20 }}
-                animate={{ opacity: 1, y: 0 }}
-                transition={{ delay: index * 0.1 }}
+                href={link.href}
+                className="px-4 py-2 text-gray-700 hover:text-gray-950 hover:bg-gray-100 rounded-full text-sm font-semibold transition-colors"
               >
-                <Link
-                  href={link.href}
-                  className="relative px-4 py-2 text-gray-700 hover:text-transparent hover:bg-clip-text hover:bg-gradient-to-r hover:from-blue-600 hover:via-purple-600 hover:to-pink-600 transition-all font-medium group"
-                >
-                  {link.label}
-                  <span className="absolute bottom-0 left-0 w-0 h-0.5 bg-gradient-to-r from-blue-600 via-purple-600 to-pink-600 group-hover:w-full transition-all duration-300"></span>
-                </Link>
-              </motion.div>
+                {link.label}
+              </Link>
             ))}
             
-            {/* Cart Icon with glow */}
-            <motion.div
-              initial={{ opacity: 0, scale: 0 }}
-              animate={{ opacity: 1, scale: 1 }}
-              transition={{ delay: 0.4 }}
-            >
-              <Link href="/cart" className="relative ml-4 group">
-                <motion.div
-                  whileHover={{ scale: 1.1, rotate: 5 }}
-                  whileTap={{ scale: 0.9 }}
-                  className="relative p-3 rounded-xl bg-gradient-to-r from-blue-600 via-purple-600 to-pink-600 text-white shadow-lg shadow-purple-500/50 hover:shadow-xl hover:shadow-purple-500/70 transition-all duration-300"
-                >
-                  <ShoppingCart className="w-5 h-5" />
-                  {cartItems.length > 0 && (
-                    <motion.span
-                      initial={{ scale: 0 }}
-                      animate={{ scale: 1 }}
-                      className="absolute -top-2 -right-2 bg-gradient-to-r from-pink-500 to-red-500 text-white text-xs rounded-full w-6 h-6 flex items-center justify-center font-bold shadow-lg animate-pulse"
-                    >
-                      {cartItems.length}
-                    </motion.span>
-                  )}
-                </motion.div>
-              </Link>
-            </motion.div>
+            {/* Cart Icon */}
+            <Link href="/cart" className="relative ml-3">
+              <div className="relative p-2.5 rounded-full bg-gray-100 hover:bg-gray-200 text-gray-800 transition-colors">
+                <ShoppingCart className="w-5 h-5" />
+                {cartItems.length > 0 && (
+                  <span className="absolute -top-1 -right-1 min-w-[20px] h-5 px-1 bg-[#FFC006] text-gray-950 text-[11px] font-extrabold rounded-full flex items-center justify-center border-2 border-white shadow-xs">
+                    {cartItems.length}
+                  </span>
+                )}
+              </div>
+            </Link>
           </div>
 
           {/* Mobile Menu Button */}
-          <motion.button
-            whileTap={{ scale: 0.9 }}
-            className="md:hidden p-2 rounded-xl bg-gradient-to-r from-blue-600 to-purple-600 text-white"
+          <button
+            className="md:hidden p-2 rounded-full bg-gray-100 text-gray-800"
             onClick={() => setIsMobileMenuOpen(!isMobileMenuOpen)}
+            aria-label="Toggle navigation menu"
           >
-            {isMobileMenuOpen ? <X className="w-6 h-6" /> : <Menu className="w-6 h-6" />}
-          </motion.button>
+            {isMobileMenuOpen ? <X className="w-5 h-5" /> : <Menu className="w-5 h-5" />}
+          </button>
         </div>
       </div>
 
@@ -129,34 +83,27 @@ export default function Navbar() {
             initial={{ opacity: 0, height: 0 }}
             animate={{ opacity: 1, height: 'auto' }}
             exit={{ opacity: 0, height: 0 }}
-            className="md:hidden glass border-t border-white/20"
-            style={{ borderRadius: '0 0 30px 30px' }}
+            className="md:hidden bg-white border-t border-gray-200 shadow-xl"
           >
-            <div className="px-4 py-6 space-y-3">
-              {navLinks.map((link, index) => (
-                <motion.div
+            <div className="px-4 py-4 space-y-2">
+              {navLinks.map((link) => (
+                <Link
                   key={link.href}
-                  initial={{ opacity: 0, x: -20 }}
-                  animate={{ opacity: 1, x: 0 }}
-                  transition={{ delay: index * 0.1 }}
+                  href={link.href}
+                  className="block px-4 py-2.5 text-gray-800 hover:bg-gray-100 rounded-full transition-colors font-semibold text-sm"
+                  onClick={() => setIsMobileMenuOpen(false)}
                 >
-                  <Link
-                    href={link.href}
-                    className="block px-4 py-3 text-gray-700 hover:text-white hover:bg-gradient-to-r hover:from-blue-600 hover:to-purple-600 rounded-xl transition-all font-medium"
-                    onClick={() => setIsMobileMenuOpen(false)}
-                  >
-                    {link.label}
-                  </Link>
-                </motion.div>
+                  {link.label}
+                </Link>
               ))}
               <Link
                 href="/cart"
-                className="flex items-center justify-between px-4 py-3 text-gray-700 hover:text-white hover:bg-gradient-to-r hover:from-blue-600 hover:to-purple-600 rounded-xl transition-all font-medium"
+                className="flex items-center justify-between px-4 py-2.5 text-gray-800 hover:bg-gray-100 rounded-full transition-colors font-semibold text-sm"
                 onClick={() => setIsMobileMenuOpen(false)}
               >
                 <span>Cart</span>
                 {cartItems.length > 0 && (
-                  <span className="bg-gradient-to-r from-pink-500 to-red-500 text-white text-xs rounded-full px-3 py-1 font-bold">
+                  <span className="bg-[#FFC006] text-gray-950 text-xs rounded-full px-2.5 py-0.5 font-bold">
                     {cartItems.length}
                   </span>
                 )}
@@ -165,6 +112,6 @@ export default function Navbar() {
           </motion.div>
         )}
       </AnimatePresence>
-    </motion.nav>
+    </nav>
   );
 }

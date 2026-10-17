@@ -5,6 +5,7 @@ import Image from 'next/image';
 import { motion } from 'framer-motion';
 import { Heart } from 'lucide-react';
 import { useState } from 'react';
+import { getColorDisplay } from '@/lib/colors';
 
 interface Product {
   id: string;
@@ -13,13 +14,11 @@ interface Product {
   image: string;
   category: string;
   colors?: string[];
-  gradient?: string;
   selectedColor?: string; // For color-specific cards
 }
 
 export default function ProductCard({ product }: { product: Product }) {
   const [isWishlisted, setIsWishlisted] = useState(false);
-  const gradient = product.gradient || 'from-blue-500 to-purple-500';
 
   // Create the product URL with color parameter if selectedColor exists
   const getProductUrl = () => {
@@ -27,112 +26,93 @@ export default function ProductCard({ product }: { product: Product }) {
     return product.selectedColor ? `${baseUrl}?color=${encodeURIComponent(product.selectedColor)}` : baseUrl;
   };
 
-  // Get available colors based on category
-  const getAvailableColors = (category: string) => {
-    const categoryColors: { [key: string]: string[] } = {
-      'Round Neck': ['White', 'Black', 'Grey', 'Navy Blue', 'Maroon'],
-      'V-Neck': ['White', 'Black', 'Grey', 'Navy Blue', 'Maroon'],
-      'Polo': ['White', 'Black', 'Grey', 'Navy Blue'],
-      'Hoodie': ['Black', 'Navy Blue'],
-      'Zip Hoodie': ['Black', 'Grey', 'Maroon']
-    };
-    return categoryColors[category] || ['White', 'Black'];
-  };
-
-  // Color mapping for display
-  const getColorDisplay = (color: string) => {
-    const colorMap: { [key: string]: string } = {
-      'White': '#FFFFFF',
-      'Black': '#000000',
-      'Grey': '#6B7280',
-      'Navy Blue': '#1E3A8A',
-      'Maroon': '#7F1D1D'
-    };
-    return colorMap[color] || '#6B7280';
-  };
+  const displayedColors = product.colors || ['White', 'Black'];
+  const maxVisibleColors = 6;
+  const visibleColors = displayedColors.slice(0, maxVisibleColors);
+  const remainingCount = displayedColors.length - maxVisibleColors;
 
   return (
-    <motion.div
-      whileHover={{ y: -12, scale: 1.02 }}
-      className="relative group w-full h-full"
-    >
-      {/* Glow effect */}
-      <div className={`absolute inset-0 bg-gradient-to-r ${gradient} rounded-3xl blur-xl opacity-0 group-hover:opacity-30 transition-opacity duration-500`}></div>
-      
-      {/* Card */}
-      <div className="relative card-gradient overflow-hidden h-full flex flex-col">
-        <Link href={getProductUrl()}>
-          <div className="relative aspect-square overflow-hidden rounded-t-2xl bg-gray-100">
-            {/* Product Image */}
-            <Image
-              src={product.image}
-              alt={product.name}
-              fill
-              sizes="(max-width: 640px) 100vw, (max-width: 1024px) 50vw, 25vw"
-              className="object-cover transition-transform duration-500 group-hover:scale-110"
-              loading="lazy"
-            />
-            
-            {/* Shimmer effect on hover */}
-            <div className="absolute inset-0 bg-gradient-to-r from-transparent via-white/30 to-transparent translate-x-[-200%] group-hover:translate-x-[200%] transition-transform duration-1000"></div>
-          </div>
+    <div className="relative group w-full h-full">
+      <div className="bg-white rounded-2xl border border-gray-200/90 shadow-sm hover:shadow-md transition-all duration-200 overflow-hidden h-full flex flex-col">
+        {/* Product Image Frame */}
+        <Link href={getProductUrl()} className="relative block aspect-square bg-gray-50 overflow-hidden">
+          <Image
+            src={product.image}
+            alt={product.name}
+            fill
+            sizes="(max-width: 640px) 100vw, (max-width: 1024px) 50vw, 25vw"
+            className="object-contain p-4 transition-transform duration-300 group-hover:scale-105"
+            loading="lazy"
+          />
         </Link>
 
-        {/* Wishlist button */}
-        <motion.button
-          whileHover={{ scale: 1.1, rotate: 10 }}
-          whileTap={{ scale: 0.9 }}
+        {/* Wishlist Button */}
+        <button
           onClick={() => setIsWishlisted(!isWishlisted)}
-          className={`absolute top-4 right-4 p-3 rounded-xl shadow-lg transition-all duration-300 z-10 ${
+          className={`absolute top-3 right-3 w-9 h-9 rounded-full flex items-center justify-center shadow-sm transition-all duration-200 z-10 ${
             isWishlisted 
-              ? `bg-gradient-to-r ${gradient} text-white` 
-              : 'bg-white/90 backdrop-blur-sm text-gray-600 hover:bg-white'
+              ? 'bg-amber-50 text-amber-600 border border-amber-300' 
+              : 'bg-white/90 backdrop-blur-xs text-gray-500 hover:text-gray-900 hover:bg-white border border-gray-200'
           }`}
+          aria-label="Wishlist"
         >
-          <Heart
-            className={`w-5 h-5 ${isWishlisted ? 'fill-current' : ''}`}
-          />
-        </motion.button>
+          <Heart className={`w-4 h-4 ${isWishlisted ? 'fill-current text-amber-500' : ''}`} />
+        </button>
 
-        <div className="p-4 sm:p-6 flex-1 flex flex-col">
-          {/* Category badge */}
-          <span className={`inline-block px-2.5 sm:px-3 py-1 rounded-full bg-gradient-to-r ${gradient} text-white text-[11px] sm:text-xs font-semibold mb-2 sm:mb-3 shadow-md self-start`}>
-            {product.category}
-          </span>
+        {/* Content */}
+        <div className="p-4 sm:p-5 flex-1 flex flex-col">
+          {/* Category */}
+          <div className="mb-2">
+            <span className="inline-block px-2.5 py-0.5 rounded-full bg-gray-100 text-gray-700 text-[11px] font-semibold border border-gray-200">
+              {product.category}
+            </span>
+          </div>
           
-          <h3 className="text-base sm:text-lg font-semibold mb-1.5 sm:mb-2 text-gray-900 line-clamp-2">{product.name}</h3>
+          {/* Title */}
+          <Link href={getProductUrl()}>
+            <h3 className="text-sm sm:text-base font-bold text-gray-950 line-clamp-2 hover:text-amber-700 transition-colors mb-2">
+              {product.name}
+            </h3>
+          </Link>
           
           {/* Price */}
-          <p className={`text-xl sm:text-2xl font-bold bg-gradient-to-r ${gradient} bg-clip-text text-transparent mb-2 sm:mb-3`}>
+          <div className="text-lg sm:text-xl font-extrabold text-gray-950 mb-3">
             ₹{product.price}
-          </p>
+          </div>
           
-          {/* Available Colors */}
-          <div className="mb-3 sm:mb-4">
-            <p className="text-[11px] sm:text-xs text-gray-600 mb-1.5">Available Colors:</p>
-            <div className="flex gap-1 sm:gap-1.5 flex-wrap">
-              {(product.colors || getAvailableColors(product.category)).map((color) => (
+          {/* Color swatches */}
+          <div className="mb-4 mt-auto">
+            <p className="text-[11px] text-gray-500 mb-1.5 font-medium">
+              Colors ({displayedColors.length}):
+            </p>
+            <div className="flex gap-1.5 flex-wrap items-center">
+              {visibleColors.map((color) => (
                 <div
                   key={color}
-                  className="w-5 sm:w-6 h-5 sm:h-6 rounded-full border-2 border-gray-200 shadow-sm"
+                  className="w-4 h-4 sm:w-5 sm:h-5 rounded-full border border-gray-300 shadow-xs"
                   style={{ backgroundColor: getColorDisplay(color) }}
                   title={color}
                 />
               ))}
+              {remainingCount > 0 && (
+                <span className="text-[10px] font-semibold text-gray-600 bg-gray-100 px-1.5 py-0.5 rounded-full">
+                  +{remainingCount}
+                </span>
+              )}
             </div>
           </div>
           
-          <Link href={getProductUrl()} className="mt-auto">
-            <motion.button
-              whileHover={{ scale: 1.02 }}
-              whileTap={{ scale: 0.98 }}
-              className={`w-full py-2.5 sm:py-3 rounded-xl font-semibold text-white text-xs sm:text-sm bg-gradient-to-r ${gradient} shadow-md hover:shadow-lg transition-all duration-300`}
+          {/* Curvly CTA button */}
+          <Link href={getProductUrl()} className="block w-full">
+            <button
+              type="button"
+              className="w-full py-2.5 rounded-full font-bold text-xs sm:text-sm bg-gray-900 text-white hover:bg-[#FFC006] hover:text-gray-950 transition-all duration-200 shadow-xs"
             >
               View Details
-            </motion.button>
+            </button>
           </Link>
         </div>
       </div>
-    </motion.div>
+    </div>
   );
 }

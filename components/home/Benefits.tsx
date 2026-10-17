@@ -6,84 +6,59 @@ import { Sparkles, Shield, Users } from 'lucide-react';
 const benefits = [
   {
     icon: Sparkles,
-    title: 'Personalized Service',
-    description: 'Tailored designs that match your unique style and vision.',
-    gradient: 'from-blue-500 via-cyan-500 to-teal-500',
+    title: 'Personalized Customization',
+    description: 'Bespoke screen, DTF, and embroidery options tailored to your exact graphics and branding.',
   },
   {
     icon: Shield,
     title: 'Quality Assurance',
-    description: 'Premium fabrics and printing techniques for lasting quality.',
-    gradient: 'from-purple-500 via-pink-500 to-rose-500',
+    description: 'Pre-shrunk, bio-washed cotton and athletic fabrics engineered for long-lasting color and fit.',
   },
   {
     icon: Users,
-    title: 'Creative Collaboration',
-    description: 'Work directly with our design team to perfect your creation.',
-    gradient: 'from-orange-500 via-red-500 to-pink-500',
+    title: 'Dedicated Support',
+    description: 'Direct collaboration with our production team to verify artwork dimensions and mockups.',
   },
 ];
 
 export default function Benefits() {
   return (
-    <section className="py-12 sm:py-20 relative overflow-hidden">
-      {/* Animated background */}
-      <div className="absolute inset-0 bg-gradient-to-br from-blue-50 via-purple-50 to-pink-50"></div>
-      
-      <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 relative z-10">
-        <motion.div
-          initial={{ opacity: 0, y: 20 }}
-          whileInView={{ opacity: 1, y: 0 }}
-          viewport={{ once: true }}
-          className="text-center mb-10 sm:mb-16"
-        >
-          <motion.div
-            initial={{ scale: 0 }}
-            whileInView={{ scale: 1 }}
-            viewport={{ once: true }}
-            className="inline-block mb-4"
-          >
-            <span className="px-5 sm:px-6 py-1.5 sm:py-2 rounded-full bg-gradient-to-r from-blue-600 via-purple-600 to-pink-600 text-white text-xs sm:text-sm font-semibold shadow-lg">
-              Why Choose Us
+    <section className="py-12 sm:py-20 bg-slate-50/60 border-b border-gray-200/80">
+      <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
+        <div className="text-center mb-10 sm:mb-16">
+          <div className="inline-block mb-3 sm:mb-4">
+            <span className="px-4 py-1.5 rounded-full bg-gray-100 text-gray-800 text-xs sm:text-sm font-semibold border border-gray-200">
+              Why Choose FunPrint
             </span>
-          </motion.div>
-          <h2 className="text-3xl sm:text-5xl font-bold mb-3 sm:mb-4 text-gradient">Why Choose Fun Print?</h2>
-          <p className="text-base sm:text-xl text-gray-600">Excellence in every stitch</p>
-        </motion.div>
+          </div>
+          <h2 className="text-3xl sm:text-4xl font-extrabold text-gray-950 tracking-tight mb-3">
+            Built for Durability & Comfort
+          </h2>
+          <p className="text-base sm:text-lg text-gray-600 max-w-xl mx-auto">
+            We handle design verification, sampling, and printing with strict quality benchmarks.
+          </p>
+        </div>
 
-        <div className="grid grid-cols-1 md:grid-cols-3 gap-8">
+        <div className="grid grid-cols-1 md:grid-cols-3 gap-6 sm:gap-8">
           {benefits.map((benefit, index) => (
             <motion.div
               key={benefit.title}
-              initial={{ opacity: 0, y: 30 }}
+              initial={{ opacity: 0, y: 20 }}
               whileInView={{ opacity: 1, y: 0 }}
               viewport={{ once: true }}
-              transition={{ delay: index * 0.2 }}
-              whileHover={{ y: -10, scale: 1.02 }}
-              className="relative group"
+              transition={{ delay: index * 0.15 }}
+              className="bg-white rounded-2xl p-6 sm:p-8 border border-gray-200/90 shadow-sm hover:shadow-md transition-shadow flex flex-col"
             >
-              {/* Glow effect */}
-              <div className={`absolute inset-0 bg-gradient-to-r ${benefit.gradient} rounded-3xl blur-xl opacity-20 group-hover:opacity-40 transition-opacity duration-500`}></div>
-              
-              {/* Card */}
-              <div className="relative card-gradient p-8 text-center h-full">
-                {/* Icon with gradient background */}
-                <motion.div
-                  whileHover={{ rotate: 360, scale: 1.1 }}
-                  transition={{ duration: 0.6 }}
-                  className={`inline-flex items-center justify-center w-20 h-20 bg-gradient-to-r ${benefit.gradient} rounded-2xl mb-6 shadow-lg`}
-                >
-                  <benefit.icon className="w-10 h-10 text-white" />
-                </motion.div>
-                
-                <h3 className="text-2xl font-semibold mb-4 bg-gradient-to-r from-gray-900 to-gray-700 bg-clip-text text-transparent">
-                  {benefit.title}
-                </h3>
-                <p className="text-gray-600 leading-relaxed">{benefit.description}</p>
-                
-                {/* Decorative gradient line */}
-                <div className={`mt-6 h-1 w-20 mx-auto bg-gradient-to-r ${benefit.gradient} rounded-full`}></div>
+              <div className="w-12 h-12 rounded-2xl bg-amber-50 text-amber-700 border border-amber-200/80 flex items-center justify-center mb-5">
+                <benefit.icon className="w-6 h-6 text-amber-700" />
               </div>
+              
+              <h3 className="text-xl font-bold mb-2.5 text-gray-950">
+                {benefit.title}
+              </h3>
+              <p className="text-gray-600 text-sm sm:text-base leading-relaxed">
+                {benefit.description}
+              </p>
             </motion.div>
           ))}
         </div>

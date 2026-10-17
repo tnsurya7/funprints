@@ -1,147 +1,244 @@
 import Link from 'next/link';
 import Image from 'next/image';
-import { Facebook, Instagram, Twitter, Mail, Phone } from 'lucide-react';
+import { Facebook, Instagram, Youtube, Mail, Phone, MapPin, Building2, Factory, ShieldCheck, ChevronRight } from 'lucide-react';
 
 export default function Footer() {
   return (
-    <footer className="relative overflow-hidden">
-      {/* Gradient background */}
-      <div className="absolute inset-0 bg-gradient-to-br from-gray-900 via-purple-900 to-gray-900"></div>
-      
-      {/* Animated orbs */}
-      <div className="absolute top-0 left-0 w-96 h-96 bg-blue-500 rounded-full blur-3xl opacity-10 animate-pulse"></div>
-      <div className="absolute bottom-0 right-0 w-96 h-96 bg-purple-500 rounded-full blur-3xl opacity-10 animate-pulse"></div>
-      
-      <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-16 relative z-10">
-        <div className="grid grid-cols-1 md:grid-cols-4 gap-12 mb-12">
-          {/* Brand */}
-          <div>
-            <div className="flex items-center gap-3 mb-4">
-              <div className="relative w-9 h-9 rounded-xl overflow-hidden bg-white/10 p-1 border border-white/10 shadow-lg flex items-center justify-center">
+    <footer className="bg-gray-950 text-gray-400 border-t border-gray-900 font-serif">
+      <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-12 sm:py-16">
+        {/* Main Grid */}
+        <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-12 gap-8 lg:gap-10 mb-12">
+          {/* Brand & Socials (Col 1-4) */}
+          <div className="lg:col-span-4 space-y-4">
+            <div className="flex items-center gap-3">
+              <div className="relative w-10 h-10 rounded-full overflow-hidden bg-white/10 p-1 border border-white/20 flex items-center justify-center">
                 <Image
                   src="/logo.png"
-                  alt="Fun Print Logo"
+                  alt="FunPrint Logo"
                   width={36}
                   height={36}
-                  className="object-contain w-full h-full brightness-110"
+                  className="object-contain"
                 />
               </div>
-              <h3 className="text-2xl font-bold bg-gradient-to-r from-blue-400 via-purple-400 to-pink-400 bg-clip-text text-transparent">
-                Fun Print
-              </h3>
+              <div>
+                <h3 className="text-xl font-black text-white tracking-tight">
+                  FunPrint
+                </h3>
+              </div>
             </div>
-            <p className="text-gray-400 leading-relaxed">
-              Premium custom t-shirts with personalized designs and quality assurance.
+
+            <p className="text-gray-400 text-xs sm:text-sm leading-relaxed">
+              Premium custom-printed apparel, bio-washed cotton T-shirts, fleece hoodies, and corporate bulk wear engineered for vibrant, long-lasting prints.
             </p>
-            
-            {/* Social icons with gradient */}
-            <div className="flex gap-4 mt-6">
-              {[
-                { Icon: Facebook, gradient: 'from-blue-500 to-blue-600' },
-                { Icon: Instagram, gradient: 'from-pink-500 to-purple-600' },
-                { Icon: Twitter, gradient: 'from-blue-400 to-cyan-500' },
-              ].map(({ Icon, gradient }, index) => (
+
+            {/* Social links */}
+            <div>
+              <p className="text-xs font-bold text-gray-300 uppercase tracking-wider mb-2.5">
+                Connect With Us
+              </p>
+              <div className="flex gap-2.5">
                 <a
-                  key={index}
-                  href="#"
-                  className={`p-3 rounded-xl bg-gradient-to-r ${gradient} text-white hover:scale-110 transition-transform shadow-lg`}
+                  href="https://www.facebook.com/thefunprint"
+                  target="_blank"
+                  rel="noopener noreferrer"
+                  className="w-10 h-10 rounded-full bg-gray-900 hover:bg-[#FFC006] text-gray-300 hover:text-gray-950 flex items-center justify-center transition-all border border-gray-800"
+                  aria-label="Facebook"
                 >
-                  <Icon className="w-5 h-5" />
+                  <Facebook className="w-4 h-4" />
                 </a>
-              ))}
+
+                <a
+                  href="https://www.instagram.com/funprint.in/"
+                  target="_blank"
+                  rel="noopener noreferrer"
+                  className="w-10 h-10 rounded-full bg-gray-900 hover:bg-[#FFC006] text-gray-300 hover:text-gray-950 flex items-center justify-center transition-all border border-gray-800"
+                  aria-label="Instagram"
+                >
+                  <Instagram className="w-4 h-4" />
+                </a>
+
+                <a
+                  href="https://www.youtube.com/@funprint19"
+                  target="_blank"
+                  rel="noopener noreferrer"
+                  className="w-10 h-10 rounded-full bg-gray-900 hover:bg-[#FFC006] text-gray-300 hover:text-gray-950 flex items-center justify-center transition-all border border-gray-800"
+                  aria-label="YouTube"
+                >
+                  <Youtube className="w-4 h-4" />
+                </a>
+              </div>
+            </div>
+
+            {/* Direct Contact */}
+            <div className="pt-2 space-y-2 text-xs sm:text-sm">
+              <a
+                href="tel:+919344925600"
+                className="flex items-center gap-2.5 text-gray-300 hover:text-[#FFC006] transition-colors"
+              >
+                <div className="w-7 h-7 rounded-full bg-gray-900 border border-gray-800 flex items-center justify-center text-[#FFC006]">
+                  <Phone className="w-3.5 h-3.5" />
+                </div>
+                <span className="font-bold">+91 93449 25600</span>
+              </a>
+
+              <a
+                href="mailto:contact@funprint.in"
+                className="flex items-center gap-2.5 text-gray-300 hover:text-[#FFC006] transition-colors"
+              >
+                <div className="w-7 h-7 rounded-full bg-gray-900 border border-gray-800 flex items-center justify-center text-[#FFC006]">
+                  <Mail className="w-3.5 h-3.5" />
+                </div>
+                <span>contact@funprint.in</span>
+              </a>
             </div>
           </div>
 
-          {/* Quick Links */}
-          <div>
-            <h4 className="font-semibold mb-6 text-white text-lg">Quick Links</h4>
-            <ul className="space-y-3">
-              {[
-                { href: '/products', label: 'Products' },
-                { href: '/bulk-order', label: 'Bulk Orders' },
-                { href: '/about', label: 'About Us' },
-              ].map((link) => (
-                <li key={link.href}>
-                  <Link 
-                    href={link.href} 
-                    className="text-gray-400 hover:text-transparent hover:bg-clip-text hover:bg-gradient-to-r hover:from-blue-400 hover:to-purple-400 transition-all group inline-flex items-center gap-2"
-                  >
-                    <span className="w-0 h-0.5 bg-gradient-to-r from-blue-400 to-purple-400 group-hover:w-4 transition-all"></span>
-                    {link.label}
+          {/* Quick Links & Catalog (Col 5-7) */}
+          <div className="lg:col-span-3 space-y-5">
+            <div>
+              <h4 className="font-bold mb-3 text-white text-xs sm:text-sm uppercase tracking-wider">
+                Catalog & Ordering
+              </h4>
+              <ul className="space-y-2 text-xs sm:text-sm">
+                <li>
+                  <Link href="/products" className="hover:text-white transition-colors flex items-center gap-1.5">
+                    <ChevronRight className="w-3 h-3 text-[#FFC006]" />
+                    <span>Shop Catalog</span>
                   </Link>
                 </li>
-              ))}
-            </ul>
-          </div>
-
-          {/* Support */}
-          <div>
-            <h4 className="font-semibold mb-6 text-white text-lg">Support</h4>
-            <ul className="space-y-3">
-              {[
-                { href: '/shipping', label: 'Shipping Info' },
-                { href: '/returns', label: 'Returns & Refunds' },
-                { href: '/privacy-policy', label: 'Privacy Policy' },
-                { href: '/terms', label: 'Terms & Conditions' },
-              ].map((link) => (
-                <li key={link.href}>
-                  <Link 
-                    href={link.href} 
-                    className="text-gray-400 hover:text-transparent hover:bg-clip-text hover:bg-gradient-to-r hover:from-purple-400 hover:to-pink-400 transition-all group inline-flex items-center gap-2"
-                  >
-                    <span className="w-0 h-0.5 bg-gradient-to-r from-purple-400 to-pink-400 group-hover:w-4 transition-all"></span>
-                    {link.label}
+                <li>
+                  <Link href="/retail-orders" className="hover:text-white transition-colors flex items-center gap-1.5">
+                    <ChevronRight className="w-3 h-3 text-[#FFC006]" />
+                    <span>Retail Orders (Custom Logos)</span>
                   </Link>
                 </li>
-              ))}
-            </ul>
+                <li>
+                  <Link href="/bulk-order" className="hover:text-white transition-colors flex items-center gap-1.5">
+                    <ChevronRight className="w-3 h-3 text-[#FFC006]" />
+                    <span>Bulk Orders (T-Shirts & Hoodies)</span>
+                  </Link>
+                </li>
+                <li>
+                  <Link href="/contact" className="hover:text-white transition-colors flex items-center gap-1.5">
+                    <ChevronRight className="w-3 h-3 text-[#FFC006]" />
+                    <span>Contact Us</span>
+                  </Link>
+                </li>
+              </ul>
+            </div>
+
+            <div>
+              <h4 className="font-bold mb-3 text-white text-xs sm:text-sm uppercase tracking-wider">
+                Policies & Terms
+              </h4>
+              <ul className="space-y-2 text-xs sm:text-sm">
+                <li>
+                  <Link href="/terms" className="hover:text-white transition-colors flex items-center gap-1.5">
+                    <ChevronRight className="w-3 h-3 text-[#FFC006]" />
+                    <span>Terms & Conditions</span>
+                  </Link>
+                </li>
+                <li>
+                  <Link href="/returns" className="hover:text-white transition-colors flex items-center gap-1.5">
+                    <ChevronRight className="w-3 h-3 text-[#FFC006]" />
+                    <span>Refund & Exchange Policy</span>
+                  </Link>
+                </li>
+                <li>
+                  <Link href="/terms#cancellations" className="hover:text-white transition-colors flex items-center gap-1.5">
+                    <ChevronRight className="w-3 h-3 text-[#FFC006]" />
+                    <span>Cancellation Policy</span>
+                  </Link>
+                </li>
+                <li>
+                  <Link href="/privacy-policy" className="hover:text-white transition-colors flex items-center gap-1.5">
+                    <ChevronRight className="w-3 h-3 text-[#FFC006]" />
+                    <span>Privacy Policy</span>
+                  </Link>
+                </li>
+              </ul>
+            </div>
           </div>
 
-          {/* Contact */}
-          <div>
-            <h4 className="font-semibold mb-6 text-white text-lg">Contact</h4>
-            <div className="space-y-4">
-              <div className="flex items-start gap-3 text-gray-400">
-                <div className="p-2 rounded-lg bg-gradient-to-r from-blue-500 to-cyan-500">
-                  <Phone className="w-4 h-4 text-white" />
-                </div>
-                <div>
-                  <p className="text-sm text-gray-500">Phone</p>
-                  <p>+91 98765 43210</p>
-                </div>
+          {/* Company Addresses (Col 8-12) */}
+          <div className="lg:col-span-5 space-y-4">
+            <h4 className="font-bold text-white text-xs sm:text-sm uppercase tracking-wider">
+              Company & Locations
+            </h4>
+
+            <div className="p-4 rounded-2xl bg-gray-900/80 border border-gray-800 space-y-2">
+              <div className="flex items-center gap-2 text-white font-bold text-xs sm:text-sm">
+                <Building2 className="w-4 h-4 text-[#FFC006] flex-shrink-0" />
+                <span>Head Office</span>
               </div>
-              <div className="flex items-start gap-3 text-gray-400">
-                <div className="p-2 rounded-lg bg-gradient-to-r from-purple-500 to-pink-500">
-                  <Mail className="w-4 h-4 text-white" />
-                </div>
-                <div>
-                  <p className="text-sm text-gray-500">Email</p>
-                  <p>hello@funprint.com</p>
-                </div>
+              <p className="text-gray-300 text-xs sm:text-sm leading-relaxed pl-6">
+                <strong className="text-white block">FunPrint (OSHIVO EXIM OPC PVT LTD)</strong>
+                Savithri Palace No: 325, Paper Mills Road, Perambur, Chennai - 600011, Tamil Nadu, India.
+              </p>
+            </div>
+
+            <div className="p-4 rounded-2xl bg-gray-900/80 border border-gray-800 space-y-2">
+              <div className="flex items-center gap-2 text-white font-bold text-xs sm:text-sm">
+                <Factory className="w-4 h-4 text-[#FFC006] flex-shrink-0" />
+                <span>Production Unit</span>
               </div>
+              <p className="text-gray-300 text-xs sm:text-sm leading-relaxed pl-6">
+                105, Linga Gounder Street, Odakkadu, Tirupur - 641602, Tamil Nadu, India.
+              </p>
             </div>
           </div>
         </div>
 
-        {/* Bottom bar with gradient border */}
-        <div className="border-t border-gray-800 pt-6 sm:pt-8">
-          <div className="flex flex-col md:flex-row justify-between items-center gap-4 text-center md:text-left">
-            <p className="text-gray-400 text-xs sm:text-sm">
-              &copy; 2026 Fun Print. All rights reserved.
-            </p>
-            
-            {/* Trust badges */}
-            <div className="flex flex-wrap justify-center gap-2 sm:gap-4 text-[11px] sm:text-xs text-gray-500">
-              <span className="px-3 py-1 rounded-full bg-gradient-to-r from-green-500/20 to-emerald-500/20 border border-green-500/30 text-green-400">
-                ✓ Secure Payment
-              </span>
-              <span className="px-3 py-1 rounded-full bg-gradient-to-r from-blue-500/20 to-cyan-500/20 border border-blue-500/30 text-blue-400">
-                ✓ Fast Delivery
-              </span>
-              <span className="px-3 py-1 rounded-full bg-gradient-to-r from-purple-500/20 to-pink-500/20 border border-purple-500/30 text-purple-400">
-                ✓ Quality Assured
-              </span>
+        {/* Highlighted Terms & Policies Summary Box in Footer */}
+        <div className="mb-10 p-5 sm:p-6 rounded-3xl bg-gray-900/50 border border-gray-800/80">
+          <div className="flex items-center justify-between pb-3 border-b border-gray-800 mb-4 flex-wrap gap-2">
+            <div className="flex items-center gap-2">
+              <ShieldCheck className="w-4 h-4 text-[#FFC006]" />
+              <h4 className="text-white font-bold text-xs sm:text-sm uppercase tracking-wider">
+                Order & Refund Policy Summary
+              </h4>
             </div>
+            <Link
+              href="/terms"
+              className="text-xs text-[#FFC006] hover:underline font-bold"
+            >
+              Read Full Terms & Conditions &rarr;
+            </Link>
+          </div>
+
+          <div className="grid grid-cols-1 md:grid-cols-3 gap-4 text-xs text-gray-400 leading-relaxed">
+            <div>
+              <p className="text-white font-bold mb-1">Plain T-Shirts Dispatch</p>
+              <p>
+                Plain t-shirts delivered within a maximum of 3 business days from confirmation. Damaged items require opening video evidence to claim refund.
+              </p>
+            </div>
+
+            <div>
+              <p className="text-white font-bold mb-1">Custom Bulk Orders</p>
+              <p>
+                Personalized logo orders cannot be cancelled or refunded once production has begun. Full agreed payment required upon dispatch.
+              </p>
+            </div>
+
+            <div>
+              <p className="text-white font-bold mb-1">Exchanges & Cancellations</p>
+              <p>
+                Size exchanges available for plain t-shirts (subject to stock). Cancellations for plain items accepted prior to courier dispatch.
+              </p>
+            </div>
+          </div>
+        </div>
+
+        {/* Bottom bar */}
+        <div className="border-t border-gray-900 pt-8 flex flex-col sm:flex-row justify-between items-center gap-4 text-xs text-gray-500">
+          <p>&copy; {new Date().getFullYear()} FunPrint. All rights reserved.</p>
+          <div className="flex gap-4 flex-wrap justify-center items-center">
+            <span>GST Registered</span>
+            <span>•</span>
+            <span>Made in Tirupur & Chennai</span>
+            <span>•</span>
+            <span>Pan-India Doorstep Dispatch</span>
           </div>
         </div>
       </div>

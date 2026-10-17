@@ -150,8 +150,8 @@ export default function IndianAddressForm({ formData, onChange, errors = {} }: I
     <div className="space-y-6">
       {/* Header */}
       <div className="flex items-center gap-3 pb-4 border-b border-gray-200">
-        <div className="p-2 rounded-xl bg-gradient-to-br from-blue-500 to-purple-600">
-          <MapPin className="w-5 h-5 text-white" />
+        <div className="p-2.5 rounded-full bg-gray-900 text-white">
+          <MapPin className="w-4 h-4 text-white" />
         </div>
         <div>
           <h3 className="text-lg font-bold text-gray-900">Delivery Address</h3>
@@ -436,7 +436,7 @@ export default function IndianAddressForm({ formData, onChange, errors = {} }: I
         <motion.div
           initial={{ opacity: 0, y: 10 }}
           animate={{ opacity: 1, y: 0 }}
-          className="p-4 bg-gradient-to-r from-green-50 to-emerald-50 border border-green-200 rounded-xl"
+          className="p-4 bg-emerald-50 border border-emerald-200 rounded-2xl"
         >
           <div className="flex items-start gap-3">
             <CheckCircle2 className="w-5 h-5 text-green-600 mt-0.5 flex-shrink-0" />

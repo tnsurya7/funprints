@@ -10,12 +10,22 @@ const config: Config = {
     extend: {
       colors: {
         brand: {
-          50: '#f0f9ff',
-          100: '#e0f2fe',
-          500: '#0ea5e9',
-          600: '#0284c7',
-          700: '#0369a1',
+          50: '#fffbeb',
+          100: '#fef3c7',
+          200: '#fde68a',
+          300: '#fcd34d',
+          400: '#fbbf24',
+          500: '#ffc006', // FunPrint Logo Yellow
+          600: '#f59e0b',
+          700: '#d97706',
+          800: '#b45309',
+          900: '#78350f',
         },
+      },
+      fontFamily: {
+        sans: ["'TeX Gyre Termes'", "'TeXGyreTermes'", 'Times', '"Times New Roman"', 'serif'],
+        serif: ["'TeX Gyre Termes'", "'TeXGyreTermes'", 'Times', '"Times New Roman"', 'serif'],
+        display: ["'TeX Gyre Termes'", "'TeXGyreTermes'", 'serif'],
       },
       animation: {
         'fade-in': 'fadeIn 0.8s ease-out',
@@ -56,8 +66,8 @@ const config: Config = {
           '100%': { transform: 'scale(1)', opacity: '1' },
         },
         glow: {
-          '0%, 100%': { boxShadow: '0 0 20px rgba(14, 165, 233, 0.5), 0 0 40px rgba(14, 165, 233, 0.3)' },
-          '50%': { boxShadow: '0 0 30px rgba(14, 165, 233, 0.8), 0 0 60px rgba(14, 165, 233, 0.5)' },
+          '0%, 100%': { boxShadow: '0 0 20px rgba(255, 192, 6, 0.5), 0 0 40px rgba(245, 158, 11, 0.3)' },
+          '50%': { boxShadow: '0 0 30px rgba(255, 192, 6, 0.8), 0 0 60px rgba(245, 158, 11, 0.5)' },
         },
         gradient: {
           '0%, 100%': { backgroundPosition: '0% 50%' },

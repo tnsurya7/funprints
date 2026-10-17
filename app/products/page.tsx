@@ -10,17 +10,6 @@ export default function ProductsPage() {
   const products = getAllEnhancedProducts();
   const categories = ['all', ...new Set(products.map(p => p.category))];
   
-  const getGradient = (category: string) => {
-    switch (category) {
-      case 'Round Neck': return 'from-blue-500 to-cyan-500';
-      case 'Polo': return 'from-purple-500 to-pink-500';
-      case 'V-Neck': return 'from-green-500 to-teal-500';
-      case 'Hoodie': return 'from-orange-500 to-red-500';
-      case 'Zip Hoodie': return 'from-red-500 to-pink-500';
-      default: return 'from-gray-500 to-gray-600';
-    }
-  };
-  
   // Create individual product cards for each color when category is filtered
   const getFilteredProducts = () => {
     if (filter === 'all') {
@@ -31,7 +20,6 @@ export default function ProductsPage() {
         price: product.price,
         image: product.images[product.colors[0]]?.front || '/placeholder-image.jpg',
         category: product.category,
-        gradient: getGradient(product.category),
         colors: product.colors,
       }));
     } else {
@@ -48,7 +36,6 @@ export default function ProductsPage() {
               price: product.price,
               image: product.images[color].front,
               category: product.category,
-              gradient: getGradient(product.category),
               colors: [color], // Show only this specific color
               originalProductId: product.id,
               selectedColor: color
@@ -72,29 +59,41 @@ export default function ProductsPage() {
   };
 
   return (
-    <div className="min-h-screen pt-24 pb-16 bg-gray-50">
+    <div className="min-h-screen pt-24 pb-16 bg-slate-50/70">
       <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
-        <h1 className="text-3xl sm:text-4xl font-bold mb-6 sm:mb-8 text-gray-900">Our Products</h1>
-        
-        {/* Category Filter */}
-        <div className="flex gap-2 mb-6 sm:mb-8 overflow-x-auto pb-2 scrollbar-thin">
-          {categories.map((category) => (
-            <button
-              key={category}
-              onClick={() => setFilter(category)}
-              className={`px-4 sm:px-6 py-2 rounded-xl text-xs sm:text-sm font-semibold whitespace-nowrap transition-all ${
-                filter === category
-                  ? 'bg-purple-600 text-white shadow-md'
-                  : 'bg-white text-gray-700 hover:bg-gray-100 border border-gray-200'
-              }`}
-            >
-              {category === 'all' ? 'All Products' : category}
-              {` (${getCategoryCount(category)})`}
-            </button>
-          ))}
+        <div className="mb-6 sm:mb-8">
+          <h1 className="text-3xl sm:text-4xl font-black text-gray-950 tracking-tight mb-2">
+            Explore All Products
+          </h1>
+          <p className="text-sm sm:text-base text-gray-600">
+            Select a style to customize, or filter by category to see all available colorways.
+          </p>
         </div>
         
-        <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-4 sm:gap-8">
+        {/* Curvly Category Filter Pills */}
+        <div className="flex gap-2 mb-8 overflow-x-auto pb-2 scrollbar-none items-center">
+          {categories.map((category) => {
+            const isSelected = filter === category;
+            return (
+              <button
+                key={category}
+                onClick={() => setFilter(category)}
+                className={`px-5 py-2.5 rounded-full text-xs sm:text-sm font-bold whitespace-nowrap transition-all duration-200 ${
+                  isSelected
+                    ? 'bg-[#FFC006] text-gray-950 shadow-sm border border-amber-400'
+                    : 'bg-white text-gray-700 hover:text-gray-950 hover:bg-gray-100 border border-gray-200'
+                }`}
+              >
+                {category === 'all' ? 'All Products' : category}
+                <span className={`ml-1.5 text-xs ${isSelected ? 'text-gray-900 font-extrabold' : 'text-gray-500'}`}>
+                  ({getCategoryCount(category)})
+                </span>
+              </button>
+            );
+          })}
+        </div>
+        
+        <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-5 sm:gap-6">
           {filteredProducts.map((product) => (
             <ProductCard 
               key={product.id} 
@@ -108,9 +107,9 @@ export default function ProductsPage() {
         </div>
 
         {filteredProducts.length === 0 && (
-          <div className="text-center py-12">
-            <p className="text-xl text-gray-600 mb-4">No products found</p>
-            <p className="text-gray-500">
+          <div className="text-center py-16 bg-white rounded-3xl border border-gray-200 p-8">
+            <p className="text-xl font-bold text-gray-900 mb-2">No products found</p>
+            <p className="text-gray-500 text-sm">
               {filter === 'all' ? 'No products available' : `No ${filter} products available`}
             </p>
           </div>

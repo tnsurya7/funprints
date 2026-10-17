@@ -4,9 +4,8 @@ import { useState, useEffect } from 'react';
 import Image from 'next/image';
 import { motion } from 'framer-motion';
 import { ShoppingCart, Heart, Ruler, Sparkles } from 'lucide-react';
-import Simple3DViewer from './Simple3DViewer';
-import ThreeDTshirtViewer from './ThreeDTshirtViewer';
 import SizeGuide from './SizeGuide';
+
 import { useCartStore } from '@/store/cartStore';
 import toast from 'react-hot-toast';
 import { useRouter } from 'next/navigation';
@@ -42,7 +41,6 @@ export default function ProductDetail({ productId }: { productId: string }) {
   const [selectedSize, setSelectedSize] = useState('');
   const [quantity, setQuantity] = useState(1);
   const [showSizeGuide, setShowSizeGuide] = useState(false);
-  const [show3D, setShow3D] = useState(false);
   const router = useRouter();
   const addItem = useCartStore((state) => state.addItem);
 
@@ -156,17 +154,6 @@ export default function ProductDetail({ productId }: { productId: string }) {
                 </div>
               )}
             </div>
-            
-            {/* View in 3D Customizer Button */}
-            <motion.button
-              whileHover={{ scale: 1.02 }}
-              whileTap={{ scale: 0.98 }}
-              onClick={() => setShow3D(true)}
-              className="w-full rounded-xl bg-gradient-to-r from-purple-500 via-pink-500 to-red-500 px-6 py-4 text-white font-semibold shadow-lg hover:shadow-xl transition-all duration-300 flex items-center justify-center gap-2"
-            >
-              <Sparkles className="w-5 h-5" />
-              Customize in 3D
-            </motion.button>
           </motion.div>
 
           {/* Product Info */}
@@ -331,14 +318,6 @@ export default function ProductDetail({ productId }: { productId: string }) {
 
       {/* Size Guide Modal */}
       {showSizeGuide && <SizeGuide onClose={() => setShowSizeGuide(false)} />}
-      
-      {/* 3D Viewer Modal */}
-      {show3D && (
-        <ThreeDTshirtViewer
-          color={colorMap[selectedColor] || '#ffffff'}
-          onClose={() => setShow3D(false)}
-        />
-      )}
     </div>
   );
 }

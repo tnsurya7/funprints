@@ -5,98 +5,73 @@ import Image from 'next/image';
 
 export default function BrandStory() {
   return (
-    <section className="py-12 sm:py-20 relative overflow-hidden">
-      {/* Gradient background */}
-      <div className="absolute inset-0 bg-gradient-to-br from-cyan-50 via-blue-50 to-indigo-50"></div>
-      
-      <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 relative z-10">
-        <div className="grid grid-cols-1 lg:grid-cols-2 gap-8 sm:gap-12 items-center">
+    <section className="py-12 sm:py-20 bg-white border-b border-gray-200/80 font-serif">
+      <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
+        <div className="grid grid-cols-1 lg:grid-cols-2 gap-8 sm:gap-14 items-center">
           <motion.div
-            initial={{ opacity: 0, x: -50 }}
+            initial={{ opacity: 0, x: -30 }}
             whileInView={{ opacity: 1, x: 0 }}
             viewport={{ once: true }}
-            transition={{ duration: 0.8 }}
+            transition={{ duration: 0.6 }}
           >
-            <motion.div
-              initial={{ scale: 0 }}
-              whileInView={{ scale: 1 }}
-              viewport={{ once: true }}
-              className="inline-block mb-4 sm:mb-6"
-            >
-              <span className="px-5 sm:px-6 py-1.5 sm:py-2 rounded-full bg-gradient-to-r from-cyan-600 via-blue-600 to-indigo-600 text-white text-xs sm:text-sm font-semibold shadow-lg">
-                Our Story
+            <div className="inline-block mb-3 sm:mb-4">
+              <span className="px-4 py-1.5 rounded-full bg-amber-100 text-amber-950 text-xs sm:text-sm font-bold border border-amber-300">
+                About Us
               </span>
-            </motion.div>
+            </div>
             
-            <h2 className="text-3xl sm:text-5xl font-bold mb-4 sm:mb-6 text-gradient">Our Story</h2>
+            <h2 className="text-3xl sm:text-4xl font-extrabold mb-4 sm:mb-6 text-gray-950 tracking-tight">
+              Crafting Premium Apparel with Attention to Every Detail
+            </h2>
             
-            <div className="space-y-3 sm:space-y-4">
-              <p className="text-base sm:text-lg text-gray-700 leading-relaxed">
-                Fun Print was born from a passion for self-expression and quality craftsmanship. 
-                We believe everyone deserves to wear something that truly represents who they are.
+            <div className="space-y-4 text-base sm:text-lg text-gray-600 leading-relaxed">
+              <p>
+                Since 2015, we have been dedicated to perfecting every detail of custom apparel and printing. As your trusted one-stop destination for high-quality custom apparel, we specialize in crafting personalized t-shirts, hoodies, and other garments that showcase your unique style and vision.
               </p>
-              <p className="text-base sm:text-lg text-gray-700 leading-relaxed">
-                From small batches to bulk orders, we treat every project with the same dedication 
-                to excellence. Our team works closely with you to bring your vision to life.
-              </p>
-              <p className="text-base sm:text-lg text-gray-700 leading-relaxed">
-                Join thousands of satisfied customers who trust Fun Print for their custom apparel needs.
+              <p>
+                Using cutting-edge technology and years of expertise, we deliver prints that are vibrant, durable, and customized to your exact needs. Whether you need branded merchandise for your business, events, or personal use, we are here to bring your ideas to life.
               </p>
             </div>
 
-            {/* Stats with gradient cards */}
-            <div className="grid grid-cols-3 gap-2.5 sm:gap-4 mt-6 sm:mt-8">
+            {/* Clean solid stat cards */}
+            <div className="grid grid-cols-3 gap-3 sm:gap-4 mt-6 sm:mt-8">
               {[
-                { number: '5+', label: 'Years' },
-                { number: '10K+', label: 'Customers' },
-                { number: '50K+', label: 'Orders' },
-              ].map((stat, index) => (
-                <motion.div
+                { number: '100%', label: 'Customer Satisfaction' },
+                { number: '30+', label: 'Product Options' },
+                { number: '20+', label: 'Years of Experience' },
+              ].map((stat) => (
+                <div
                   key={stat.label}
-                  initial={{ opacity: 0, scale: 0.5 }}
-                  whileInView={{ opacity: 1, scale: 1 }}
-                  viewport={{ once: true }}
-                  transition={{ delay: index * 0.1 }}
-                  whileHover={{ scale: 1.05, y: -5 }}
-                  className="relative group"
+                  className="bg-gray-50 p-4 rounded-2xl border border-gray-200/90 text-center"
                 >
-                  <div className="absolute inset-0 bg-gradient-to-r from-cyan-500 to-blue-500 rounded-2xl blur-lg opacity-20 group-hover:opacity-40 transition-opacity"></div>
-                  <div className="relative card-gradient p-3 sm:p-4 text-center">
-                    <div className="text-2xl sm:text-3xl font-bold text-gradient mb-0.5 sm:mb-1">{stat.number}</div>
-                    <div className="text-xs sm:text-sm text-gray-600">{stat.label}</div>
+                  <div className="text-2xl sm:text-3xl font-extrabold text-gray-950 mb-0.5">
+                    {stat.number}
                   </div>
-                </motion.div>
+                  <div className="text-xs sm:text-sm text-gray-600 font-medium">
+                    {stat.label}
+                  </div>
+                </div>
               ))}
             </div>
           </motion.div>
 
           <motion.div
-            initial={{ opacity: 0, x: 50 }}
+            initial={{ opacity: 0, x: 30 }}
             whileInView={{ opacity: 1, x: 0 }}
             viewport={{ once: true }}
-            transition={{ duration: 0.8 }}
+            transition={{ duration: 0.6 }}
             className="relative"
           >
-            {/* Glow effect */}
-            <div className="absolute inset-0 bg-gradient-to-r from-cyan-500 via-blue-500 to-indigo-500 rounded-3xl blur-2xl opacity-30"></div>
-            
-            {/* Image card */}
-            <div className="relative card-gradient p-3 sm:p-4 rounded-3xl overflow-hidden border border-white/60 shadow-2xl bg-white/80 backdrop-blur-md">
-              <div className="relative aspect-square rounded-2xl overflow-hidden bg-gradient-to-br from-cyan-50/50 via-white to-indigo-50/50 flex items-center justify-center p-6 sm:p-8">
-                <motion.div
-                  whileHover={{ scale: 1.03 }}
-                  transition={{ type: "spring", stiffness: 200, damping: 15 }}
-                  className="relative w-full h-full flex items-center justify-center"
-                >
-                  <Image
-                    src="/logo.png"
-                    alt="Fun Print Brand Story Logo"
-                    fill
-                    sizes="(max-width: 768px) 100vw, 50vw"
-                    className="object-contain p-6 drop-shadow-xl"
-                    priority
-                  />
-                </motion.div>
+            <div className="bg-gray-50 p-6 sm:p-8 rounded-3xl border border-gray-200 shadow-sm flex items-center justify-center">
+              <div className="relative aspect-square w-full max-w-sm rounded-2xl bg-white p-8 flex items-center justify-center border border-gray-200/80 shadow-sm">
+                <Image
+                  src="/logo.png"
+                  alt="FunPrint About Us Logo"
+                  width={240}
+                  height={240}
+                  className="object-contain"
+                  priority
+                />
               </div>
             </div>
           </motion.div>

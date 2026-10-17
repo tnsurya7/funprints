@@ -142,27 +142,11 @@ function SceneContent({
 }
 
 // Color map helper
-const COLOR_HEX_MAP: Record<string, string> = {
-  white: '#FFFFFF',
-  black: '#171717',
-  grey: '#6B7280',
-  gray: '#6B7280',
-  'navy blue': '#1E3A8A',
-  navy: '#1E3A8A',
-  maroon: '#7F1D1D',
-  red: '#DC2626',
-  blue: '#2563EB',
-  green: '#16A34A',
-  yellow: '#EAB308',
-  orange: '#EA580C',
-  purple: '#7C3AED',
-  pink: '#DB2777'
-};
+import { getColorDisplay } from '@/lib/colors';
 
 function resolveColorHex(colorInput: string = 'White'): string {
   if (colorInput.startsWith('#')) return colorInput;
-  const normalized = colorInput.trim().toLowerCase();
-  return COLOR_HEX_MAP[normalized] || '#FFFFFF';
+  return getColorDisplay(colorInput);
 }
 
 export default function ThreeDTshirtViewer({
@@ -263,7 +247,7 @@ export default function ThreeDTshirtViewer({
 
   return (
     <WebGLErrorBoundary fallback={fallbackView}>
-      <div className={`relative w-full ${className || 'aspect-square'} bg-gradient-to-br from-gray-50 via-white to-gray-100 rounded-3xl overflow-hidden shadow-sm border border-gray-200/80 select-none group`}>
+      <div className={`relative w-full ${className || 'aspect-square'} bg-gray-50 rounded-3xl overflow-hidden shadow-sm border border-gray-200/80 select-none group`}>
         {/* Interactive Overlay Controls */}
         <ProductViewerControls
           onSetAngle={handleSetAngle}
@@ -274,6 +258,8 @@ export default function ThreeDTshirtViewer({
           onReset={handleReset}
           activeAngle={activeAngle}
           isInteracting={isInteracting}
+          color={color}
+          colorHex={resolvedHex}
         />
 
         {/* Close Button if rendered as modal */}

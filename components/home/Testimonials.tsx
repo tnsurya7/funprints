@@ -1,111 +1,130 @@
 'use client';
 
 import { motion } from 'framer-motion';
-import { Star } from 'lucide-react';
+import Image from 'next/image';
+import { Star, CheckCircle2 } from 'lucide-react';
 
-const testimonials = [
+interface TestimonialItem {
+  name: string;
+  role: string;
+  content: string;
+  rating: number;
+  image: string;
+}
+
+const testimonials: TestimonialItem[] = [
   {
-    name: 'Rahul Sharma',
-    role: 'Event Organizer',
-    content: 'Amazing quality and service! Our team t-shirts turned out perfect.',
+    name: 'Poornima Mani',
+    role: 'Verified Customer • 30+ T-Shirts Bulk Order',
+    image: '/testimonials/poornima.avif',
+    content:
+      'Thank you so much Funprint. You was really kind and delivered all T shirts in time. Cloth was too good. We ordered more than 30 T shirts. But everything fits perfectly. Without Doubt, you can go for Fun print for bulk order, customized t shirts and also individual t shirts. Thank you so much Sir.',
     rating: 5,
-    gradient: 'from-blue-500 to-cyan-500',
   },
   {
-    name: 'Priya Patel',
-    role: 'Startup Founder',
-    content: 'Fast delivery and excellent customization options. Highly recommend!',
+    name: 'Ajith S',
+    role: 'Family Photo Print T-Shirts & Hoodie',
+    image: '/testimonials/ajith.avif',
+    content:
+      'Thank you so much Mr.Ram for providing us the requested photo print T-shirts n Hoodie for my kid and family, your timely and quick delivery made us very happy. And the Quality of the Print and T-shirts were also good. Will definitely make order in future.',
     rating: 5,
-    gradient: 'from-purple-500 to-pink-500',
   },
   {
-    name: 'Amit Kumar',
-    role: 'College Student',
-    content: 'Best custom t-shirts in town. Great prices and quality.',
+    name: 'Josie Annie',
+    role: 'Custom Group T-Shirts (8 Pcs)',
+    image: '/testimonials/josie.avif',
+    content:
+      'We got ourselves customized t-shirts from FUNPRINTS for 8 of us . The fit was perfect and also got many good compliments . We got our t-shirts ready in a very short time and got the outcome we wanted . The service is also very good. Thank you Funprint😊',
     rating: 5,
-    gradient: 'from-orange-500 to-red-500',
+  },
+  {
+    name: 'Vamsi Srinivasan',
+    role: 'Custom Design & Print Client',
+    image: '/testimonials/vamsi.avif',
+    content:
+      'I gave a theme - they designed immediately and sent images on how it will look when printed. It was quite impressive! They gave me colour and size options and got them printed! Whole ordering process was smooth and I got delivered in no time! If you are looking to order customized T-shirts, then you should approach Fun prints. Thank you!.',
+    rating: 5,
+  },
+  {
+    name: 'Aran Volunteers',
+    role: 'ARAN Voluntary Organization, Sriperumbudur (80 Pcs)',
+    image: '/testimonials/aran.avif',
+    content:
+      'We, ARAN Voluntary Organization from Sriperumbudur, Kanchipuram purchased jerseys and t-shirts from funprint, about 80 pieces with printed logo and name. We are well satisfied with the quality and timely delivery of the product. Thank you!',
+    rating: 5,
+  },
+  {
+    name: 'Travel Monkey',
+    role: 'Company Uniform & Merchandise',
+    image: '/testimonials/travel-monkey.avif',
+    content:
+      'The quality of T-shirts is premium and its really good and the service was wonderful. I suggest everyone those who are looking for these kind of T-shirts printing and other things can be done through this company the service is really good. Once again thank you fun print for giving such a beautiful t-shirt for our company.',
+    rating: 5,
   },
 ];
 
 export default function Testimonials() {
   return (
-    <section className="py-12 sm:py-20 relative overflow-hidden">
-      {/* Gradient background */}
-      <div className="absolute inset-0 bg-gradient-to-br from-purple-50 via-pink-50 to-blue-50"></div>
-      
-      <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 relative z-10">
-        <motion.div
-          initial={{ opacity: 0, y: 20 }}
-          whileInView={{ opacity: 1, y: 0 }}
-          viewport={{ once: true }}
-          className="text-center mb-10 sm:mb-16"
-        >
-          <motion.div
-            initial={{ scale: 0 }}
-            whileInView={{ scale: 1 }}
-            viewport={{ once: true }}
-            className="inline-block mb-3 sm:mb-4"
-          >
-            <span className="px-5 sm:px-6 py-1.5 sm:py-2 rounded-full bg-gradient-to-r from-purple-600 via-pink-600 to-red-600 text-white text-xs sm:text-sm font-semibold shadow-lg">
-              Testimonials
-            </span>
-          </motion.div>
-          <h2 className="text-3xl sm:text-5xl font-bold mb-3 sm:mb-4 text-gradient">What Our Customers Say</h2>
-          <p className="text-base sm:text-xl text-gray-600">Real feedback from real people</p>
-        </motion.div>
+    <section className="py-14 sm:py-20 bg-slate-50/60 border-b border-gray-200/80 font-serif">
+      <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
+        <div className="text-center mb-10 sm:mb-16">
+          <h2 className="text-3xl sm:text-4xl md:text-5xl font-black text-gray-950 tracking-tight mb-3">
+            Trusted by Thousands Across India
+          </h2>
+          <p className="text-sm sm:text-base text-gray-600 max-w-xl mx-auto leading-relaxed">
+            Genuine customer experiences from schools, companies, non-profits, and families.
+          </p>
+        </div>
 
-        <div className="grid grid-cols-1 md:grid-cols-3 gap-6 sm:gap-8">
+        {/* 6-Review Grid */}
+        <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6 sm:gap-8">
           {testimonials.map((testimonial, index) => (
             <motion.div
               key={testimonial.name}
-              initial={{ opacity: 0, y: 30 }}
+              initial={{ opacity: 0, y: 20 }}
               whileInView={{ opacity: 1, y: 0 }}
               viewport={{ once: true }}
-              transition={{ delay: index * 0.2 }}
-              whileHover={{ y: -10, scale: 1.02 }}
-              className="relative group"
+              transition={{ delay: index * 0.08, duration: 0.4 }}
+              className="bg-white rounded-3xl p-6 sm:p-8 border border-gray-200/90 shadow-xs hover:shadow-md hover:border-amber-400 transition-all duration-300 flex flex-col justify-between relative group"
             >
-              {/* Glow effect */}
-              <div className={`absolute inset-0 bg-gradient-to-r ${testimonial.gradient} rounded-3xl blur-xl opacity-20 group-hover:opacity-40 transition-opacity duration-500`}></div>
-              
-              {/* Card */}
-              <div className="relative card-gradient p-6 sm:p-8 h-full">
-                {/* Stars with gradient */}
-                <div className="flex gap-1 mb-3 sm:mb-4">
-                  {[...Array(testimonial.rating)].map((_, i) => (
-                    <motion.div
-                      key={i}
-                      initial={{ scale: 0, rotate: -180 }}
-                      whileInView={{ scale: 1, rotate: 0 }}
-                      transition={{ delay: index * 0.2 + i * 0.1 }}
-                      viewport={{ once: true }}
-                    >
-                      <Star className={`w-4 sm:w-5 h-4 sm:h-5 fill-current bg-gradient-to-r ${testimonial.gradient} bg-clip-text text-transparent`} style={{ fill: 'url(#star-gradient)' }} />
-                    </motion.div>
-                  ))}
+              <div>
+                {/* Rating Stars & Badge */}
+                <div className="flex items-center justify-between mb-4">
+                  <div className="flex gap-1">
+                    {[...Array(testimonial.rating)].map((_, i) => (
+                      <Star key={i} className="w-4 h-4 text-amber-500 fill-amber-400" />
+                    ))}
+                  </div>
+
+                  <span className="inline-flex items-center gap-1 text-[11px] font-bold text-emerald-700 bg-emerald-50 px-2.5 py-0.5 rounded-full border border-emerald-200">
+                    <CheckCircle2 className="w-3 h-3" />
+                    <span>Verified</span>
+                  </span>
                 </div>
                 
-                {/* SVG gradient definition */}
-                <svg width="0" height="0">
-                  <defs>
-                    <linearGradient id="star-gradient" x1="0%" y1="0%" x2="100%" y2="100%">
-                      <stop offset="0%" stopColor="#f59e0b" />
-                      <stop offset="100%" stopColor="#f97316" />
-                    </linearGradient>
-                  </defs>
-                </svg>
-                
-                <p className="text-gray-700 mb-5 sm:mb-6 italic text-base sm:text-lg leading-relaxed">&ldquo;{testimonial.content}&rdquo;</p>
-                
-                <div className="flex items-center gap-4">
-                  {/* Avatar with gradient */}
-                  <div className={`w-12 h-12 rounded-full bg-gradient-to-r ${testimonial.gradient} flex items-center justify-center text-white font-bold text-lg shadow-lg`}>
-                    {testimonial.name.charAt(0)}
-                  </div>
-                  <div>
-                    <p className="font-semibold text-gray-900">{testimonial.name}</p>
-                    <p className="text-sm text-gray-500">{testimonial.role}</p>
-                  </div>
+                <p className="text-gray-700 mb-6 text-xs sm:text-sm leading-relaxed">
+                  &ldquo;{testimonial.content}&rdquo;
+                </p>
+              </div>
+              
+              <div className="flex items-center gap-3 pt-4 border-t border-gray-100">
+                {/* Real Testimonial Avatar */}
+                <div className="relative w-11 h-11 rounded-full overflow-hidden border-2 border-amber-300 shadow-xs flex-shrink-0 bg-gray-100">
+                  <Image
+                    src={testimonial.image}
+                    alt={testimonial.name}
+                    width={44}
+                    height={44}
+                    className="object-cover w-full h-full"
+                  />
+                </div>
+                <div className="min-w-0">
+                  <p className="font-extrabold text-sm text-gray-950 truncate">
+                    {testimonial.name}
+                  </p>
+                  <p className="text-[11px] text-gray-500 truncate">
+                    {testimonial.role}
+                  </p>
                 </div>
               </div>
             </motion.div>

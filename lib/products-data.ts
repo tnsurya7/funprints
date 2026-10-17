@@ -1,6 +1,4 @@
-// Product catalog with placeholder images
-// ⚠️ DEMO DATA - Replace with real product data in production
-
+// Product catalog - using real images from /public/products/all tshirts/360/products - online/
 export interface Product {
   id: string;
   name: string;
@@ -21,569 +19,434 @@ export interface Product {
   inStock: boolean;
 }
 
-// Product catalog - using real images from /public/products/all tshirts/360/
-// Colors array shows ALL available colors for that category
 export const products: Product[] = [
-  // Round Neck - White (has front, back, side)
   {
-    id: 'round-neck-white',
-    name: 'Classic Round Neck T-Shirt - White',
-    description: 'Premium quality round neck t-shirt perfect for custom printing. Made from 100% cotton with a comfortable fit.',
-    price: 499,
-    category: 'Round Neck',
-    colors: ['White', 'Black', 'Grey', 'Navy', 'Maroon'], // All 5 colors available
-    sizes: ['S', 'M', 'L', 'XL', 'XXL'],
-    images: {
-      front: '/products/all tshirts/360/neck_white_front.png',
-      back: '/products/all tshirts/360/neck_white_back.png',
-      side: '/products/all tshirts/360/neck_white_side.png',
-      gallery: [
-        '/products/all tshirts/360/neck_white_front.png',
-        '/products/all tshirts/360/neck_white_back.png',
-        '/products/all tshirts/360/neck_white_side.png',
-      ],
-    },
-    features: [
-      '100% Premium Cotton',
-      'Pre-shrunk fabric',
-      'Comfortable fit',
-      'Durable stitching',
-      'Perfect for printing',
+    "id": "cotton-supersoft-round-neck-180-gsm",
+    "name": "Cotton Supersoft Round Neck 180 GSM",
+    "description": "Ultra-comfortable 100% cotton round neck t-shirt in 180 GSM supersoft fabric. Perfect for custom printing and everyday comfort.",
+    "price": 499,
+    "category": "Round Neck",
+    "colors": [
+      "Black",
+      "Bottle Green",
+      "Burgundy",
+      "Charcoal Melange",
+      "Chutney Green",
+      "Dark Orange",
+      "Grey Melange",
+      "Ice Blue",
+      "Lavender",
+      "Navy",
+      "New Yellow",
+      "Olive",
+      "Onion",
+      "Purple",
+      "Red",
+      "Royal Blue",
+      "Sage Green",
+      "Tale Blue",
+      "White"
     ],
-    fabric: 'Cotton',
-    gsm: 180,
-    inStock: true,
+    "sizes": [
+      "S",
+      "M",
+      "L",
+      "XL",
+      "XXL"
+    ],
+    "images": {
+      "front": "/products/all tshirts/360/products - online/Cotton Supersoft Round Neck 180 GSM/Black/f.jpg",
+      "back": "/products/all tshirts/360/products - online/Cotton Supersoft Round Neck 180 GSM/Black/b.jpg",
+      "side": "/products/all tshirts/360/products - online/Cotton Supersoft Round Neck 180 GSM/Black/s.jpg",
+      "gallery": [
+        "/products/all tshirts/360/products - online/Cotton Supersoft Round Neck 180 GSM/Black/f.jpg",
+        "/products/all tshirts/360/products - online/Cotton Supersoft Round Neck 180 GSM/Black/b.jpg",
+        "/products/all tshirts/360/products - online/Cotton Supersoft Round Neck 180 GSM/Black/s.jpg"
+      ]
+    },
+    "features": [
+      "180 GSM Premium Fabric",
+      "Pre-shrunk & Bio-washed",
+      "Durable reinforced stitching",
+      "Ideal for high-definition custom printing",
+      "Comfort regular fit"
+    ],
+    "fabric": "100% Supersoft Cotton",
+    "gsm": 180,
+    "inStock": true
   },
-  // Round Neck - Black (only front)
   {
-    id: 'round-neck-black',
-    name: 'Classic Round Neck T-Shirt - Black',
-    description: 'Sleek black round neck t-shirt ideal for bold custom designs. Premium cotton fabric ensures comfort all day.',
-    price: 499,
-    category: 'Round Neck',
-    colors: ['White', 'Black', 'Grey', 'Navy', 'Maroon'], // All 5 colors available
-    sizes: ['S', 'M', 'L', 'XL', 'XXL'],
-    images: {
-      front: '/products/all tshirts/360/neck_black_front.png',
-      back: '/products/all tshirts/360/neck_black_front.png',
-      side: '/products/all tshirts/360/neck_black_front.png',
-      gallery: [
-        '/products/all tshirts/360/neck_black_front.png',
-      ],
-    },
-    features: [
-      '100% Premium Cotton',
-      'Fade-resistant black dye',
-      'Comfortable fit',
-      'Durable stitching',
-      'Perfect for printing',
+    "id": "cotton-aero-polo-240-gsm",
+    "name": "Cotton Aero Polo 240 GSM",
+    "description": "Breathable 240 GSM cotton aero pique polo t-shirt with ribbed collar and double-needle hem.",
+    "price": 699,
+    "category": "Polo",
+    "colors": [
+      "Black",
+      "Bottle Green",
+      "Burgundy",
+      "Charcoal Melange",
+      "Chrome Yellow",
+      "Desert Sand",
+      "Flag Green",
+      "Grey Melange",
+      "Navy",
+      "Red",
+      "Royal Blue",
+      "Sky Blue",
+      "White"
     ],
-    fabric: 'Cotton',
-    gsm: 180,
-    inStock: true,
+    "sizes": [
+      "S",
+      "M",
+      "L",
+      "XL",
+      "XXL"
+    ],
+    "images": {
+      "front": "/products/all tshirts/360/products - online/Cotton Aero Polo 240 GSM/Black/front.jpg",
+      "back": "/products/all tshirts/360/products - online/Cotton Aero Polo 240 GSM/Black/back.jpg",
+      "side": "/products/all tshirts/360/products - online/Cotton Aero Polo 240 GSM/Black/side.jpg",
+      "gallery": [
+        "/products/all tshirts/360/products - online/Cotton Aero Polo 240 GSM/Black/front.jpg",
+        "/products/all tshirts/360/products - online/Cotton Aero Polo 240 GSM/Black/back.jpg",
+        "/products/all tshirts/360/products - online/Cotton Aero Polo 240 GSM/Black/side.jpg"
+      ]
+    },
+    "features": [
+      "240 GSM Premium Fabric",
+      "Pre-shrunk & Bio-washed",
+      "Durable reinforced stitching",
+      "Ideal for high-definition custom printing",
+      "Comfort regular fit"
+    ],
+    "fabric": "Cotton Aero Pique",
+    "gsm": 240,
+    "inStock": true
   },
-  // Round Neck - Grey (only front)
   {
-    id: 'round-neck-grey',
-    name: 'Classic Round Neck T-Shirt - Grey',
-    description: 'Versatile grey t-shirt that works with any design. Soft cotton fabric for maximum comfort.',
-    price: 499,
-    category: 'Round Neck',
-    colors: ['White', 'Black', 'Grey', 'Navy', 'Maroon'], // All 5 colors available
-    sizes: ['S', 'M', 'L', 'XL', 'XXL'],
-    images: {
-      front: '/products/all tshirts/360/neck_grey_front.png',
-      back: '/products/all tshirts/360/neck_grey_front.png',
-      side: '/products/all tshirts/360/neck_grey_front.png',
-      gallery: [
-        '/products/all tshirts/360/neck_grey_front.png',
-      ],
-    },
-    features: [
-      '100% Premium Cotton',
-      'Soft fabric',
-      'Comfortable fit',
-      'Versatile color',
-      'Perfect for printing',
+    "id": "cotton-aero-tipping-polo-240-gsm",
+    "name": "Cotton Aero Tipping Polo 240 GSM",
+    "description": "Premium 240 GSM cotton polo featuring stylish contrast tipping on collar and sleeve cuffs.",
+    "price": 749,
+    "category": "Polo",
+    "colors": [
+      "Black",
+      "Grey Melange",
+      "Navy",
+      "Red",
+      "Royal Blue",
+      "White"
     ],
-    fabric: 'Cotton',
-    gsm: 180,
-    inStock: true,
+    "sizes": [
+      "S",
+      "M",
+      "L",
+      "XL",
+      "XXL"
+    ],
+    "images": {
+      "front": "/products/all tshirts/360/products - online/Cotton Aero Tipping Polo 240 GSM/Black/front.jpg",
+      "back": "/products/all tshirts/360/products - online/Cotton Aero Tipping Polo 240 GSM/Black/back.jpg",
+      "side": "/products/all tshirts/360/products - online/Cotton Aero Tipping Polo 240 GSM/Black/side.jpg",
+      "gallery": [
+        "/products/all tshirts/360/products - online/Cotton Aero Tipping Polo 240 GSM/Black/front.jpg",
+        "/products/all tshirts/360/products - online/Cotton Aero Tipping Polo 240 GSM/Black/back.jpg",
+        "/products/all tshirts/360/products - online/Cotton Aero Tipping Polo 240 GSM/Black/side.jpg"
+      ]
+    },
+    "features": [
+      "240 GSM Premium Fabric",
+      "Pre-shrunk & Bio-washed",
+      "Durable reinforced stitching",
+      "Ideal for high-definition custom printing",
+      "Comfort regular fit"
+    ],
+    "fabric": "Cotton Aero Pique with Tipping",
+    "gsm": 240,
+    "inStock": true
   },
-  // Round Neck - Navy (only front)
   {
-    id: 'round-neck-navy',
-    name: 'Classic Round Neck T-Shirt - Navy',
-    description: 'Deep navy blue t-shirt for a premium look. High-quality cotton ensures durability and comfort.',
-    price: 499,
-    category: 'Round Neck',
-    colors: ['White', 'Black', 'Grey', 'Navy', 'Maroon'], // All 5 colors available
-    sizes: ['S', 'M', 'L', 'XL', 'XXL'],
-    images: {
-      front: '/products/all tshirts/360/neck_navyblue_front.png',
-      back: '/products/all tshirts/360/neck_navyblue_front.png',
-      side: '/products/all tshirts/360/neck_navyblue_front.png',
-      gallery: [
-        '/products/all tshirts/360/neck_navyblue_front.png',
-      ],
-    },
-    features: [
-      '100% Premium Cotton',
-      'Rich navy color',
-      'Comfortable fit',
-      'Durable stitching',
-      'Perfect for printing',
+    "id": "double-ply-cotton-pique-polo-280-gsm",
+    "name": "Double Ply Cotton Pique Polo 280 GSM",
+    "description": "Heavyweight 280 GSM double ply cotton pique polo crafted for luxury feel and exceptional longevity.",
+    "price": 799,
+    "category": "Polo",
+    "colors": [
+      "Classic Red",
+      "Dark Charcoal Melange",
+      "Jet Black",
+      "Light Grey Melange",
+      "Navy Blue",
+      "Royal Blue",
+      "White"
     ],
-    fabric: 'Cotton',
-    gsm: 180,
-    inStock: true,
+    "sizes": [
+      "S",
+      "M",
+      "L",
+      "XL",
+      "XXL"
+    ],
+    "images": {
+      "front": "/products/all tshirts/360/products - online/Double Ply Cotton Pique Polo 280 GSM/Classic Red/f.jpg",
+      "back": "/products/all tshirts/360/products - online/Double Ply Cotton Pique Polo 280 GSM/Classic Red/b.jpg",
+      "side": "/products/all tshirts/360/products - online/Double Ply Cotton Pique Polo 280 GSM/Classic Red/s.jpg",
+      "gallery": [
+        "/products/all tshirts/360/products - online/Double Ply Cotton Pique Polo 280 GSM/Classic Red/f.jpg",
+        "/products/all tshirts/360/products - online/Double Ply Cotton Pique Polo 280 GSM/Classic Red/b.jpg",
+        "/products/all tshirts/360/products - online/Double Ply Cotton Pique Polo 280 GSM/Classic Red/s.jpg"
+      ]
+    },
+    "features": [
+      "280 GSM Premium Fabric",
+      "Pre-shrunk & Bio-washed",
+      "Durable reinforced stitching",
+      "Ideal for high-definition custom printing",
+      "Comfort regular fit"
+    ],
+    "fabric": "Double Ply Cotton Pique",
+    "gsm": 280,
+    "inStock": true
   },
-  // Round Neck - Maroon (only front)
   {
-    id: 'round-neck-maroon',
-    name: 'Classic Round Neck T-Shirt - Maroon',
-    description: 'Rich maroon t-shirt for a bold statement. Premium cotton fabric for all-day comfort.',
-    price: 499,
-    category: 'Round Neck',
-    colors: ['White', 'Black', 'Grey', 'Navy', 'Maroon'], // All 5 colors available
-    sizes: ['S', 'M', 'L', 'XL', 'XXL'],
-    images: {
-      front: '/products/all tshirts/360/neck_maroon_front.png',
-      back: '/products/all tshirts/360/neck_maroon_front.png',
-      side: '/products/all tshirts/360/neck_maroon_front.png',
-      gallery: [
-        '/products/all tshirts/360/neck_maroon_front.png',
-      ],
-    },
-    features: [
-      '100% Premium Cotton',
-      'Rich maroon color',
-      'Comfortable fit',
-      'Durable stitching',
-      'Perfect for printing',
+    "id": "dry-fit-aerotech-polo-200-gsm",
+    "name": "Dry-fit AeroTech Polo 200 GSM",
+    "description": "Performance moisture-wicking 200 GSM polo engineered with AeroTech breathable knit for active and corporate wear.",
+    "price": 649,
+    "category": "Polo",
+    "colors": [
+      "Aluminium",
+      "Arrow Red",
+      "Beige",
+      "Black",
+      "Black Melange",
+      "Carbon Grey Melange",
+      "Charcoal",
+      "Chrome Yellow",
+      "Emarald Green",
+      "French Wine",
+      "Golden Yellow",
+      "Harbour Blue",
+      "Heather Rose",
+      "I Blue Melange",
+      "Ice Green",
+      "Lemon Yellow",
+      "Light Grey Melange",
+      "Light Turquoise Melange",
+      "Mint",
+      "Navy Melange",
+      "Olive",
+      "Pine Green",
+      "Rama Blue",
+      "Royal blue",
+      "Sky Blue",
+      "Striking Purple",
+      "Strong Blue",
+      "True Navy",
+      "White",
+      "Woody Orange"
     ],
-    fabric: 'Cotton',
-    gsm: 180,
-    inStock: true,
+    "sizes": [
+      "S",
+      "M",
+      "L",
+      "XL",
+      "XXL"
+    ],
+    "images": {
+      "front": "/products/all tshirts/360/products - online/Dry-fit AeroTech Polo 200 GSM/Aluminium/f.jpg",
+      "back": "/products/all tshirts/360/products - online/Dry-fit AeroTech Polo 200 GSM/Aluminium/b.jpg",
+      "side": "/products/all tshirts/360/products - online/Dry-fit AeroTech Polo 200 GSM/Aluminium/s.jpg",
+      "gallery": [
+        "/products/all tshirts/360/products - online/Dry-fit AeroTech Polo 200 GSM/Aluminium/f.jpg",
+        "/products/all tshirts/360/products - online/Dry-fit AeroTech Polo 200 GSM/Aluminium/b.jpg",
+        "/products/all tshirts/360/products - online/Dry-fit AeroTech Polo 200 GSM/Aluminium/s.jpg"
+      ]
+    },
+    "features": [
+      "200 GSM Premium Fabric",
+      "Pre-shrunk & Bio-washed",
+      "Durable reinforced stitching",
+      "Ideal for high-definition custom printing",
+      "Comfort regular fit"
+    ],
+    "fabric": "AeroTech Dry-fit Poly Blend",
+    "gsm": 200,
+    "inStock": true
   },
-  // Polo - White (only front)
   {
-    id: 'polo-white',
-    name: 'Premium Polo T-Shirt - White',
-    description: 'Elegant polo t-shirt with collar. Perfect for corporate branding and professional custom prints.',
-    price: 699,
-    category: 'Polo',
-    colors: ['White', 'Black', 'Navy', 'Grey'], // All 4 colors available
-    sizes: ['S', 'M', 'L', 'XL', 'XXL'],
-    images: {
-      front: '/products/all tshirts/360/polo_white_front.png',
-      back: '/products/all tshirts/360/polo_white_front.png',
-      side: '/products/all tshirts/360/polo_white_front.png',
-      gallery: [
-        '/products/all tshirts/360/polo_white_front.png',
-      ],
-    },
-    features: [
-      'Premium Pique Cotton',
-      'Ribbed collar',
-      'Button placket',
-      'Professional look',
-      'Ideal for corporate branding',
+    "id": "poly-cotton-fusion-polo-220-gsm",
+    "name": "Poly Cotton Fusion Polo 220 GSM",
+    "description": "Durable 220 GSM poly-cotton fusion blend polo ideal for all-day comfort, wrinkle resistance, and workwear.",
+    "price": 599,
+    "category": "Polo",
+    "colors": [
+      "Black",
+      "Charcoal Melange",
+      "Grey Melange",
+      "Navy",
+      "Red",
+      "Royal Blue",
+      "White"
     ],
-    fabric: 'Pique Cotton',
-    gsm: 200,
-    inStock: true,
+    "sizes": [
+      "S",
+      "M",
+      "L",
+      "XL",
+      "XXL"
+    ],
+    "images": {
+      "front": "/products/all tshirts/360/products - online/Poly Cotton Fusion Polo 220 GSM/Black/front.jpg",
+      "back": "/products/all tshirts/360/products - online/Poly Cotton Fusion Polo 220 GSM/Black/back.jpg",
+      "side": "/products/all tshirts/360/products - online/Poly Cotton Fusion Polo 220 GSM/Black/side.jpg",
+      "gallery": [
+        "/products/all tshirts/360/products - online/Poly Cotton Fusion Polo 220 GSM/Black/front.jpg",
+        "/products/all tshirts/360/products - online/Poly Cotton Fusion Polo 220 GSM/Black/back.jpg",
+        "/products/all tshirts/360/products - online/Poly Cotton Fusion Polo 220 GSM/Black/side.jpg"
+      ]
+    },
+    "features": [
+      "220 GSM Premium Fabric",
+      "Pre-shrunk & Bio-washed",
+      "Durable reinforced stitching",
+      "Ideal for high-definition custom printing",
+      "Comfort regular fit"
+    ],
+    "fabric": "Poly-Cotton Fusion",
+    "gsm": 220,
+    "inStock": true
   },
-  // Polo - Black (only front)
   {
-    id: 'polo-black',
-    name: 'Premium Polo T-Shirt - Black',
-    description: 'Classic black polo t-shirt with a sophisticated look. Ideal for team uniforms and corporate wear.',
-    price: 699,
-    category: 'Polo',
-    colors: ['White', 'Black', 'Navy', 'Grey'], // All 4 colors available
-    sizes: ['S', 'M', 'L', 'XL', 'XXL'],
-    images: {
-      front: '/products/all tshirts/360/polo_black_front.png',
-      back: '/products/all tshirts/360/polo_black_front.png',
-      side: '/products/all tshirts/360/polo_black_front.png',
-      gallery: [
-        '/products/all tshirts/360/polo_black_front.png',
-      ],
-    },
-    features: [
-      'Premium Pique Cotton',
-      'Ribbed collar',
-      'Button placket',
-      'Professional look',
-      'Ideal for corporate branding',
+    "id": "supima-supersoft-cotton-polo-240-gsm",
+    "name": "Supima Supersoft Cotton Polo 240 GSM",
+    "description": "Exquisite 240 GSM Supima long-staple cotton polo with unmatched softness, color vibrancy, and premium drape.",
+    "price": 899,
+    "category": "Polo",
+    "colors": [
+      "Navy",
+      "Red",
+      "White"
     ],
-    fabric: 'Pique Cotton',
-    gsm: 200,
-    inStock: true,
+    "sizes": [
+      "S",
+      "M",
+      "L",
+      "XL",
+      "XXL"
+    ],
+    "images": {
+      "front": "/products/all tshirts/360/products - online/Supima Supersoft Cotton Polo 240 GSM/Navy/front.jpg",
+      "back": "/products/all tshirts/360/products - online/Supima Supersoft Cotton Polo 240 GSM/Navy/back.jpg",
+      "side": "/products/all tshirts/360/products - online/Supima Supersoft Cotton Polo 240 GSM/Navy/side.jpg",
+      "gallery": [
+        "/products/all tshirts/360/products - online/Supima Supersoft Cotton Polo 240 GSM/Navy/front.jpg",
+        "/products/all tshirts/360/products - online/Supima Supersoft Cotton Polo 240 GSM/Navy/back.jpg",
+        "/products/all tshirts/360/products - online/Supima Supersoft Cotton Polo 240 GSM/Navy/side.jpg"
+      ]
+    },
+    "features": [
+      "240 GSM Premium Fabric",
+      "Pre-shrunk & Bio-washed",
+      "Durable reinforced stitching",
+      "Ideal for high-definition custom printing",
+      "Comfort regular fit"
+    ],
+    "fabric": "100% Supima Cotton",
+    "gsm": 240,
+    "inStock": true
   },
-  // Polo - Navy (only front)
   {
-    id: 'polo-navy',
-    name: 'Premium Polo T-Shirt - Navy',
-    description: 'Navy blue polo t-shirt with professional styling. Perfect for corporate events and team wear.',
-    price: 699,
-    category: 'Polo',
-    colors: ['White', 'Black', 'Navy', 'Grey'], // All 4 colors available
-    sizes: ['S', 'M', 'L', 'XL', 'XXL'],
-    images: {
-      front: '/products/all tshirts/360/polo_navyblue_front.png',
-      back: '/products/all tshirts/360/polo_navyblue_front.png',
-      side: '/products/all tshirts/360/polo_navyblue_front.png',
-      gallery: [
-        '/products/all tshirts/360/polo_navyblue_front.png',
-      ],
-    },
-    features: [
-      'Premium Pique Cotton',
-      'Ribbed collar',
-      'Button placket',
-      'Professional look',
-      'Ideal for corporate branding',
+    "id": "cotton-pullover-hood-300-gsm",
+    "name": "Cotton Pullover Hood 300 GSM",
+    "description": "Plush 300 GSM heavyweight cotton fleece pullover hoodie with spacious kangaroo pocket and ribbed trims.",
+    "price": 999,
+    "category": "Hoodie",
+    "colors": [
+      "Black",
+      "Charcoal Melange",
+      "Grey Melange",
+      "Navy"
     ],
-    fabric: 'Pique Cotton',
-    gsm: 200,
-    inStock: true,
+    "sizes": [
+      "S",
+      "M",
+      "L",
+      "XL",
+      "XXL"
+    ],
+    "images": {
+      "front": "/products/all tshirts/360/products - online/Cotton Pullover Hood 300 GSM/Black/f.jpg",
+      "back": "/products/all tshirts/360/products - online/Cotton Pullover Hood 300 GSM/Black/b.jpg",
+      "side": "/products/all tshirts/360/products - online/Cotton Pullover Hood 300 GSM/Black/s.jpg",
+      "gallery": [
+        "/products/all tshirts/360/products - online/Cotton Pullover Hood 300 GSM/Black/f.jpg",
+        "/products/all tshirts/360/products - online/Cotton Pullover Hood 300 GSM/Black/b.jpg",
+        "/products/all tshirts/360/products - online/Cotton Pullover Hood 300 GSM/Black/s.jpg"
+      ]
+    },
+    "features": [
+      "300 GSM Premium Fabric",
+      "Pre-shrunk & Bio-washed",
+      "Durable reinforced stitching",
+      "Ideal for high-definition custom printing",
+      "Comfort regular fit"
+    ],
+    "fabric": "Heavyweight Cotton Fleece",
+    "gsm": 300,
+    "inStock": true
   },
-  // Polo - Grey (only front)
   {
-    id: 'polo-grey',
-    name: 'Premium Polo T-Shirt - Grey',
-    description: 'Stylish grey polo t-shirt for versatile wear. Ideal for casual and corporate settings.',
-    price: 699,
-    category: 'Polo',
-    colors: ['White', 'Black', 'Navy', 'Grey'], // All 4 colors available
-    sizes: ['S', 'M', 'L', 'XL', 'XXL'],
-    images: {
-      front: '/products/all tshirts/360/polo_grey_front.png',
-      back: '/products/all tshirts/360/polo_grey_front.png',
-      side: '/products/all tshirts/360/polo_grey_front.png',
-      gallery: [
-        '/products/all tshirts/360/polo_grey_front.png',
-      ],
-    },
-    features: [
-      'Premium Pique Cotton',
-      'Ribbed collar',
-      'Button placket',
-      'Professional look',
-      'Ideal for corporate branding',
+    "id": "cotton-zipper-hood-300-gsm",
+    "name": "Cotton Zipper Hood 300 GSM",
+    "description": "Premium 300 GSM cotton fleece zip-up hoodie with durable zipper, drawstring hood, and dual front pockets.",
+    "price": 1099,
+    "category": "Zip Hoodie",
+    "colors": [
+      "Black",
+      "Charcoal Melange",
+      "Grey Melange",
+      "Navy"
     ],
-    fabric: 'Pique Cotton',
-    gsm: 200,
-    inStock: true,
-  },
-  // V-Neck - White (only front)
-  {
-    id: 'v-neck-white',
-    name: 'V-Neck T-Shirt - White',
-    description: 'Stylish V-neck t-shirt for a modern look. Premium cotton fabric ensures comfort.',
-    price: 549,
-    category: 'V-Neck',
-    colors: ['White', 'Black', 'Grey', 'Navy', 'Maroon'], // All 5 colors available
-    sizes: ['S', 'M', 'L', 'XL', 'XXL'],
-    images: {
-      front: '/products/all tshirts/360/v_neck_white_front.png',
-      back: '/products/all tshirts/360/v_neck_white_front.png',
-      side: '/products/all tshirts/360/v_neck_white_front.png',
-      gallery: [
-        '/products/all tshirts/360/v_neck_white_front.png',
-      ],
-    },
-    features: [
-      '100% Premium Cotton',
-      'V-neck design',
-      'Comfortable fit',
-      'Durable stitching',
-      'Perfect for printing',
+    "sizes": [
+      "S",
+      "M",
+      "L",
+      "XL",
+      "XXL"
     ],
-    fabric: 'Cotton',
-    gsm: 180,
-    inStock: true,
-  },
-  // V-Neck - Black (only front)
-  {
-    id: 'v-neck-black',
-    name: 'V-Neck T-Shirt - Black',
-    description: 'Classic black V-neck t-shirt for a sleek appearance. Ideal for custom designs.',
-    price: 549,
-    category: 'V-Neck',
-    colors: ['White', 'Black', 'Grey', 'Navy', 'Maroon'], // All 5 colors available
-    sizes: ['S', 'M', 'L', 'XL', 'XXL'],
-    images: {
-      front: '/products/all tshirts/360/v_neck_black_front.png',
-      back: '/products/all tshirts/360/v_neck_black_front.png',
-      side: '/products/all tshirts/360/v_neck_black_front.png',
-      gallery: [
-        '/products/all tshirts/360/v_neck_black_front.png',
-      ],
+    "images": {
+      "front": "/products/all tshirts/360/products - online/Cotton Zipper Hood 300 GSM/Black/f.jpg",
+      "back": "/products/all tshirts/360/products - online/Cotton Zipper Hood 300 GSM/Black/b.jpg",
+      "side": "/products/all tshirts/360/products - online/Cotton Zipper Hood 300 GSM/Black/s.jpg",
+      "gallery": [
+        "/products/all tshirts/360/products - online/Cotton Zipper Hood 300 GSM/Black/f.jpg",
+        "/products/all tshirts/360/products - online/Cotton Zipper Hood 300 GSM/Black/b.jpg",
+        "/products/all tshirts/360/products - online/Cotton Zipper Hood 300 GSM/Black/s.jpg"
+      ]
     },
-    features: [
-      '100% Premium Cotton',
-      'V-neck design',
-      'Comfortable fit',
-      'Durable stitching',
-      'Perfect for printing',
+    "features": [
+      "300 GSM Premium Fabric",
+      "Pre-shrunk & Bio-washed",
+      "Durable reinforced stitching",
+      "Ideal for high-definition custom printing",
+      "Comfort regular fit"
     ],
-    fabric: 'Cotton',
-    gsm: 180,
-    inStock: true,
-  },
-  // V-Neck - Grey (only front)
-  {
-    id: 'v-neck-grey',
-    name: 'V-Neck T-Shirt - Grey',
-    description: 'Versatile grey V-neck t-shirt. Soft cotton fabric for maximum comfort.',
-    price: 549,
-    category: 'V-Neck',
-    colors: ['White', 'Black', 'Grey', 'Navy', 'Maroon'], // All 5 colors available
-    sizes: ['S', 'M', 'L', 'XL', 'XXL'],
-    images: {
-      front: '/products/all tshirts/360/v_neck_grey_front.png',
-      back: '/products/all tshirts/360/v_neck_grey_front.png',
-      side: '/products/all tshirts/360/v_neck_grey_front.png',
-      gallery: [
-        '/products/all tshirts/360/v_neck_grey_front.png',
-      ],
-    },
-    features: [
-      '100% Premium Cotton',
-      'V-neck design',
-      'Comfortable fit',
-      'Durable stitching',
-      'Perfect for printing',
-    ],
-    fabric: 'Cotton',
-    gsm: 180,
-    inStock: true,
-  },
-  // V-Neck - Navy (only front)
-  {
-    id: 'v-neck-navy',
-    name: 'V-Neck T-Shirt - Navy',
-    description: 'Navy blue V-neck t-shirt for a premium look. High-quality cotton ensures durability.',
-    price: 549,
-    category: 'V-Neck',
-    colors: ['White', 'Black', 'Grey', 'Navy', 'Maroon'], // All 5 colors available
-    sizes: ['S', 'M', 'L', 'XL', 'XXL'],
-    images: {
-      front: '/products/all tshirts/360/v_neck_navyblue_front.png',
-      back: '/products/all tshirts/360/v_neck_navyblue_front.png',
-      side: '/products/all tshirts/360/v_neck_navyblue_front.png',
-      gallery: [
-        '/products/all tshirts/360/v_neck_navyblue_front.png',
-      ],
-    },
-    features: [
-      '100% Premium Cotton',
-      'V-neck design',
-      'Comfortable fit',
-      'Durable stitching',
-      'Perfect for printing',
-    ],
-    fabric: 'Cotton',
-    gsm: 180,
-    inStock: true,
-  },
-  // V-Neck - Maroon (only front)
-  {
-    id: 'v-neck-maroon',
-    name: 'V-Neck T-Shirt - Maroon',
-    description: 'Rich maroon V-neck t-shirt for a bold statement. Premium cotton fabric.',
-    price: 549,
-    category: 'V-Neck',
-    colors: ['White', 'Black', 'Grey', 'Navy', 'Maroon'], // All 5 colors available
-    sizes: ['S', 'M', 'L', 'XL', 'XXL'],
-    images: {
-      front: '/products/all tshirts/360/v_neck_Maroon_front.png',
-      back: '/products/all tshirts/360/v_neck_Maroon_front.png',
-      side: '/products/all tshirts/360/v_neck_Maroon_front.png',
-      gallery: [
-        '/products/all tshirts/360/v_neck_Maroon_front.png',
-      ],
-    },
-    features: [
-      '100% Premium Cotton',
-      'V-neck design',
-      'Comfortable fit',
-      'Durable stitching',
-      'Perfect for printing',
-    ],
-    fabric: 'Cotton',
-    gsm: 180,
-    inStock: true,
-  },
-  // Hoodie - Black (only front)
-  {
-    id: 'hoodie-black',
-    name: 'Premium Hoodie - Black',
-    description: 'Comfortable black hoodie perfect for casual wear and custom printing.',
-    price: 999,
-    category: 'Hoodie',
-    colors: ['Black', 'Navy'], // All 2 colors available
-    sizes: ['S', 'M', 'L', 'XL', 'XXL'],
-    images: {
-      front: '/products/all tshirts/360/hoodie_black_front.png',
-      back: '/products/all tshirts/360/hoodie_black_front.png',
-      side: '/products/all tshirts/360/hoodie_black_front.png',
-      gallery: [
-        '/products/all tshirts/360/hoodie_black_front.png',
-      ],
-    },
-    features: [
-      'Premium Cotton Blend',
-      'Hood with drawstring',
-      'Kangaroo pocket',
-      'Comfortable fit',
-      'Perfect for printing',
-    ],
-    fabric: 'Cotton Blend',
-    gsm: 280,
-    inStock: true,
-  },
-  // Hoodie - Navy (only front)
-  {
-    id: 'hoodie-navy',
-    name: 'Premium Hoodie - Navy',
-    description: 'Navy blue hoodie for a stylish look. Perfect for custom designs and branding.',
-    price: 999,
-    category: 'Hoodie',
-    colors: ['Black', 'Navy'], // All 2 colors available
-    sizes: ['S', 'M', 'L', 'XL', 'XXL'],
-    images: {
-      front: '/products/all tshirts/360/hoodie_navyblue_front.png',
-      back: '/products/all tshirts/360/hoodie_navyblue_front.png',
-      side: '/products/all tshirts/360/hoodie_navyblue_front.png',
-      gallery: [
-        '/products/all tshirts/360/hoodie_navyblue_front.png',
-      ],
-    },
-    features: [
-      'Premium Cotton Blend',
-      'Hood with drawstring',
-      'Kangaroo pocket',
-      'Comfortable fit',
-      'Perfect for printing',
-    ],
-    fabric: 'Cotton Blend',
-    gsm: 280,
-    inStock: true,
-  },
-  // Zip Hoodie - Black (only front)
-  {
-    id: 'zip-hoodie-black',
-    name: 'Zip Hoodie - Black',
-    description: 'Black zip hoodie with full front zipper. Ideal for layering and custom printing.',
-    price: 1099,
-    category: 'Zip Hoodie',
-    colors: ['Black', 'Grey', 'Maroon'], // All 3 colors available
-    sizes: ['S', 'M', 'L', 'XL', 'XXL'],
-    images: {
-      front: '/products/all tshirts/360/ziphoodie_black_front.png',
-      back: '/products/all tshirts/360/ziphoodie_black_front.png',
-      side: '/products/all tshirts/360/ziphoodie_black_front.png',
-      gallery: [
-        '/products/all tshirts/360/ziphoodie_black_front.png',
-      ],
-    },
-    features: [
-      'Premium Cotton Blend',
-      'Full front zipper',
-      'Hood with drawstring',
-      'Side pockets',
-      'Perfect for printing',
-    ],
-    fabric: 'Cotton Blend',
-    gsm: 300,
-    inStock: true,
-  },
-  // Zip Hoodie - Grey (only front)
-  {
-    id: 'zip-hoodie-grey',
-    name: 'Zip Hoodie - Grey',
-    description: 'Grey zip hoodie with modern styling. Perfect for casual wear and custom designs.',
-    price: 1099,
-    category: 'Zip Hoodie',
-    colors: ['Black', 'Grey', 'Maroon'], // All 3 colors available
-    sizes: ['S', 'M', 'L', 'XL', 'XXL'],
-    images: {
-      front: '/products/all tshirts/360/ziphoodie_grey_front.png',
-      back: '/products/all tshirts/360/ziphoodie_grey_front.png',
-      side: '/products/all tshirts/360/ziphoodie_grey_front.png',
-      gallery: [
-        '/products/all tshirts/360/ziphoodie_grey_front.png',
-      ],
-    },
-    features: [
-      'Premium Cotton Blend',
-      'Full front zipper',
-      'Hood with drawstring',
-      'Side pockets',
-      'Perfect for printing',
-    ],
-    fabric: 'Cotton Blend',
-    gsm: 300,
-    inStock: true,
-  },
-  // Zip Hoodie - Maroon (only front)
-  {
-    id: 'zip-hoodie-maroon',
-    name: 'Zip Hoodie - Maroon',
-    description: 'Maroon zip hoodie for a bold look. High-quality fabric for all-day comfort.',
-    price: 1099,
-    category: 'Zip Hoodie',
-    colors: ['Black', 'Grey', 'Maroon'], // All 3 colors available
-    sizes: ['S', 'M', 'L', 'XL', 'XXL'],
-    images: {
-      front: '/products/all tshirts/360/ziphoodie_maroon_front.png',
-      back: '/products/all tshirts/360/ziphoodie_maroon_front.png',
-      side: '/products/all tshirts/360/ziphoodie_maroon_front.png',
-      gallery: [
-        '/products/all tshirts/360/ziphoodie_maroon_front.png',
-      ],
-    },
-    features: [
-      'Premium Cotton Blend',
-      'Full front zipper',
-      'Hood with drawstring',
-      'Side pockets',
-      'Perfect for printing',
-    ],
-    fabric: 'Cotton Blend',
-    gsm: 300,
-    inStock: true,
-  },
+    "fabric": "Heavyweight Cotton Fleece",
+    "gsm": 300,
+    "inStock": true
+  }
 ];
 
-// Get product by ID
-export const getProductById = (id: string): Product | undefined => {
-  return products.find((product) => product.id === id);
-};
+export function getProductById(id: string): Product | undefined {
+  return products.find(product => product.id === id);
+}
 
-// Get products by category
-export const getProductsByCategory = (category: string): Product[] => {
-  return products.filter((product) => product.category === category);
-};
+export function getAllProducts(): Product[] {
+  return products;
+}
 
-// Get all categories
-export const getCategories = (): string[] => {
-  return Array.from(new Set(products.map((product) => product.category)));
-};
-
-// Search products
-export const searchProducts = (query: string): Product[] => {
-  const lowerQuery = query.toLowerCase();
-  return products.filter(
-    (product) =>
-      product.name.toLowerCase().includes(lowerQuery) ||
-      product.description.toLowerCase().includes(lowerQuery) ||
-      product.category.toLowerCase().includes(lowerQuery)
-  );
-};
-
-export default products;
+export function getProductsByCategory(category: string): Product[] {
+  return products.filter(product => product.category.toLowerCase() === category.toLowerCase());
+}

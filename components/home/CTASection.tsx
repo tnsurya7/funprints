@@ -2,109 +2,79 @@
 
 import { motion } from 'framer-motion';
 import Link from 'next/link';
-import { ArrowRight } from 'lucide-react';
+import { ArrowRight, CheckCircle2 } from 'lucide-react';
 
 export default function CTASection() {
   return (
-    <section className="py-20 relative overflow-hidden">
-      {/* Animated gradient background */}
-      <div className="absolute inset-0 bg-gradient-to-br from-blue-600 via-purple-600 to-pink-600 animate-gradient"></div>
-      
-      {/* Animated orbs */}
-      <motion.div
-        animate={{
-          scale: [1, 1.2, 1],
-          opacity: [0.3, 0.5, 0.3],
-        }}
-        transition={{
-          duration: 8,
-          repeat: Infinity,
-        }}
-        className="absolute top-0 left-0 w-96 h-96 bg-white rounded-full blur-3xl"
-      ></motion.div>
-      
-      <motion.div
-        animate={{
-          scale: [1, 1.3, 1],
-          opacity: [0.3, 0.5, 0.3],
-        }}
-        transition={{
-          duration: 10,
-          repeat: Infinity,
-        }}
-        className="absolute bottom-0 right-0 w-96 h-96 bg-pink-300 rounded-full blur-3xl"
-      ></motion.div>
-
+    <section className="py-16 sm:py-24 bg-gray-950 text-white relative overflow-hidden">
       <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 text-center relative z-10">
         <motion.div
-          initial={{ opacity: 0, y: 30 }}
+          initial={{ opacity: 0, y: 20 }}
           whileInView={{ opacity: 1, y: 0 }}
           viewport={{ once: true }}
-          className="max-w-4xl mx-auto"
+          className="max-w-3xl mx-auto"
         >
-          {/* Badge */}
-          <motion.div
-            initial={{ scale: 0 }}
-            whileInView={{ scale: 1 }}
-            viewport={{ once: true }}
-            className="inline-block mb-6"
-          >
-            <span className="px-6 py-2 rounded-full bg-white/20 backdrop-blur-sm text-white text-sm font-semibold border border-white/30">
-              Start Your Journey
+          {/* Subtle badge */}
+          <div className="inline-block mb-4 sm:mb-6">
+            <span className="px-4 py-1.5 rounded-full bg-white/10 text-gray-200 text-xs sm:text-sm font-semibold border border-white/15">
+              Ready to Order?
             </span>
-          </motion.div>
+          </div>
 
-          <h2 className="text-3xl sm:text-4xl md:text-6xl font-bold mb-4 sm:mb-6 text-white leading-tight">
-            Ready to Create Your Custom T-Shirt?
+          <h2 className="text-3xl sm:text-5xl font-black mb-4 sm:mb-6 text-white tracking-tight leading-tight">
+            Bring Your Apparel Vision to Life
           </h2>
-          <p className="text-base sm:text-xl md:text-2xl mb-8 sm:mb-10 text-white/90">
-            Start designing today and wear your creativity
+          <p className="text-base sm:text-xl mb-8 sm:mb-10 text-gray-300 font-normal leading-relaxed">
+            Order individual pieces or request wholesale bulk pricing.
+            Fast doorstep dispatch across India with full quality guarantee.
           </p>
           
-          <div className="flex flex-col sm:flex-row gap-4 sm:gap-6 justify-center items-center w-full max-w-xs sm:max-w-none mx-auto">
+          {/* Curvly Buttons */}
+          <div className="flex flex-col sm:flex-row gap-3 sm:gap-4 justify-center items-center w-full max-w-xl mx-auto flex-wrap">
             <Link href="/products" className="w-full sm:w-auto">
-              <motion.button
-                whileHover={{ scale: 1.05, y: -2 }}
-                whileTap={{ scale: 0.95 }}
-                className="w-full sm:w-auto px-6 sm:px-10 py-3.5 sm:py-5 rounded-2xl font-semibold bg-white text-purple-600 shadow-2xl hover:shadow-white/50 transition-all inline-flex items-center justify-center gap-3 group text-sm sm:text-base"
+              <button
+                type="button"
+                className="w-full sm:w-auto px-7 py-3.5 rounded-full font-bold bg-[#FFC006] text-gray-950 hover:bg-[#E5AC00] shadow-sm hover:shadow transition-all inline-flex items-center justify-center gap-2 text-sm sm:text-base border border-amber-400/60"
               >
-                <span>Browse Products</span>
-                <ArrowRight className="w-4 sm:w-5 h-4 sm:h-5 group-hover:translate-x-1 transition-transform" />
-              </motion.button>
+                <span>Browse Catalog</span>
+                <ArrowRight className="w-4 h-4" />
+              </button>
+            </Link>
+
+            <Link href="/retail-orders" className="w-full sm:w-auto">
+              <button
+                type="button"
+                className="w-full sm:w-auto px-7 py-3.5 rounded-full font-bold bg-white text-gray-950 hover:bg-gray-100 shadow-sm transition-all text-sm sm:text-base"
+              >
+                Customized Logo Orders
+              </button>
             </Link>
             
             <Link href="/bulk-order" className="w-full sm:w-auto">
-              <motion.button
-                whileHover={{ scale: 1.05, y: -2 }}
-                whileTap={{ scale: 0.95 }}
-                className="w-full sm:w-auto px-6 sm:px-10 py-3.5 sm:py-5 rounded-2xl font-semibold bg-transparent border-2 border-white text-white hover:bg-white hover:text-purple-600 transition-all shadow-lg text-sm sm:text-base"
+              <button
+                type="button"
+                className="w-full sm:w-auto px-7 py-3.5 rounded-full font-semibold bg-white/10 hover:bg-white/20 text-white border border-white/20 transition-all text-sm sm:text-base"
               >
-                Request Bulk Quote
-              </motion.button>
+                T-Shirts & Hoodies Bulk
+              </button>
             </Link>
           </div>
 
-          {/* Trust indicators */}
-          <motion.div
-            initial={{ opacity: 0, y: 20 }}
-            whileInView={{ opacity: 1, y: 0 }}
-            viewport={{ once: true }}
-            transition={{ delay: 0.3 }}
-            className="mt-12 sm:mt-16 flex flex-wrap justify-center gap-4 sm:gap-8 text-xs sm:text-sm text-white/80"
-          >
+          {/* Trust badges */}
+          <div className="mt-10 sm:mt-14 flex flex-wrap justify-center gap-6 sm:gap-10 text-xs sm:text-sm text-gray-400 font-medium">
             <div className="flex items-center gap-2">
-              <div className="w-2 h-2 bg-green-400 rounded-full animate-pulse"></div>
-              <span>Free Shipping</span>
+              <CheckCircle2 className="w-4 h-4 text-[#FFC006]" />
+              <span>Pan-India Delivery</span>
             </div>
             <div className="flex items-center gap-2">
-              <div className="w-2 h-2 bg-green-400 rounded-full animate-pulse"></div>
-              <span>Quality Guaranteed</span>
+              <CheckCircle2 className="w-4 h-4 text-[#FFC006]" />
+              <span>100% Bio-Washed Fabrics</span>
             </div>
             <div className="flex items-center gap-2">
-              <div className="w-2 h-2 bg-green-400 rounded-full animate-pulse"></div>
-              <span>24/7 Support</span>
+              <CheckCircle2 className="w-4 h-4 text-[#FFC006]" />
+              <span>Instant WhatsApp Support</span>
             </div>
-          </motion.div>
+          </div>
         </motion.div>
       </div>
     </section>

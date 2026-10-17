@@ -146,15 +146,15 @@ export default function CheckoutForm() {
           <motion.div
             initial={{ opacity: 0, y: 20 }}
             animate={{ opacity: 1, y: 0 }}
-            className="card-gradient p-8"
+            className="bg-white rounded-3xl p-6 sm:p-8 border border-gray-200 shadow-xs"
           >
-            <h2 className="text-2xl font-bold mb-6 text-gradient">Delivery Information</h2>
+            <h2 className="text-2xl font-black mb-6 text-gray-950">Delivery Information</h2>
             <form onSubmit={handleSubmitAddress} className="space-y-6">
               {/* Personal Details */}
               <div className="space-y-4 pb-6 border-b border-gray-200">
                 <div className="flex items-center gap-3 mb-4">
-                  <div className="p-2 rounded-xl bg-gradient-to-br from-purple-500 to-pink-600">
-                    <User className="w-5 h-5 text-white" />
+                  <div className="p-2.5 rounded-full bg-gray-900 text-white">
+                    <User className="w-4 h-4 text-white" />
                   </div>
                   <h3 className="text-lg font-bold text-gray-900">Personal Details</h3>
                 </div>
@@ -246,40 +246,40 @@ export default function CheckoutForm() {
                   <button
                     type="button"
                     onClick={() => setFormData({ ...formData, addressType: 'home' })}
-                    className={`p-4 rounded-xl border-2 transition-all duration-200 ${
+                    className={`p-4 rounded-2xl border-2 transition-all duration-200 ${
                       formData.addressType === 'home'
-                        ? 'border-purple-500 bg-gradient-to-br from-purple-50 to-pink-50 shadow-lg'
-                        : 'border-gray-300 hover:border-gray-400 bg-white'
+                        ? 'border-gray-900 bg-gray-50 shadow-xs'
+                        : 'border-gray-200 hover:border-gray-300 bg-white'
                     }`}
                   >
-                    <Home className={`w-6 h-6 mx-auto mb-2 ${
-                      formData.addressType === 'home' ? 'text-purple-600' : 'text-gray-600'
+                    <Home className={`w-5 h-5 mx-auto mb-1.5 ${
+                      formData.addressType === 'home' ? 'text-gray-950' : 'text-gray-500'
                     }`} />
-                    <p className="text-sm font-semibold">Home</p>
+                    <p className="text-sm font-bold text-gray-900">Home</p>
                   </button>
 
                   <button
                     type="button"
                     onClick={() => setFormData({ ...formData, addressType: 'work' })}
-                    className={`p-4 rounded-xl border-2 transition-all duration-200 ${
+                    className={`p-4 rounded-2xl border-2 transition-all duration-200 ${
                       formData.addressType === 'work'
-                        ? 'border-purple-500 bg-gradient-to-br from-purple-50 to-pink-50 shadow-lg'
-                        : 'border-gray-300 hover:border-gray-400 bg-white'
+                        ? 'border-gray-900 bg-gray-50 shadow-xs'
+                        : 'border-gray-200 hover:border-gray-300 bg-white'
                     }`}
                   >
-                    <Briefcase className={`w-6 h-6 mx-auto mb-2 ${
-                      formData.addressType === 'work' ? 'text-purple-600' : 'text-gray-600'
+                    <Briefcase className={`w-5 h-5 mx-auto mb-1.5 ${
+                      formData.addressType === 'work' ? 'text-gray-950' : 'text-gray-500'
                     }`} />
-                    <p className="text-sm font-semibold">Work</p>
+                    <p className="text-sm font-bold text-gray-900">Work</p>
                   </button>
                 </div>
               </div>
 
               <motion.button
-                whileHover={{ scale: 1.02 }}
-                whileTap={{ scale: 0.98 }}
+                whileHover={{ scale: 1.01 }}
+                whileTap={{ scale: 0.99 }}
                 type="submit"
-                className="w-full btn-primary btn-glow"
+                className="w-full py-4 rounded-full font-bold bg-[#FFC006] hover:bg-[#E5AC00] text-gray-950 shadow-xs hover:shadow transition-all border border-amber-400/60 text-base"
               >
                 Continue to Payment
               </motion.button>
