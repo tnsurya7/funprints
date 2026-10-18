@@ -9,7 +9,6 @@ import {
   MessageCircle, 
   Shirt, 
   Check, 
-  Sparkles,
   X,
   Minus
 } from 'lucide-react';
@@ -311,10 +310,6 @@ Logo Instructions: ${notes || 'Ready to send logo file'}`;
         
         {/* Header Title */}
         <div className="text-center max-w-3xl mx-auto mb-8 sm:mb-12">
-          <div className="inline-flex items-center gap-1.5 px-3 py-1 rounded-full bg-amber-100 text-amber-900 text-xs font-bold mb-3 border border-amber-300">
-            <Sparkles className="w-3.5 h-3.5 text-amber-600" />
-            <span>Direct Factory Custom Printing &amp; Embroidery</span>
-          </div>
           <h1 className="text-3xl sm:text-5xl font-black text-gray-950 tracking-tight mb-3">
             Custom Logo T-Shirts, Polos &amp; Hoodies
           </h1>
