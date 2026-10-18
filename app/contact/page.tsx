@@ -29,12 +29,14 @@ export default function ContactPage() {
         toast.success('Message sent successfully! We\'ll get back to you soon.');
         setFormData({ name: '', email: '', mobile: '', message: '' });
         
-        // Also open WhatsApp
-        const whatsappNumber = process.env.NEXT_PUBLIC_WHATSAPP_NUMBER || '919344925600';
-        const whatsappMessage = encodeURIComponent(
-          `Hi FunPrint,\n\nName: ${formData.name}\nEmail: ${formData.email}\nMobile: ${formData.mobile}\n\nMessage: ${formData.message}`
-        );
-        window.open(`https://wa.me/${whatsappNumber}?text=${whatsappMessage}`, '_blank');
+        // Also open WhatsApp if configured
+        const whatsappNumber = process.env.NEXT_PUBLIC_WHATSAPP_NUMBER || '';
+        if (whatsappNumber) {
+          const whatsappMessage = encodeURIComponent(
+            `Hi FunPrint,\n\nName: ${formData.name}\nEmail: ${formData.email}\nMobile: ${formData.mobile}\n\nMessage: ${formData.message}`
+          );
+          window.open(`https://wa.me/${whatsappNumber.replace(/\D/g, '')}?text=${whatsappMessage}`, '_blank');
+        }
       } else {
         toast.error('Failed to send message. Please try again.');
       }
@@ -77,7 +79,7 @@ export default function ContactPage() {
                   value={formData.name}
                   onChange={(e) => setFormData({ ...formData, name: e.target.value })}
                   className="w-full px-4 py-3 border border-gray-300 rounded-2xl focus:ring-2 focus:ring-gray-950 focus:border-gray-950 transition-all text-sm outline-none"
-                  placeholder="John Doe"
+                  placeholder="Surya Kumar"
                   required
                 />
               </div>
@@ -91,7 +93,7 @@ export default function ContactPage() {
                   value={formData.email}
                   onChange={(e) => setFormData({ ...formData, email: e.target.value })}
                   className="w-full px-4 py-3 border border-gray-300 rounded-2xl focus:ring-2 focus:ring-gray-950 focus:border-gray-950 transition-all text-sm outline-none"
-                  placeholder="john@example.com"
+                  placeholder="surya@gmail.com"
                   required
                 />
               </div>
@@ -128,7 +130,7 @@ export default function ContactPage() {
               <button
                 type="submit"
                 disabled={isSubmitting}
-                className="w-full py-3.5 rounded-full font-bold bg-[#FFC006] hover:bg-[#E5AC00] text-gray-950 shadow-xs hover:shadow transition-all border border-amber-400/60 flex items-center justify-center gap-2 text-sm sm:text-base disabled:opacity-50"
+                className="w-full py-2.5 sm:py-3.5 rounded-full font-bold bg-[#FFC006] hover:bg-[#E5AC00] text-gray-950 shadow-xs hover:shadow transition-all border border-amber-400/60 flex items-center justify-center gap-2 text-xs sm:text-base disabled:opacity-50"
               >
                 {isSubmitting ? (
                   <span>Sending...</span>
@@ -145,28 +147,32 @@ export default function ContactPage() {
           {/* Contact Details Cards */}
           <div className="space-y-4 font-serif">
             {[
-              {
-                icon: Phone,
-                title: 'Phone Support & WhatsApp',
-                content: '+91 93449 25600',
-                link: 'tel:+919344925600',
-              },
+              ...(process.env.NEXT_PUBLIC_PHONE_NUMBER || process.env.NEXT_PUBLIC_WHATSAPP_NUMBER
+                ? [
+                    {
+                      icon: Phone,
+                      title: 'Phone Support & WhatsApp',
+                      content: `+${(process.env.NEXT_PUBLIC_PHONE_NUMBER || process.env.NEXT_PUBLIC_WHATSAPP_NUMBER || '').replace(/\D/g, '')}`,
+                      link: `tel:+${(process.env.NEXT_PUBLIC_PHONE_NUMBER || process.env.NEXT_PUBLIC_WHATSAPP_NUMBER || '').replace(/\D/g, '')}`,
+                    },
+                  ]
+                : []),
               {
                 icon: Mail,
                 title: 'Official Email',
-                content: 'contact@funprint.in',
-                link: 'mailto:contact@funprint.in',
+                content: process.env.NEXT_PUBLIC_ADMIN_EMAIL || process.env.NEXT_PUBLIC_CONTACT_EMAIL || 'support@funprint.in',
+                link: `mailto:${process.env.NEXT_PUBLIC_ADMIN_EMAIL || process.env.NEXT_PUBLIC_CONTACT_EMAIL || 'support@funprint.in'}`,
               },
               {
                 icon: MapPin,
                 title: 'Head Office',
-                content: 'FunPrint (OSHIVO EXIM OPC PVT LTD), Savithri Palace No: 325, Paper Mills Road, Perambur, Chennai - 600011, Tamil Nadu, India.',
+                content: process.env.NEXT_PUBLIC_HEAD_OFFICE_ADDRESS || 'FunPrint (OSHIVO EXIM OPC PVT LTD), Savithri Palace No: 325, Paper Mills Road, Perambur, Chennai - 600011, Tamil Nadu, India.',
                 link: null,
               },
               {
                 icon: MapPin,
                 title: 'Production Unit',
-                content: '105, Linga Gounder Street, Odakkadu, Tirupur - 641602',
+                content: process.env.NEXT_PUBLIC_PRODUCTION_ADDRESS || '105, Linga Gounder Street, Odakkadu, Tirupur - 641602',
                 link: null,
               },
             ].map((item) => (

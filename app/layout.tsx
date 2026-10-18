@@ -4,6 +4,7 @@ import "./animations.css";
 import { Toaster } from "react-hot-toast";
 import FloatingHeader from "@/components/layout/FloatingHeader";
 import Footer from "@/components/layout/Footer";
+import ScrollToTopOnNavigate from "@/components/layout/ScrollToTopOnNavigate";
 import WhatsAppButton from "@/components/ui/WhatsAppButton";
 import InstagramButton from "@/components/ui/InstagramButton";
 import CallButton from "@/components/ui/CallButton";
@@ -24,6 +25,37 @@ export const metadata: Metadata = {
   },
 };
 
+import VisitorTracker from "@/components/analytics/VisitorTracker";
+import Script from "next/script";
+
+const GA_MEASUREMENT_ID = process.env.NEXT_PUBLIC_GA_MEASUREMENT_ID;
+
+const organizationJsonLd = {
+  "@context": "https://schema.org",
+  "@type": "Organization",
+  "name": "FunPrint",
+  "legalName": "FunPrint (OSHIVO EXIM OPC PVT LTD)",
+  "url": process.env.NEXT_PUBLIC_SITE_URL || "https://funprint.in",
+  "logo": "https://funprint.in/fun-print-logo.avif",
+  "contactPoint": {
+    "@type": "ContactPoint",
+    "telephone": (process.env.NEXT_PUBLIC_PHONE_NUMBER || process.env.NEXT_PUBLIC_WHATSAPP_NUMBER || '').startsWith('+')
+      ? (process.env.NEXT_PUBLIC_PHONE_NUMBER || process.env.NEXT_PUBLIC_WHATSAPP_NUMBER || '')
+      : `+${(process.env.NEXT_PUBLIC_PHONE_NUMBER || process.env.NEXT_PUBLIC_WHATSAPP_NUMBER || '')}`,
+    "contactType": "Customer Service",
+    "areaServed": "IN",
+    "availableLanguage": ["English", "Tamil", "Hindi"]
+  },
+  "address": {
+    "@type": "PostalAddress",
+    "streetAddress": "Savithri Palace No: 325, Paper Mills Road, Perambur",
+    "addressLocality": "Chennai",
+    "postalCode": "600011",
+    "addressRegion": "Tamil Nadu",
+    "addressCountry": "IN"
+  }
+};
+
 export default function RootLayout({
   children,
 }: {
@@ -31,14 +63,58 @@ export default function RootLayout({
 }) {
   return (
     <html lang="en">
+      <head>
+        <script
+          type="application/ld+json"
+          dangerouslySetInnerHTML={{ __html: JSON.stringify(organizationJsonLd) }}
+        />
+      </head>
       <body className="font-serif antialiased">
+        {GA_MEASUREMENT_ID && (
+          <>
+            <Script
+              src={`https://www.googletagmanager.com/gtag/js?id=${GA_MEASUREMENT_ID}`}
+              strategy="afterInteractive"
+            />
+            <Script id="google-analytics" strategy="afterInteractive">
+              {`
+                window.dataLayer = window.dataLayer || [];
+                function gtag(){dataLayer.push(arguments);}
+                gtag('js', new Date());
+                gtag('config', '${GA_MEASUREMENT_ID}', {
+                  page_path: window.location.pathname,
+                });
+              `}
+            </Script>
+          </>
+        )}
+        <ScrollToTopOnNavigate />
         <FloatingHeader />
         <main className="min-h-screen">{children}</main>
         <Footer />
         <WhatsAppButton />
         <InstagramButton />
         <CallButton />
-        <Toaster position="top-right" />
+        <Toaster
+          position="bottom-left"
+          toastOptions={{
+            className:
+              'font-serif !rounded-full !py-1.5 sm:!py-2 !px-3.5 sm:!px-4 !text-xs sm:!text-sm !shadow-md !border !border-gray-200/90 !bg-white/95 !backdrop-blur-md !text-gray-950 max-w-[85vw] sm:max-w-md',
+            duration: 3500,
+            success: {
+              iconTheme: {
+                primary: '#10b981',
+                secondary: '#ffffff',
+              },
+            },
+            error: {
+              iconTheme: {
+                primary: '#ef4444',
+                secondary: '#ffffff',
+              },
+            },
+          }}
+        />
       </body>
     </html>
   );

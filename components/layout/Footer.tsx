@@ -71,24 +71,28 @@ export default function Footer() {
 
             {/* Direct Contact */}
             <div className="pt-2 space-y-2 text-xs sm:text-sm">
-              <a
-                href="tel:+919344925600"
-                className="flex items-center gap-2.5 text-gray-300 hover:text-[#FFC006] transition-colors"
-              >
-                <div className="w-7 h-7 rounded-full bg-gray-900 border border-gray-800 flex items-center justify-center text-[#FFC006]">
-                  <Phone className="w-3.5 h-3.5" />
-                </div>
-                <span className="font-bold">+91 93449 25600</span>
-              </a>
+              {(process.env.NEXT_PUBLIC_PHONE_NUMBER || process.env.NEXT_PUBLIC_WHATSAPP_NUMBER) && (
+                <a
+                  href={`tel:+${(process.env.NEXT_PUBLIC_PHONE_NUMBER || process.env.NEXT_PUBLIC_WHATSAPP_NUMBER || '').replace(/\D/g, '')}`}
+                  className="flex items-center gap-2.5 text-gray-300 hover:text-[#FFC006] transition-colors"
+                >
+                  <div className="w-7 h-7 rounded-full bg-gray-900 border border-gray-800 flex items-center justify-center text-[#FFC006]">
+                    <Phone className="w-3.5 h-3.5" />
+                  </div>
+                  <span className="font-bold">
+                    +{ (process.env.NEXT_PUBLIC_PHONE_NUMBER || process.env.NEXT_PUBLIC_WHATSAPP_NUMBER || '').replace(/\D/g, '') }
+                  </span>
+                </a>
+              )}
 
               <a
-                href="mailto:contact@funprint.in"
+                href={`mailto:${process.env.NEXT_PUBLIC_ADMIN_EMAIL || process.env.NEXT_PUBLIC_CONTACT_EMAIL || 'support@funprint.in'}`}
                 className="flex items-center gap-2.5 text-gray-300 hover:text-[#FFC006] transition-colors"
               >
                 <div className="w-7 h-7 rounded-full bg-gray-900 border border-gray-800 flex items-center justify-center text-[#FFC006]">
                   <Mail className="w-3.5 h-3.5" />
                 </div>
-                <span>contact@funprint.in</span>
+                <span>{process.env.NEXT_PUBLIC_ADMIN_EMAIL || process.env.NEXT_PUBLIC_CONTACT_EMAIL || 'support@funprint.in'}</span>
               </a>
             </div>
           </div>
@@ -154,6 +158,12 @@ export default function Footer() {
                   <Link href="/privacy-policy" className="hover:text-white transition-colors flex items-center gap-1.5">
                     <ChevronRight className="w-3 h-3 text-[#FFC006]" />
                     <span>Privacy Policy</span>
+                  </Link>
+                </li>
+                <li>
+                  <Link href="/admin/login" className="hover:text-[#FFC006] transition-colors flex items-center gap-1.5 text-gray-400 hover:underline">
+                    <ChevronRight className="w-3 h-3 text-[#FFC006]" />
+                    <span>Admin Panel</span>
                   </Link>
                 </li>
               </ul>
@@ -231,14 +241,24 @@ export default function Footer() {
         </div>
 
         {/* Bottom bar */}
-        <div className="border-t border-gray-900 pt-8 flex flex-col sm:flex-row justify-between items-center gap-4 text-xs text-gray-500">
-          <p>&copy; {new Date().getFullYear()} FunPrint. All rights reserved.</p>
-          <div className="flex gap-4 flex-wrap justify-center items-center">
+        <div className="border-t border-gray-900 pt-8 flex flex-col md:flex-row justify-between items-center gap-4 text-xs text-gray-500">
+          <p className="text-center md:text-left">&copy; {new Date().getFullYear()} FunPrint. All rights reserved.</p>
+          <div className="hidden md:flex gap-4 flex-wrap justify-center items-center">
             <span>GST Registered</span>
             <span>•</span>
             <span>Made in Tirupur & Chennai</span>
             <span>•</span>
             <span>Pan-India Doorstep Dispatch</span>
+          </div>
+          <div className="hidden md:flex items-center">
+            <Link
+              href="/admin/login"
+              className="inline-flex items-center gap-1.5 text-gray-400 hover:text-[#FFC006] transition-colors font-medium hover:underline py-1 px-2.5 rounded-lg border border-gray-800/80 bg-gray-900/40 hover:bg-gray-900"
+              title="Admin Panel Login"
+            >
+              <ShieldCheck className="w-3.5 h-3.5 text-[#FFC006]" />
+              <span>Admin Panel</span>
+            </Link>
           </div>
         </div>
       </div>

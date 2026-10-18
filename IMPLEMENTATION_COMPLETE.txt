@@ -126,7 +126,7 @@ Since orders are in memory, every order is also:
 ---------------------------------
 For permanent order storage, see: DATABASE_SETUP_GUIDE.md
 
-Recommended: Supabase (free tier, 15 minutes setup)
+Recommended: Neon PostgreSQL (serverless pooled Postgres)
 - Permanent order history
 - Better admin dashboard
 - Order analytics

@@ -852,3 +852,27 @@ export function calculateShipping(subtotal: number, state: string = "Tamil Nadu"
 export function calculateTotal(subtotal: number, shipping: number): number {
   return subtotal + shipping;
 }
+
+// Product image lookup by name or ID and optional color
+export function getProductImage(productNameOrId?: string, color?: string): string {
+  if (!productNameOrId) return '';
+  const search = productNameOrId.trim().toLowerCase();
+  const prod = enhancedProducts.find(
+    (p) => p.id.toLowerCase() === search || p.name.toLowerCase() === search
+  );
+  if (!prod) return '';
+
+  if (color && prod.images) {
+    const colorSearch = color.trim().toLowerCase();
+    const matchedColorKey = Object.keys(prod.images).find(
+      (c) => c.toLowerCase() === colorSearch
+    );
+    if (matchedColorKey && prod.images[matchedColorKey]?.front) {
+      return prod.images[matchedColorKey].front!;
+    }
+  }
+
+  // Fallback to first available color front image
+  const firstColor = Object.values(prod.images || {})[0];
+  return firstColor?.front || '';
+}

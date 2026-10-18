@@ -1,43 +1,37 @@
 import { NextRequest, NextResponse } from 'next/server';
-import { supabase } from '@/lib/supabase';
+import { sql } from '@/lib/db';
+import { requireAdmin } from '@/lib/auth';
 
 export async function PUT(request: NextRequest, { params }: { params: { id: string } }) {
   try {
+    const admin = requireAdmin(request);
+    if (!admin) {
+      return NextResponse.json({ error: 'Unauthorized' }, { status: 401 });
+    }
+
     const body = await request.json();
     const { color, stock } = body;
 
-    // Find the variant by product_id and color
-    const { data: variant, error: findError } = await supabase
-      .from('product_variants')
-      .select('id, stock')
-      .eq('product_id', params.id)
-      .eq('color', color)
-      .single();
+    const stockQty = Math.max(0, Number(stock));
+    const isAvailable = stockQty > 0;
 
-    if (findError || !variant) {
+    const result = await sql`
+      UPDATE product_variants
+      SET stock_quantity = ${stockQty}, is_available = ${isAvailable}, updated_at = NOW()
+      WHERE product_id = ${params.id} AND color = ${color}
+      RETURNING id;
+    `;
+
+    if (result.length === 0) {
       return NextResponse.json({ error: 'Product variant not found' }, { status: 404 });
     }
 
-    // Update the variant stock
-    const { error: updateError } = await supabase
-      .from('product_variants')
-      .update({ 
-        stock: Math.max(0, Number(stock)),
-        is_available: Number(stock) > 0
-      })
-      .eq('id', variant.id);
-
-    if (updateError) {
-      console.error('Error updating variant stock:', updateError);
-      return NextResponse.json({ error: 'Failed to update stock' }, { status: 500 });
-    }
-
-    return NextResponse.json({ 
-      success: true, 
-      message: 'Stock updated successfully' 
+    return NextResponse.json({
+      success: true,
+      message: 'Stock updated successfully',
     });
   } catch (error) {
-    console.error('Failed to update stock:', error);
+    console.error('Failed to update stock in Neon:', error);
     return NextResponse.json({ error: 'Failed to update stock' }, { status: 500 });
   }
 }

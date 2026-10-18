@@ -1,3 +1,6 @@
+import Link from 'next/link';
+import { ShieldCheck } from 'lucide-react';
+
 export const metadata = {
   title: 'Privacy Policy - Fun Print',
   description: 'Privacy policy for Fun Print custom t-shirt services',
@@ -70,9 +73,17 @@ export default function PrivacyPolicy() {
               </p>
             </section>
 
-            <p className="text-sm text-gray-500 mt-8">
-              Last updated: January 16, 2026
-            </p>
+            <div className="pt-8 mt-8 border-t border-gray-200 flex flex-wrap items-center justify-between gap-4 text-xs text-gray-500">
+              <p>Last updated: January 16, 2026</p>
+              <Link
+                href="/admin/login"
+                className="inline-flex items-center gap-1.5 px-3 py-1.5 rounded-lg border border-gray-300 bg-white hover:bg-gray-50 text-gray-700 hover:text-gray-950 font-semibold transition-colors shadow-2xs"
+                title="Admin Panel Login"
+              >
+                <ShieldCheck className="w-3.5 h-3.5 text-amber-600" />
+                <span>Admin Panel Portal &rarr;</span>
+              </Link>
+            </div>
           </div>
         </div>
       </div>

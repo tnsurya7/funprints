@@ -1,30 +1,29 @@
-// Database connection utility
-// This is a placeholder - implement based on your chosen database
+import { neon, neonConfig } from '@neondatabase/serverless';
 
-export interface DatabaseConfig {
-  host: string;
-  port: number;
-  database: string;
-  user: string;
-  password: string;
+// Cache connections across hot reloads in serverless environments
+neonConfig.fetchConnectionCache = true;
+
+const connectionString = process.env.DATABASE_URL || process.env.DATABASE_URL_UNPOOLED;
+
+if (!connectionString) {
+  console.warn('DATABASE_URL is not defined in environment variables. Using fallback or dev settings.');
 }
 
-// For PostgreSQL using pg library
-// import { Pool } from 'pg';
-// 
-// const pool = new Pool({
-//   connectionString: process.env.DATABASE_URL,
-//   ssl: process.env.NODE_ENV === 'production' ? { rejectUnauthorized: false } : false,
-// });
-// 
-// export default pool;
+export const sql = neon(connectionString || '');
 
-// For now, export a mock connection
+export async function query<T = any>(queryString: string, params: any[] = []): Promise<T[]> {
+  try {
+    const result = await (sql as any).query(queryString, params);
+    return result as T[];
+  } catch (error) {
+    console.error('Neon DB Query Error:', error);
+    throw error;
+  }
+}
+
 export const db = {
-  query: async (text: string, params?: any[]) => {
-    console.log('DB Query:', text, params);
-    return { rows: [], rowCount: 0 };
-  },
+  sql,
+  query,
 };
 
 export default db;

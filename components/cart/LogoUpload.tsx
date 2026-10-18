@@ -3,6 +3,7 @@
 import { useState } from 'react';
 import { Upload, X, Image as ImageIcon } from 'lucide-react';
 import Image from 'next/image';
+import toast from 'react-hot-toast';
 
 interface LogoUploadProps {
   onLogoSelect: (logoUrl: string) => void;
@@ -19,13 +20,13 @@ export default function LogoUpload({ onLogoSelect, currentLogo }: LogoUploadProp
 
     // Validate file type
     if (!file.type.startsWith('image/')) {
-      alert('Please upload an image file (PNG, JPG, SVG)');
+      toast.error('Please upload an image file (PNG, JPG, SVG)');
       return;
     }
 
     // Validate file size (max 5MB)
     if (file.size > 5 * 1024 * 1024) {
-      alert('File size must be less than 5MB');
+      toast.error('File size must be less than 5MB');
       return;
     }
 
@@ -42,7 +43,7 @@ export default function LogoUpload({ onLogoSelect, currentLogo }: LogoUploadProp
       reader.readAsDataURL(file);
     } catch (error) {
       console.error('Upload error:', error);
-      alert('Failed to upload logo');
+      toast.error('Failed to upload logo');
     } finally {
       setUploading(false);
     }
@@ -70,6 +71,7 @@ export default function LogoUpload({ onLogoSelect, currentLogo }: LogoUploadProp
               src={preview}
               alt="Logo preview"
               fill
+              sizes="128px"
               className="object-contain p-2"
             />
           </div>

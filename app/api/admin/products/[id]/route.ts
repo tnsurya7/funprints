@@ -1,38 +1,49 @@
 import { NextRequest, NextResponse } from 'next/server';
-import { ProductsService } from '@/lib/supabase-db';
+import { sql } from '@/lib/db';
+import { requireAdmin } from '@/lib/auth';
 
 export async function PATCH(
   request: NextRequest,
   { params }: { params: { id: string } }
 ) {
   try {
+    const admin = requireAdmin(request);
+    if (!admin) {
+      return NextResponse.json({ error: 'Unauthorized' }, { status: 401 });
+    }
+
     const body = await request.json();
-    const { action, name, description, base_price, enabled } = body;
+    const { action, name, description, base_price, price, enabled, is_visible, is_in_stock } = body;
+    const productId = params.id;
 
     if (action === 'toggle') {
-      const success = await ProductsService.toggleProductStatus(params.id);
-      if (!success) {
-        return NextResponse.json({ error: 'Product not found' }, { status: 404 });
-      }
+      await sql`
+        UPDATE products 
+        SET is_visible = NOT is_visible,
+            updated_at = NOW()
+        WHERE id = ${productId};
+      `;
       return NextResponse.json({ success: true, message: 'Product status updated' });
     }
 
-    // Update product details
-    const updates: any = {};
-    if (name !== undefined) updates.name = name;
-    if (description !== undefined) updates.description = description;
-    if (base_price !== undefined) updates.base_price = Number(base_price);
-    if (enabled !== undefined) updates.enabled = enabled;
+    const resolvedPrice = price !== undefined ? price : base_price;
+    const resolvedVisible = is_visible !== undefined ? is_visible : enabled;
 
-    const success = await ProductsService.updateProduct(params.id, updates);
-    
-    if (!success) {
-      return NextResponse.json({ error: 'Product not found' }, { status: 404 });
-    }
-    
+    await sql`
+      UPDATE products
+      SET 
+        name = COALESCE(${name}, name),
+        description = COALESCE(${description}, description),
+        price = COALESCE(${resolvedPrice ? Number(resolvedPrice) : null}, price),
+        is_visible = COALESCE(${resolvedVisible}, is_visible),
+        is_in_stock = COALESCE(${is_in_stock}, is_in_stock),
+        updated_at = NOW()
+      WHERE id = ${productId};
+    `;
+
     return NextResponse.json({ success: true, message: 'Product updated successfully' });
   } catch (error) {
-    console.error('Failed to update product:', error);
+    console.error('Failed to update product in Neon:', error);
     return NextResponse.json({ error: 'Failed to update product' }, { status: 500 });
   }
 }

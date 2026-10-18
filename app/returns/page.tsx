@@ -89,7 +89,7 @@ export default function Returns() {
             </div>
             <div className="flex gap-2">
               <a
-                href="https://wa.me/919344925600"
+                href={process.env.NEXT_PUBLIC_WHATSAPP_NUMBER ? `https://wa.me/${process.env.NEXT_PUBLIC_WHATSAPP_NUMBER.replace(/\D/g, '')}` : '/contact'}
                 target="_blank"
                 rel="noopener noreferrer"
                 className="px-4 py-2 rounded-full font-bold text-xs bg-[#FFC006] text-gray-950 hover:bg-[#E5AC00] transition-colors"

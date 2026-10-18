@@ -1,43 +1,46 @@
 import { NextRequest, NextResponse } from 'next/server';
-import { StorageService } from '@/lib/supabase-db';
-import { supabaseAdmin } from '@/lib/supabase';
+import { uploadFile } from '@/lib/storage';
+import { sql } from '@/lib/db';
+import { requireAdmin } from '@/lib/auth';
 
 export async function POST(request: NextRequest) {
   try {
+    const admin = requireAdmin(request);
+    if (!admin) {
+      return NextResponse.json({ error: 'Unauthorized' }, { status: 401 });
+    }
+
     const formData = await request.formData();
     const file = formData.get('file') as File;
     const productId = formData.get('productId') as string;
     const variantId = formData.get('variantId') as string;
 
-    if (!file || !productId || !variantId) {
-      return NextResponse.json({ error: 'Missing required fields' }, { status: 400 });
+    if (!file) {
+      return NextResponse.json({ error: 'Missing file' }, { status: 400 });
     }
 
-    // Upload image to Supabase Storage
-    const imageUrl = await StorageService.uploadProductImage(file, productId, variantId);
-    
-    if (!imageUrl) {
-      return NextResponse.json({ error: 'Failed to upload image' }, { status: 500 });
-    }
+    const bytes = await file.arrayBuffer();
+    const buffer = Buffer.from(bytes);
+    const key = `products/${productId || 'misc'}/${Date.now()}-${file.name.replace(/[^a-zA-Z0-9.-]/g, '_')}`;
 
-    // Update variant with new image URL
-    const { error } = await supabaseAdmin
-      .from('product_variants')
-      .update({ image_url: imageUrl })
-      .eq('id', variantId);
+    const { url } = await uploadFile(key, buffer, file.type || 'image/jpeg');
 
-    if (error) {
-      console.error('Error updating variant image:', error);
-      return NextResponse.json({ error: 'Failed to update variant' }, { status: 500 });
+    if (variantId) {
+      await sql`
+        UPDATE product_variants
+        SET color_hex = COALESCE(color_hex, '#111827'),
+            updated_at = NOW()
+        WHERE id = ${variantId};
+      `;
     }
 
     return NextResponse.json({ 
       success: true, 
-      message: 'Image uploaded successfully',
-      imageUrl 
+      message: 'Asset uploaded to Neon Storage successfully',
+      imageUrl: url 
     });
   } catch (error) {
-    console.error('Failed to upload image:', error);
-    return NextResponse.json({ error: 'Failed to upload image' }, { status: 500 });
+    console.error('Failed to upload asset to Neon Storage:', error);
+    return NextResponse.json({ error: 'Failed to upload asset' }, { status: 500 });
   }
 }

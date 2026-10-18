@@ -123,19 +123,19 @@ export default function ClientsSection() {
         </div>
       </div>
 
-      {/* Trust metric badges below marquee */}
-      <div className="max-w-4xl mx-auto px-4 mt-8 pt-6 border-t border-gray-200/60 flex flex-wrap items-center justify-center gap-6 sm:gap-12 text-xs sm:text-sm text-gray-600">
-        <div className="flex items-center gap-2">
-          <span className="w-2 h-2 rounded-full bg-emerald-500" />
-          <span><strong>100+</strong> Corporate Clients Served</span>
+      {/* Trust metric badges below marquee - Single line in mobile view (left, center, right) */}
+      <div className="max-w-4xl mx-auto px-2 sm:px-4 mt-6 sm:mt-8 pt-4 sm:pt-6 border-t border-gray-200/60 grid grid-cols-3 items-center gap-1 sm:gap-6 text-[8.5px] sm:text-xs md:text-sm text-gray-600">
+        <div className="flex items-center justify-start gap-1 sm:gap-2">
+          <span className="w-1.5 h-1.5 sm:w-2 sm:h-2 rounded-full bg-emerald-500 shrink-0" />
+          <span className="truncate"><strong>100+</strong> <span className="hidden sm:inline">Corporate </span>Clients<span className="hidden md:inline"> Served</span></span>
         </div>
-        <div className="flex items-center gap-2">
-          <span className="w-2 h-2 rounded-full bg-[#FFC006]" />
-          <span><strong>50,000+</strong> Custom T-Shirts Delivered</span>
+        <div className="flex items-center justify-center gap-1 sm:gap-2 text-center">
+          <span className="w-1.5 h-1.5 sm:w-2 sm:h-2 rounded-full bg-[#FFC006] shrink-0" />
+          <span className="truncate"><strong>50k+</strong> <span className="hidden sm:inline">Custom </span>T-Shirts<span className="hidden md:inline"> Delivered</span></span>
         </div>
-        <div className="flex items-center gap-2">
-          <span className="w-2 h-2 rounded-full bg-blue-500" />
-          <span><strong>Pan-India</strong> Doorstep Logistics</span>
+        <div className="flex items-center justify-end gap-1 sm:gap-2 text-right">
+          <span className="w-1.5 h-1.5 sm:w-2 sm:h-2 rounded-full bg-blue-500 shrink-0" />
+          <span className="truncate"><strong>Pan-India</strong><span className="hidden sm:inline"> Doorstep</span> Logistics</span>
         </div>
       </div>
     </section>

@@ -5,29 +5,11 @@ import { motion, useMotionValue, useTransform } from 'framer-motion';
 import { ZoomIn, ZoomOut, RotateCw, Maximize2, Upload, X } from 'lucide-react';
 import Image from 'next/image';
 
-interface LogoCustomization {
-  file: File | null;
-  preview: string;
-  position: { x: number; y: number };
-  size: number;
-  rotation: number;
-  placement: 'chest' | 'back' | 'sleeve';
-}
-
 export default function Advanced360Viewer() {
   const [currentFrame, setCurrentFrame] = useState(0);
   const [zoom, setZoom] = useState(1);
   const [isDragging, setIsDragging] = useState(false);
   const [isFullscreen, setIsFullscreen] = useState(false);
-  const [logoCustomization, setLogoCustomization] = useState<LogoCustomization>({
-    file: null,
-    preview: '',
-    position: { x: 50, y: 40 },
-    size: 20,
-    rotation: 0,
-    placement: 'chest',
-  });
-  const [showCustomizer, setShowCustomizer] = useState(false);
 
   const containerRef = useRef<HTMLDivElement>(null);
   const dragX = useMotionValue(0);
@@ -62,33 +44,6 @@ export default function Advanced360Viewer() {
     setCurrentFrame(newFrame < 0 ? totalFrames + newFrame : newFrame);
   };
 
-  const handleLogoUpload = (e: React.ChangeEvent<HTMLInputElement>) => {
-    const file = e.target.files?.[0];
-    if (file) {
-      const reader = new FileReader();
-      reader.onloadend = () => {
-        setLogoCustomization({
-          ...logoCustomization,
-          file,
-          preview: reader.result as string,
-        });
-        setShowCustomizer(true);
-      };
-      reader.readAsDataURL(file);
-    }
-  };
-
-  const resetCustomization = () => {
-    setLogoCustomization({
-      file: null,
-      preview: '',
-      position: { x: 50, y: 40 },
-      size: 20,
-      rotation: 0,
-      placement: 'chest',
-    });
-    setShowCustomizer(false);
-  };
 
   return (
     <div className="relative">
@@ -120,41 +75,6 @@ export default function Advanced360Viewer() {
                 <br />
                 <span className="text-sm">{frames[currentFrame]?.angle}°</span>
               </p>
-
-              {/* Logo Overlay */}
-              {logoCustomization.preview && (
-                <motion.div
-                  drag
-                  dragMomentum={false}
-                  className="absolute cursor-move"
-                  style={{
-                    left: `${logoCustomization.position.x}%`,
-                    top: `${logoCustomization.position.y}%`,
-                    width: `${logoCustomization.size}%`,
-                    rotate: logoCustomization.rotation,
-                  }}
-                  onDragEnd={(e, info) => {
-                    const rect = containerRef.current?.getBoundingClientRect();
-                    if (rect) {
-                      setLogoCustomization({
-                        ...logoCustomization,
-                        position: {
-                          x: ((info.point.x - rect.left) / rect.width) * 100,
-                          y: ((info.point.y - rect.top) / rect.height) * 100,
-                        },
-                      });
-                    }
-                  }}
-                >
-                  <Image
-                    src={logoCustomization.preview}
-                    alt="Custom logo"
-                    width={100}
-                    height={100}
-                    className="w-full h-auto drop-shadow-lg"
-                  />
-                </motion.div>
-              )}
             </div>
           </div>
         </motion.div>
@@ -209,105 +129,7 @@ export default function Advanced360Viewer() {
         >
           <Maximize2 className="w-5 h-5 text-gray-700" />
         </motion.button>
-
-        {/* Upload Logo Button */}
-        <label className="cursor-pointer">
-          <motion.div
-            whileHover={{ scale: 1.05 }}
-            whileTap={{ scale: 0.95 }}
-            className="p-3 bg-gradient-to-r from-blue-500 to-purple-500 rounded-xl shadow-lg hover:shadow-xl transition-all"
-          >
-            <Upload className="w-5 h-5 text-white" />
-          </motion.div>
-          <input
-            type="file"
-            accept="image/*"
-            onChange={handleLogoUpload}
-            className="hidden"
-          />
-        </label>
       </div>
-
-      {/* Logo Customizer Panel */}
-      {showCustomizer && (
-        <motion.div
-          initial={{ opacity: 0, y: 20 }}
-          animate={{ opacity: 1, y: 0 }}
-          className="mt-6 card-gradient p-6"
-        >
-          <div className="flex justify-between items-center mb-4">
-            <h3 className="text-xl font-bold text-gradient">Customize Logo</h3>
-            <button
-              onClick={resetCustomization}
-              className="p-2 hover:bg-gray-100 rounded-lg transition-colors"
-            >
-              <X className="w-5 h-5" />
-            </button>
-          </div>
-
-          <div className="space-y-4">
-            {/* Placement */}
-            <div>
-              <label className="block text-sm font-semibold mb-2">Placement</label>
-              <div className="flex gap-2">
-                {['chest', 'back', 'sleeve'].map((place) => (
-                  <button
-                    key={place}
-                    onClick={() =>
-                      setLogoCustomization({ ...logoCustomization, placement: place as any })
-                    }
-                    className={`px-4 py-2 rounded-lg font-medium transition-all ${
-                      logoCustomization.placement === place
-                        ? 'bg-gradient-to-r from-blue-500 to-purple-500 text-white'
-                        : 'bg-gray-100 text-gray-700 hover:bg-gray-200'
-                    }`}
-                  >
-                    {place.charAt(0).toUpperCase() + place.slice(1)}
-                  </button>
-                ))}
-              </div>
-            </div>
-
-            {/* Size */}
-            <div>
-              <label className="block text-sm font-semibold mb-2">
-                Size: {logoCustomization.size}%
-              </label>
-              <input
-                type="range"
-                min="10"
-                max="50"
-                value={logoCustomization.size}
-                onChange={(e) =>
-                  setLogoCustomization({ ...logoCustomization, size: Number(e.target.value) })
-                }
-                className="w-full"
-              />
-            </div>
-
-            {/* Rotation */}
-            <div>
-              <label className="block text-sm font-semibold mb-2">
-                Rotation: {logoCustomization.rotation}°
-              </label>
-              <input
-                type="range"
-                min="0"
-                max="360"
-                value={logoCustomization.rotation}
-                onChange={(e) =>
-                  setLogoCustomization({ ...logoCustomization, rotation: Number(e.target.value) })
-                }
-                className="w-full"
-              />
-            </div>
-
-            <p className="text-sm text-gray-600">
-              💡 Drag the logo on the t-shirt to reposition it
-            </p>
-          </div>
-        </motion.div>
-      )}
     </div>
   );
 }

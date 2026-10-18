@@ -161,7 +161,7 @@
 
   /* Primary Action Button: Professional Curvly Yellow/Amber Accent */
   .btn-primary {
-    @apply relative px-8 py-3.5 rounded-full font-bold text-gray-950 overflow-hidden text-sm sm:text-base;
+    @apply relative px-5 py-2.5 sm:px-8 sm:py-3.5 rounded-full font-bold text-gray-950 overflow-hidden text-xs sm:text-base;
     @apply bg-[#FFC006] hover:bg-[#E5AC00] active:scale-[0.98];
     @apply shadow-sm hover:shadow-md hover:shadow-amber-500/20;
     @apply transition-all duration-200 border border-amber-400/60 inline-flex items-center justify-center;
@@ -169,7 +169,7 @@
 
   /* Secondary Action Button: Curvly, Clean, Minimalist */
   .btn-secondary {
-    @apply relative px-8 py-3.5 rounded-full font-semibold overflow-hidden text-sm sm:text-base;
+    @apply relative px-5 py-2.5 sm:px-8 sm:py-3.5 rounded-full font-semibold overflow-hidden text-xs sm:text-base;
     @apply bg-white text-gray-800 border border-gray-300;
     @apply hover:bg-gray-50 hover:border-gray-400 hover:text-gray-950 active:scale-[0.98];
     @apply shadow-sm hover:shadow transition-all duration-200 inline-flex items-center justify-center;

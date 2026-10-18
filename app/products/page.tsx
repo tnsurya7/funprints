@@ -70,22 +70,22 @@ export default function ProductsPage() {
           </p>
         </div>
         
-        {/* Curvly Category Filter Pills */}
-        <div className="flex gap-2 mb-8 overflow-x-auto pb-2 scrollbar-none items-center">
+        {/* Category Filter Pills (Compact on mobile) */}
+        <div className="flex gap-1.5 sm:gap-2 mb-5 sm:mb-8 overflow-x-auto pb-2 no-scrollbar items-center">
           {categories.map((category) => {
             const isSelected = filter === category;
             return (
               <button
                 key={category}
                 onClick={() => setFilter(category)}
-                className={`px-5 py-2.5 rounded-full text-xs sm:text-sm font-bold whitespace-nowrap transition-all duration-200 ${
+                className={`px-3 py-1.5 sm:px-5 sm:py-2.5 rounded-full text-[11px] sm:text-sm font-bold whitespace-nowrap transition-all duration-200 ${
                   isSelected
                     ? 'bg-[#FFC006] text-gray-950 shadow-sm border border-amber-400'
                     : 'bg-white text-gray-700 hover:text-gray-950 hover:bg-gray-100 border border-gray-200'
                 }`}
               >
                 {category === 'all' ? 'All Products' : category}
-                <span className={`ml-1.5 text-xs ${isSelected ? 'text-gray-900 font-extrabold' : 'text-gray-500'}`}>
+                <span className={`ml-1 sm:ml-1.5 text-[10px] sm:text-xs ${isSelected ? 'text-gray-900 font-extrabold' : 'text-gray-500'}`}>
                   ({getCategoryCount(category)})
                 </span>
               </button>

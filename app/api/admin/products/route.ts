@@ -1,44 +1,35 @@
 import { NextRequest, NextResponse } from 'next/server';
-import { ProductsService } from '@/lib/supabase-db';
+import { sql } from '@/lib/db';
+import { requireAdmin } from '@/lib/auth';
 
-export async function GET() {
+export const dynamic = 'force-dynamic';
+
+export async function GET(req: NextRequest) {
   try {
-    const products = await ProductsService.getAllProductsAdmin();
+    const admin = requireAdmin(req);
+    if (!admin) {
+      return NextResponse.json({ error: 'Unauthorized' }, { status: 401 });
+    }
+    const products = await sql`
+      SELECT 
+        p.*,
+        COALESCE(json_agg(json_build_object(
+          'id', pv.id,
+          'color', pv.color_name,
+          'size', pv.size,
+          'sku', pv.sku,
+          'stock', pv.stock_quantity,
+          'is_available', pv.is_available
+        )) FILTER (WHERE pv.id IS NOT NULL), '[]'::json) as variants
+      FROM products p
+      LEFT JOIN product_variants pv ON pv.product_id = p.id
+      GROUP BY p.id
+      ORDER BY p.name ASC;
+    `;
+
     return NextResponse.json({ success: true, products });
   } catch (error) {
-    console.error('Failed to fetch products:', error);
-    // Return empty products array for build compatibility
+    console.error('Failed to fetch admin products from Neon:', error);
     return NextResponse.json({ success: true, products: [] });
-  }
-}
-
-export async function POST(request: NextRequest) {
-  try {
-    const body = await request.json();
-    const { name, category, base_price, description, colors, sizes } = body;
-
-    const newProduct = {
-      name,
-      category,
-      base_price: Number(base_price),
-      gst_percent: 18,
-      description,
-      enabled: true,
-    };
-
-    const product = await ProductsService.createProduct(newProduct);
-
-    if (!product) {
-      return NextResponse.json({ error: 'Failed to create product' }, { status: 500 });
-    }
-
-    return NextResponse.json({
-      success: true,
-      message: 'Product added successfully',
-      product
-    });
-  } catch (error) {
-    console.error('Failed to add product:', error);
-    return NextResponse.json({ error: 'Failed to add product' }, { status: 500 });
   }
 }

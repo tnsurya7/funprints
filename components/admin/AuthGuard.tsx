@@ -16,28 +16,15 @@ export default function AuthGuard({ children }: AuthGuardProps) {
 
   useEffect(() => {
     const checkAuth = async () => {
-      const token = localStorage.getItem('adminToken');
-      
-      if (!token) {
-        router.push('/admin/login');
-        return;
-      }
-
       try {
-        const response = await fetch('/api/admin/verify', {
-          headers: {
-            'Authorization': `Bearer ${token}`
-          }
-        });
+        const response = await fetch('/api/admin/verify');
 
         if (response.ok) {
           setIsAuthenticated(true);
         } else {
-          localStorage.removeItem('adminToken');
           router.push('/admin/login');
         }
       } catch (error) {
-        localStorage.removeItem('adminToken');
         router.push('/admin/login');
       } finally {
         setLoading(false);
@@ -49,16 +36,16 @@ export default function AuthGuard({ children }: AuthGuardProps) {
 
   if (loading) {
     return (
-      <div className="min-h-screen bg-gray-50 flex items-center justify-center">
+      <div className="min-h-screen bg-stone-50 font-serif flex items-center justify-center">
         <motion.div
           initial={{ opacity: 0 }}
           animate={{ opacity: 1 }}
           className="text-center"
         >
-          <div className="w-16 h-16 bg-gradient-to-br from-purple-500 to-pink-600 rounded-full flex items-center justify-center mx-auto mb-4">
-            <Lock className="w-8 h-8 text-white animate-pulse" />
+          <div className="w-14 h-14 bg-[#FFC006] rounded-full flex items-center justify-center mx-auto mb-3 shadow-sm border border-amber-400/60">
+            <Lock className="w-6 h-6 text-gray-950 animate-pulse" />
           </div>
-          <p className="text-gray-600">Verifying access...</p>
+          <p className="text-xs font-bold text-gray-600">Verifying administrator access...</p>
         </motion.div>
       </div>
     );

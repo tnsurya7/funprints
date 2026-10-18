@@ -2,15 +2,17 @@
 
 import { useState } from 'react';
 import { useRouter } from 'next/navigation';
+import Link from 'next/link';
+import Image from 'next/image';
 import { motion } from 'framer-motion';
-import { Lock, Mail, Eye, EyeOff } from 'lucide-react';
+import { Lock, Mail, Eye, EyeOff, ShieldCheck, ArrowLeft } from 'lucide-react';
 import toast from 'react-hot-toast';
 
 export default function AdminLogin() {
   const router = useRouter();
   const [formData, setFormData] = useState({
     email: '',
-    password: ''
+    password: '',
   });
   const [showPassword, setShowPassword] = useState(false);
   const [loading, setLoading] = useState(false);
@@ -29,12 +31,13 @@ export default function AdminLogin() {
       const data = await response.json();
 
       if (response.ok) {
-        // Store admin session
-        localStorage.setItem('adminToken', data.token);
-        toast.success('Login successful!');
+        if (data.token) {
+          localStorage.setItem('adminToken', data.token);
+        }
+        toast.success('Admin login successful!');
         router.push('/admin');
       } else {
-        toast.error(data.error || 'Invalid credentials');
+        toast.error(data.error || 'Invalid admin credentials');
       }
     } catch (error) {
       toast.error('Login failed. Please try again.');
@@ -44,86 +47,106 @@ export default function AdminLogin() {
   };
 
   return (
-    <div className="min-h-screen bg-gradient-to-br from-purple-900 via-blue-900 to-indigo-900 flex items-center justify-center px-4">
+    <div className="min-h-screen bg-stone-50 text-gray-900 font-serif flex flex-col justify-center items-center px-4 py-12 relative">
+      {/* Background Subtle Gradient Blobs */}
+      <div className="absolute top-10 left-1/2 -translate-x-1/2 w-96 h-96 bg-[#FFC006]/10 rounded-full blur-3xl pointer-events-none" />
+
       <motion.div
-        initial={{ opacity: 0, y: 20 }}
+        initial={{ opacity: 0, y: 15 }}
         animate={{ opacity: 1, y: 0 }}
-        className="w-full max-w-md"
+        transition={{ duration: 0.3 }}
+        className="w-full max-w-md relative z-10"
       >
-        <div className="bg-white/10 backdrop-blur-lg rounded-2xl p-8 shadow-2xl border border-white/20">
-          <div className="text-center mb-8">
-            <div className="w-16 h-16 bg-gradient-to-br from-purple-500 to-pink-600 rounded-full flex items-center justify-center mx-auto mb-4">
-              <Lock className="w-8 h-8 text-white" />
+        {/* Back to store */}
+        <div className="mb-6">
+          <Link
+            href="/"
+            className="inline-flex items-center gap-2 text-xs font-bold text-gray-600 hover:text-gray-950 transition-colors bg-white px-3.5 py-1.5 rounded-full border border-gray-200 shadow-xs"
+          >
+            <ArrowLeft className="w-3.5 h-3.5" />
+            <span>Return to FunPrint Store</span>
+          </Link>
+        </div>
+
+        {/* Card */}
+        <div className="bg-white rounded-3xl p-7 sm:p-8 shadow-xl border border-gray-200/90">
+          {/* Logo & Header */}
+          <div className="text-center mb-7">
+            <div className="relative w-16 h-14 mx-auto mb-3 flex items-center justify-center">
+              <Image
+                src="/fun-print-logo.avif"
+                alt="FunPrint Logo"
+                width={70}
+                height={56}
+                className="object-contain"
+                priority
+              />
             </div>
-            <h1 className="text-2xl font-bold text-white mb-2">Admin Login</h1>
-            <p className="text-gray-300">Access the Fun Print admin dashboard</p>
+            <h1 className="text-2xl font-black text-gray-950 tracking-tight">
+              Admin Portal Sign In
+            </h1>
           </div>
 
-          <form onSubmit={handleSubmit} className="space-y-6">
+          <form onSubmit={handleSubmit} className="space-y-4">
             <div>
-              <label className="block text-sm font-semibold text-white mb-2">
-                Email Address
+              <label className="block text-xs font-bold text-gray-700 mb-1.5">
+                Admin Email Address
               </label>
               <div className="relative">
-                <Mail className="absolute left-3 top-1/2 transform -translate-y-1/2 w-5 h-5 text-gray-400" />
+                <Mail className="absolute left-3.5 top-1/2 -translate-y-1/2 w-4 h-4 text-gray-400" />
                 <input
                   type="email"
                   value={formData.email}
                   onChange={(e) => setFormData({ ...formData, email: e.target.value })}
-                  className="w-full pl-10 pr-4 py-3 bg-white/10 border border-white/20 rounded-xl text-white placeholder-gray-400 focus:outline-none focus:ring-2 focus:ring-purple-500 focus:border-transparent"
-                  placeholder="Enter admin email"
+                  className="w-full pl-10 pr-4 py-2.5 text-sm rounded-xl border border-gray-300 focus:border-[#FFC006] focus:ring-2 focus:ring-amber-200 outline-none transition-all placeholder-gray-400 bg-white"
+                  placeholder="surya@gmail.com"
                   required
                 />
               </div>
             </div>
 
             <div>
-              <label className="block text-sm font-semibold text-white mb-2">
-                Password
+              <label className="block text-xs font-bold text-gray-700 mb-1.5">
+                Admin Password
               </label>
               <div className="relative">
-                <Lock className="absolute left-3 top-1/2 transform -translate-y-1/2 w-5 h-5 text-gray-400" />
+                <Lock className="absolute left-3.5 top-1/2 -translate-y-1/2 w-4 h-4 text-gray-400" />
                 <input
                   type={showPassword ? 'text' : 'password'}
                   value={formData.password}
                   onChange={(e) => setFormData({ ...formData, password: e.target.value })}
-                  className="w-full pl-10 pr-12 py-3 bg-white/10 border border-white/20 rounded-xl text-white placeholder-gray-400 focus:outline-none focus:ring-2 focus:ring-purple-500 focus:border-transparent"
-                  placeholder="Enter password"
+                  className="w-full pl-10 pr-11 py-2.5 text-sm rounded-xl border border-gray-300 focus:border-[#FFC006] focus:ring-2 focus:ring-amber-200 outline-none transition-all placeholder-gray-400 bg-white"
+                  placeholder="••••••••••••"
                   required
                 />
                 <button
                   type="button"
                   onClick={() => setShowPassword(!showPassword)}
-                  className="absolute right-3 top-1/2 transform -translate-y-1/2 text-gray-400 hover:text-white"
+                  className="absolute right-3.5 top-1/2 -translate-y-1/2 text-gray-400 hover:text-gray-700"
+                  tabIndex={-1}
                 >
-                  {showPassword ? <EyeOff className="w-5 h-5" /> : <Eye className="w-5 h-5" />}
+                  {showPassword ? <EyeOff className="w-4 h-4" /> : <Eye className="w-4 h-4" />}
                 </button>
               </div>
             </div>
 
             <motion.button
-              whileHover={{ scale: 1.02 }}
-              whileTap={{ scale: 0.98 }}
+              whileHover={{ scale: 1.01 }}
+              whileTap={{ scale: 0.99 }}
               type="submit"
               disabled={loading}
-              className="w-full bg-gradient-to-r from-purple-600 to-pink-600 text-white font-semibold py-3 rounded-xl hover:from-purple-700 hover:to-pink-700 transition-all duration-200 disabled:opacity-50 disabled:cursor-not-allowed"
+              className="w-full py-3 bg-[#FFC006] hover:bg-[#E5AC00] text-gray-950 font-black rounded-full shadow-sm hover:shadow transition-all duration-200 disabled:opacity-50 disabled:cursor-not-allowed text-sm border border-amber-400/60 flex items-center justify-center gap-2 mt-2"
             >
               {loading ? (
-                <div className="flex items-center justify-center">
-                  <div className="w-5 h-5 border-2 border-white border-t-transparent rounded-full animate-spin mr-2"></div>
-                  Signing in...
+                <div className="flex items-center justify-center gap-2">
+                  <div className="w-4 h-4 border-2 border-gray-950 border-t-transparent rounded-full animate-spin"></div>
+                  <span>Verifying credentials...</span>
                 </div>
               ) : (
-                'Sign In'
+                'Sign In to Dashboard'
               )}
             </motion.button>
           </form>
-
-          <div className="mt-6 text-center">
-            <p className="text-gray-400 text-sm">
-              Secure admin access for Fun Print management
-            </p>
-          </div>
         </div>
       </motion.div>
     </div>

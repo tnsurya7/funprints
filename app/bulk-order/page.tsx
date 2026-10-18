@@ -62,30 +62,55 @@ export default function BulkOrderPage() {
     }
   };
 
+  const [submitting, setSubmitting] = useState(false);
+
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
+    setSubmitting(true);
     
-    toast.success('Bulk enquiry submitted! Our wholesale team will send you a quote.');
-    
-    const whatsappNumber = process.env.NEXT_PUBLIC_WHATSAPP_NUMBER || '919344925600';
-    const customizationsList = selectedCustomizations.length > 0 
-      ? selectedCustomizations.join(', ')
-      : 'All standard options';
+    try {
+      const res = await fetch('/api/bulk-order', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({
+          ...formData,
+          customizations: selectedCustomizations,
+        }),
+      });
 
-    const whatsappMessage = encodeURIComponent(
-      `Hi FunPrint Bulk Sales,\n\nBulk Order Enquiry:\n• Product: ${formData.productType}\n• Name: ${formData.name}\n• Company: ${formData.company || 'N/A'}\n• Mobile: ${formData.mobile}\n• Quantity: ${formData.quantity}\n• Customizations Requested: ${customizationsList}\n• Additional Details: ${formData.message || 'Please share catalog and wholesale price chart'}`
-    );
-    window.open(`https://wa.me/${whatsappNumber}?text=${whatsappMessage}`, '_blank');
+      if (!res.ok) {
+        const data = await res.json().catch(() => ({}));
+        throw new Error(data.error || 'Failed to submit enquiry');
+      }
 
-    setFormData({
-      name: '',
-      email: '',
-      mobile: '',
-      company: '',
-      productType: 'Both T-Shirts & Hoodies',
-      quantity: '',
-      message: '',
-    });
+      toast.success('Bulk enquiry submitted! Confirmation email sent & our team will contact you shortly.');
+
+      const whatsappNumber = process.env.NEXT_PUBLIC_WHATSAPP_NUMBER || '';
+      const customizationsList = selectedCustomizations.length > 0 
+        ? selectedCustomizations.join(', ')
+        : 'All standard options';
+
+      if (whatsappNumber) {
+        const whatsappMessage = encodeURIComponent(
+          `Hi FunPrint Bulk Sales,\n\nBulk Order Enquiry:\n• Product: ${formData.productType}\n• Name: ${formData.name}\n• Company: ${formData.company || 'N/A'}\n• Mobile: ${formData.mobile}\n• Quantity: ${formData.quantity}\n• Customizations Requested: ${customizationsList}\n• Additional Details: ${formData.message || 'Please share catalog and wholesale price chart'}`
+        );
+        window.open(`https://wa.me/${whatsappNumber.replace(/\D/g, '')}?text=${whatsappMessage}`, '_blank');
+      }
+
+      setFormData({
+        name: '',
+        email: '',
+        mobile: '',
+        company: '',
+        productType: 'Both T-Shirts & Hoodies',
+        quantity: '',
+        message: '',
+      });
+    } catch (err: any) {
+      toast.error(err.message || 'Failed to submit bulk enquiry');
+    } finally {
+      setSubmitting(false);
+    }
   };
 
   return (
@@ -206,7 +231,7 @@ export default function BulkOrderPage() {
                     value={formData.name}
                     onChange={(e) => setFormData({ ...formData, name: e.target.value })}
                     className="w-full px-4 py-3 border border-gray-300 rounded-2xl focus:ring-2 focus:ring-gray-950 focus:border-gray-950 transition-all text-sm outline-none"
-                    placeholder="John Doe"
+                    placeholder="Surya Kumar"
                     required
                   />
                 </div>
@@ -220,7 +245,7 @@ export default function BulkOrderPage() {
                     value={formData.email}
                     onChange={(e) => setFormData({ ...formData, email: e.target.value })}
                     className="w-full px-4 py-3 border border-gray-300 rounded-2xl focus:ring-2 focus:ring-gray-950 focus:border-gray-950 transition-all text-sm outline-none"
-                    placeholder="john@company.com"
+                    placeholder="surya@gmail.com"
                     required
                   />
                 </div>
@@ -284,9 +309,10 @@ export default function BulkOrderPage() {
               {/* Curvly Submit Button */}
               <button
                 type="submit"
-                className="w-full py-4 rounded-full font-bold bg-[#FFC006] hover:bg-[#E5AC00] text-gray-950 shadow-xs hover:shadow transition-all border border-amber-400/60 text-base"
+                disabled={submitting}
+                className="w-full py-2.5 sm:py-4 rounded-full font-bold bg-[#FFC006] hover:bg-[#E5AC00] text-gray-950 shadow-xs hover:shadow transition-all border border-amber-400/60 text-xs sm:text-base disabled:opacity-60 disabled:cursor-not-allowed"
               >
-                Submit T-Shirts & Hoodies Bulk Enquiry
+                {submitting ? 'Submitting Bulk Enquiry...' : 'Submit T-Shirts & Hoodies Bulk Enquiry'}
               </button>
             </form>
           </div>

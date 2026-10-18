@@ -14,17 +14,31 @@ export default function BrandStory() {
             viewport={{ once: true }}
             transition={{ duration: 0.6 }}
           >
-            <div className="inline-block mb-3 sm:mb-4">
+            <div className="inline-block mb-2 sm:mb-4">
               <span className="px-4 py-1.5 rounded-full bg-amber-100 text-amber-950 text-xs sm:text-sm font-bold border border-amber-300">
                 About Us
               </span>
             </div>
+
+            {/* Mobile-only hero logo shown below About Us and above heading */}
+            <div className="lg:hidden flex items-center justify-start my-2.5">
+              <div className="relative w-20 h-14 flex items-center justify-center p-1 bg-white rounded-2xl border border-gray-200/90 shadow-2xs">
+                <Image
+                  src="/fun-print-logo.avif"
+                  alt="FunPrint Logo"
+                  width={68}
+                  height={54}
+                  className="object-contain max-h-12 w-auto"
+                  priority
+                />
+              </div>
+            </div>
             
-            <h2 className="text-3xl sm:text-4xl font-extrabold mb-4 sm:mb-6 text-gray-950 tracking-tight">
+            <h2 className="text-2xl sm:text-4xl font-extrabold mb-3 sm:mb-6 text-gray-950 tracking-tight">
               Crafting Premium Apparel with Attention to Every Detail
             </h2>
             
-            <div className="space-y-4 text-base sm:text-lg text-gray-600 leading-relaxed">
+            <div className="space-y-3 sm:space-y-4 text-xs sm:text-base lg:text-lg text-gray-600 leading-relaxed">
               <p>
                 Since 2015, we have been dedicated to perfecting every detail of custom apparel and printing. As your trusted one-stop destination for high-quality custom apparel, we specialize in crafting personalized t-shirts, hoodies, and other garments that showcase your unique style and vision.
               </p>
@@ -33,8 +47,8 @@ export default function BrandStory() {
               </p>
             </div>
 
-            {/* Clean solid stat cards */}
-            <div className="grid grid-cols-3 gap-3 sm:gap-4 mt-6 sm:mt-8">
+            {/* Clean solid stat cards - small size in mobile view */}
+            <div className="grid grid-cols-3 gap-2 sm:gap-4 mt-5 sm:mt-8">
               {[
                 { number: '100%', label: 'Customer Satisfaction' },
                 { number: '30+', label: 'Product Options' },
@@ -42,12 +56,12 @@ export default function BrandStory() {
               ].map((stat) => (
                 <div
                   key={stat.label}
-                  className="bg-gray-50 p-4 rounded-2xl border border-gray-200/90 text-center"
+                  className="bg-gray-50 p-2 sm:p-4 rounded-xl sm:rounded-2xl border border-gray-200/90 text-center"
                 >
-                  <div className="text-2xl sm:text-3xl font-extrabold text-gray-950 mb-0.5">
+                  <div className="text-base sm:text-3xl font-extrabold text-gray-950 mb-0.5">
                     {stat.number}
                   </div>
-                  <div className="text-xs sm:text-sm text-gray-600 font-medium">
+                  <div className="text-[9.5px] sm:text-sm text-gray-600 font-medium leading-tight">
                     {stat.label}
                   </div>
                 </div>
@@ -60,7 +74,7 @@ export default function BrandStory() {
             whileInView={{ opacity: 1, x: 0 }}
             viewport={{ once: true }}
             transition={{ duration: 0.6 }}
-            className="relative"
+            className="hidden lg:block relative"
           >
             <div className="bg-gray-50 p-6 sm:p-8 rounded-3xl border border-gray-200 shadow-sm flex items-center justify-center">
               <div className="relative aspect-square w-full max-w-sm rounded-2xl bg-white p-8 flex items-center justify-center border border-gray-200/80 shadow-sm">

@@ -3,8 +3,13 @@
 /.pnp
 .pnp.js
 
-# testing
+# testing & test files
 /coverage
+/scripts/
+*.test.*
+*.spec.*
+*test*
+*.sh
 
 # next.js
 /.next/
@@ -24,11 +29,17 @@ npm-debug.log*
 yarn-debug.log*
 yarn-error.log*
 
-# local env files
+# local env & credential files
 .env*
+!.env.example
 .env
 .env.local
 .env.production
+.env.*.local
+*.key
+*.secret
+*.credentials
+*.token
 
 # vercel
 .vercel
@@ -48,3 +59,4 @@ next-env.d.ts
 # Documentation files (may contain sensitive info)
 *.md
 !README.md
+.neon

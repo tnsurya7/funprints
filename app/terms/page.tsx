@@ -152,13 +152,23 @@ export default function Terms() {
               </p>
               <p>
                 For questions or assistance, contact our team at{' '}
-                <a href="mailto:contact@funprint.in" className="font-bold text-gray-900 hover:underline">
-                  contact@funprint.in
-                </a>{' '}
-                or call / WhatsApp{' '}
-                <a href="tel:+919344925600" className="font-bold text-gray-900 hover:underline">
-                  +91 93449 25600
-                </a>.
+                <a
+                  href={`mailto:${process.env.NEXT_PUBLIC_ADMIN_EMAIL || process.env.NEXT_PUBLIC_CONTACT_EMAIL || 'support@funprint.in'}`}
+                  className="font-bold text-gray-900 hover:underline"
+                >
+                  {process.env.NEXT_PUBLIC_ADMIN_EMAIL || process.env.NEXT_PUBLIC_CONTACT_EMAIL || 'support@funprint.in'}
+                </a>
+                {(process.env.NEXT_PUBLIC_PHONE_NUMBER || process.env.NEXT_PUBLIC_WHATSAPP_NUMBER) && (
+                  <>
+                    {' '}or call / WhatsApp{' '}
+                    <a
+                      href={`tel:+${(process.env.NEXT_PUBLIC_PHONE_NUMBER || process.env.NEXT_PUBLIC_WHATSAPP_NUMBER || '').replace(/\D/g, '')}`}
+                      className="font-bold text-gray-900 hover:underline"
+                    >
+                      +{(process.env.NEXT_PUBLIC_PHONE_NUMBER || process.env.NEXT_PUBLIC_WHATSAPP_NUMBER || '').replace(/\D/g, '')}
+                    </a>
+                  </>
+                )}.
               </p>
             </div>
           </div>

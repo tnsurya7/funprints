@@ -1,0 +1,70 @@
+'use client';
+
+import { useEffect, useRef } from 'react';
+import { usePathname } from 'next/navigation';
+import Script from 'next/script';
+
+export default function VisitorTracker() {
+  const pathname = usePathname();
+  const gaId = process.env.NEXT_PUBLIC_GA_MEASUREMENT_ID;
+  const lastPingRef = useRef<number>(0);
+
+  useEffect(() => {
+    // Generate or get pseudonymous session ID
+    let sessionId = localStorage.getItem('funprint_session_id');
+    if (!sessionId) {
+      sessionId = 'v_' + Math.random().toString(36).substring(2, 15) + Date.now().toString(36);
+      localStorage.setItem('funprint_session_id', sessionId);
+    }
+
+    const deviceCategory = window.innerWidth < 640 ? 'mobile' : window.innerWidth < 1024 ? 'tablet' : 'desktop';
+    const trafficSource = document.referrer ? new URL(document.referrer).hostname : 'direct';
+
+    const sendPing = () => {
+      fetch('/api/analytics/track', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({
+          sessionId,
+          currentPage: pathname,
+          deviceCategory,
+          trafficSource,
+          eventName: 'page_view',
+        }),
+      }).catch(() => {});
+      lastPingRef.current = Date.now();
+    };
+
+    sendPing();
+
+    // Heartbeat every 2 minutes for active session
+    const interval = setInterval(() => {
+      sendPing();
+    }, 120000);
+
+    return () => clearInterval(interval);
+  }, [pathname]);
+
+  return (
+    <>
+      {gaId && (
+        <>
+          <Script
+            src={`https://www.googletagmanager.com/gtag/js?id=${gaId}`}
+            strategy="afterInteractive"
+          />
+          <Script id="google-analytics" strategy="afterInteractive">
+            {`
+              window.dataLayer = window.dataLayer || [];
+              function gtag(){dataLayer.push(arguments);}
+              gtag('js', new Date());
+              gtag('config', '${gaId}', {
+                page_path: window.location.pathname,
+              });
+            `}
+          </Script>
+        </>
+      )}
+    </>
+  );
+}

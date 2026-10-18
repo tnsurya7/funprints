@@ -12,7 +12,7 @@ const STORAGE_API_KEY = process.env.STORAGE_API_KEY || '';
 // Fallback to email-based storage if no database is configured
 export async function saveOrderToDatabase(order: Order): Promise<boolean> {
   try {
-    // Option 1: Use external database service (Supabase, PlanetScale, etc.)
+    // Option 1: Use external database service (Neon PostgreSQL, etc.)
     if (STORAGE_API_URL && STORAGE_API_KEY) {
       const response = await fetch(`${STORAGE_API_URL}/orders`, {
         method: 'POST',

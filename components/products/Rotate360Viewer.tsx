@@ -57,6 +57,7 @@ export default function Rotate360Viewer({ basePath }: { basePath: string }) {
         src={`${basePath}/360/frame_${String(frame * 10).padStart(3, '0')}.jpg`}
         alt="360 view"
         fill
+        sizes="(max-width: 768px) 100vw, 50vw"
         priority
         className="object-contain rounded-xl"
       />

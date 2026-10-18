@@ -1,47 +1,68 @@
 import { NextRequest, NextResponse } from 'next/server';
-import { supabaseAdmin } from '@/lib/supabase';
+import { sql } from '@/lib/db';
+import { enhancedProducts } from '@/lib/enhanced-products';
+
+export const dynamic = 'force-dynamic';
 
 export async function GET(
   request: NextRequest,
   { params }: { params: { id: string } }
 ) {
   try {
-    // Get product with variants using admin client
-    const { data: product, error: productError } = await supabaseAdmin
-      .from('products')
-      .select('*')
-      .eq('id', params.id)
-      .eq('enabled', true)
-      .single();
+    const productId = params.id;
 
-    if (productError || !product) {
-      console.error('Error fetching product:', productError);
-      return NextResponse.json({ error: 'Product not found' }, { status: 404 });
-    }
+    const rows = await sql`
+      SELECT 
+        p.*,
+        COALESCE(json_agg(json_build_object(
+          'id', pv.id,
+          'color', pv.color_name,
+          'size', pv.size,
+          'sku', pv.sku,
+          'stock', pv.stock_quantity,
+          'is_available', pv.is_available
+        )) FILTER (WHERE pv.id IS NOT NULL), '[]'::json) as variants
+      FROM products p
+      LEFT JOIN product_variants pv ON pv.product_id = p.id
+      WHERE p.id = ${productId} AND p.is_visible = TRUE
+      GROUP BY p.id
+      LIMIT 1;
+    `;
 
-    // Get variants for this product
-    const { data: variants, error: variantsError } = await supabaseAdmin
-      .from('product_variants')
-      .select('*')
-      .eq('product_id', params.id)
-      .eq('is_available', true);
-
-    if (variantsError) {
-      console.error('Error fetching variants:', variantsError);
-      return NextResponse.json({ 
-        success: true, 
-        product: { ...product, variants: [] } 
+    if (rows && rows.length > 0) {
+      const p = rows[0];
+      return NextResponse.json({
+        success: true,
+        product: {
+          id: p.id,
+          name: p.name,
+          description: p.description,
+          category: p.category,
+          base_price: Number(p.price),
+          price: Number(p.price),
+          fabric: p.fabric,
+          gsm: p.gsm,
+          inStock: p.is_in_stock,
+          images: p.images || {},
+          variants: p.variants || [],
+          enabled: p.is_visible,
+        },
       });
     }
 
-    const productWithVariants = {
-      ...product,
-      variants: variants || []
-    };
-    
-    return NextResponse.json({ success: true, product: productWithVariants });
+    // Static fallback
+    const staticProd = enhancedProducts.find(prod => prod.id === productId);
+    if (staticProd) {
+      return NextResponse.json({ success: true, product: staticProd });
+    }
+
+    return NextResponse.json({ error: 'Product not found' }, { status: 404 });
   } catch (error) {
-    console.error('Failed to fetch product:', error);
+    console.warn('Neon single product fetch fallback:', error);
+    const staticProd = enhancedProducts.find(prod => prod.id === params.id);
+    if (staticProd) {
+      return NextResponse.json({ success: true, product: staticProd });
+    }
     return NextResponse.json({ error: 'Failed to fetch product' }, { status: 500 });
   }
 }

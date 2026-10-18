@@ -3,11 +3,13 @@
 import { motion } from 'framer-motion';
 
 export default function CallButton() {
-  const phoneNumber = process.env.NEXT_PUBLIC_PHONE_NUMBER || process.env.NEXT_PUBLIC_WHATSAPP_NUMBER || '+919344925600';
+  const phoneNumber = process.env.NEXT_PUBLIC_PHONE_NUMBER || process.env.NEXT_PUBLIC_WHATSAPP_NUMBER || '';
+
+  if (!phoneNumber) return null;
 
   return (
     <motion.a
-      href={`tel:${phoneNumber}`}
+      href={`tel:${phoneNumber.startsWith('+') ? phoneNumber : `+${phoneNumber}`}`}
       className="fixed bottom-[8.75rem] right-5 sm:right-6 z-50 group"
       initial={{ opacity: 0, scale: 0 }}
       animate={{ opacity: 1, scale: 1 }}

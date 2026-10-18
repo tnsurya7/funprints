@@ -116,6 +116,7 @@ export default function Image360Viewer({
               src={fallbackImage}
               alt="Product"
               fill
+              sizes="(max-width: 768px) 100vw, 50vw"
               className="object-cover"
               priority
             />

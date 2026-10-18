@@ -76,6 +76,13 @@ export default function EnhancedProductDetail({ product }: { product: Product })
   const handleAddToCart = async () => {
     const cartItemId = `${product.id}-${selectedColor}-${selectedSize}-${Date.now()}`;
 
+    // For cart items, ALWAYS use the front view image of the selected color!
+    const frontImage =
+      colorImages?.front ||
+      product.images[selectedColor]?.front ||
+      product.images[product.colors[0]]?.front ||
+      '/placeholder-image.jpg';
+
     const cartItem = {
       id: cartItemId,
       productId: product.id,
@@ -84,7 +91,7 @@ export default function EnhancedProductDetail({ product }: { product: Product })
       quantity,
       size: selectedSize,
       color: selectedColor,
-      image: currentImage || colorImages?.front || '/placeholder-image.jpg',
+      image: frontImage,
       category: product.category,
     };
 
@@ -148,11 +155,6 @@ export default function EnhancedProductDetail({ product }: { product: Product })
                   <p className="text-sm font-medium">Image not available</p>
                 </div>
               )}
-
-              {/* Angle View Pill */}
-              <div className="absolute top-4 left-4 bg-white/95 backdrop-blur-xs px-3.5 py-1.5 rounded-full text-xs font-bold text-gray-800 shadow-xs border border-gray-200 uppercase tracking-wider">
-                {selectedPhotoView} view • <span className="text-gray-950">{selectedColor}</span>
-              </div>
             </div>
 
             {/* Angle Selector Thumbnails (Curvy Pill-Style Buttons) */}
@@ -199,75 +201,75 @@ export default function EnhancedProductDetail({ product }: { product: Product })
               })}
             </div>
 
-            {/* Quality & Trust Badges */}
-            <div className="grid grid-cols-3 gap-3 pt-2">
-              <div className="flex items-center gap-2 p-3 bg-white rounded-2xl border border-gray-200 text-gray-700 text-xs shadow-xs">
-                <ShieldCheck className="w-4 h-4 text-emerald-600 flex-shrink-0" />
-                <span className="font-semibold">Bio-Washed Fabric</span>
+            {/* Quality & Trust Badges (Compact on mobile) */}
+            <div className="grid grid-cols-3 gap-1.5 sm:gap-3 pt-2">
+              <div className="flex items-center justify-center sm:justify-start gap-1 sm:gap-2 px-1.5 py-1.5 sm:p-3 bg-white rounded-xl sm:rounded-2xl border border-gray-200 text-gray-700 text-[10px] sm:text-xs shadow-xs">
+                <ShieldCheck className="w-3.5 h-3.5 sm:w-4 sm:h-4 text-emerald-600 flex-shrink-0" />
+                <span className="font-semibold text-center sm:text-left leading-tight">Bio-Washed Fabric</span>
               </div>
-              <div className="flex items-center gap-2 p-3 bg-white rounded-2xl border border-gray-200 text-gray-700 text-xs shadow-xs">
-                <Truck className="w-4 h-4 text-gray-800 flex-shrink-0" />
-                <span className="font-semibold">Fast Dispatch</span>
+              <div className="flex items-center justify-center sm:justify-start gap-1 sm:gap-2 px-1.5 py-1.5 sm:p-3 bg-white rounded-xl sm:rounded-2xl border border-gray-200 text-gray-700 text-[10px] sm:text-xs shadow-xs">
+                <Truck className="w-3.5 h-3.5 sm:w-4 sm:h-4 text-gray-800 flex-shrink-0" />
+                <span className="font-semibold text-center sm:text-left leading-tight">Fast Dispatch</span>
               </div>
-              <div className="flex items-center gap-2 p-3 bg-white rounded-2xl border border-gray-200 text-gray-700 text-xs shadow-xs">
-                <RotateCcw className="w-4 h-4 text-gray-800 flex-shrink-0" />
-                <span className="font-semibold">Easy Returns</span>
+              <div className="flex items-center justify-center sm:justify-start gap-1 sm:gap-2 px-1.5 py-1.5 sm:p-3 bg-white rounded-xl sm:rounded-2xl border border-gray-200 text-gray-700 text-[10px] sm:text-xs shadow-xs">
+                <RotateCcw className="w-3.5 h-3.5 sm:w-4 sm:h-4 text-gray-800 flex-shrink-0" />
+                <span className="font-semibold text-center sm:text-left leading-tight">Easy Returns</span>
               </div>
             </div>
           </div>
 
           {/* RIGHT: Product Details & Purchase Controls */}
-          <div className="lg:col-span-5 space-y-6 bg-white p-6 sm:p-8 rounded-3xl shadow-xs border border-gray-200">
+          <div className="lg:col-span-5 space-y-4 sm:space-y-6 bg-white p-4 sm:p-8 rounded-3xl shadow-xs border border-gray-200">
             <div>
-              <span className="inline-block px-3 py-1 rounded-full bg-gray-100 text-gray-800 text-xs font-bold uppercase tracking-wider mb-3 border border-gray-200">
+              <span className="inline-block px-2.5 py-0.5 rounded-full bg-gray-100 text-gray-800 text-[10px] sm:text-xs font-bold uppercase tracking-wider mb-2 sm:mb-3 border border-gray-200">
                 {product.category}
               </span>
 
-              <div className="flex items-start justify-between gap-4">
-                <h1 className="text-2xl sm:text-3xl font-black text-gray-950 leading-tight">
+              <div className="flex items-start justify-between gap-3">
+                <h1 className="text-xl sm:text-3xl font-black text-gray-950 leading-tight">
                   {product.name}
                 </h1>
                 <button
                   type="button"
                   onClick={() => setIsWishlisted(!isWishlisted)}
                   aria-label="Wishlist"
-                  className={`w-10 h-10 rounded-full border transition-all flex items-center justify-center flex-shrink-0 ${
+                  className={`w-8 h-8 sm:w-10 sm:h-10 rounded-full border transition-all flex items-center justify-center flex-shrink-0 ${
                     isWishlisted
                       ? 'bg-amber-50 border-amber-300 text-amber-600'
                       : 'border-gray-200 text-gray-500 hover:text-gray-900 hover:bg-gray-50'
                   }`}
                 >
-                  <Heart className={`w-4 h-4 ${isWishlisted ? 'fill-current' : ''}`} />
+                  <Heart className={`w-3.5 h-3.5 sm:w-4 sm:h-4 ${isWishlisted ? 'fill-current' : ''}`} />
                 </button>
               </div>
 
               {product.description && (
-                <p className="text-gray-600 mt-3 text-sm leading-relaxed">
+                <p className="text-gray-600 mt-2 sm:mt-3 text-xs sm:text-sm leading-relaxed">
                   {product.description}
                 </p>
               )}
 
               {/* Price */}
-              <div className="mt-4 flex items-baseline gap-3 flex-wrap">
-                <span className="text-3xl sm:text-4xl font-extrabold text-gray-950">
+              <div className="mt-3 sm:mt-4 flex items-baseline gap-2 sm:gap-3 flex-wrap">
+                <span className="text-2xl sm:text-4xl font-extrabold text-gray-950">
                   ₹{product.price}
                 </span>
-                <span className="text-xs text-gray-500 font-medium">Inclusive of all taxes</span>
+                <span className="text-[11px] sm:text-xs text-gray-500 font-medium">Inclusive of all taxes</span>
               </div>
             </div>
 
             {/* Color Selection Swatches (Curvy Pills) */}
-            <div className="border-t border-gray-100 pt-5">
-              <div className="flex items-center justify-between mb-3">
-                <h3 className="text-xs font-bold text-gray-900 uppercase tracking-wider">
+            <div className="border-t border-gray-100 pt-3 sm:pt-5">
+              <div className="flex items-center justify-between mb-2 sm:mb-3">
+                <h3 className="text-[11px] sm:text-xs font-bold text-gray-900 uppercase tracking-wider">
                   Color: <span className="text-gray-950 font-extrabold">{selectedColor}</span>
                 </h3>
-                <span className="text-xs text-gray-500">
+                <span className="text-[11px] sm:text-xs text-gray-500">
                   {product.colors.length} available
                 </span>
               </div>
 
-              <div className="flex gap-2 flex-wrap max-h-48 overflow-y-auto p-1 scrollbar-none">
+              <div className="flex gap-1.5 sm:gap-2 flex-wrap max-h-40 sm:max-h-48 overflow-y-auto p-1 scrollbar-none">
                 {product.colors.map((color) => {
                   const isSelected = selectedColor === color;
                   return (
@@ -275,7 +277,7 @@ export default function EnhancedProductDetail({ product }: { product: Product })
                       key={color}
                       type="button"
                       onClick={() => setSelectedColor(color)}
-                      className={`flex items-center gap-2 px-3.5 py-1.5 rounded-full border transition-all text-xs font-semibold ${
+                      className={`flex items-center gap-1.5 sm:gap-2 px-2.5 sm:px-3.5 py-1 sm:py-1.5 rounded-full border transition-all text-[11px] sm:text-xs font-semibold ${
                         isSelected
                           ? 'border-gray-950 bg-gray-950 text-white shadow-xs'
                           : 'border-gray-200 hover:border-gray-400 bg-white text-gray-700'
@@ -283,7 +285,7 @@ export default function EnhancedProductDetail({ product }: { product: Product })
                       title={color}
                     >
                       <div
-                        className="w-3.5 h-3.5 rounded-full border border-gray-300 shadow-xs flex-shrink-0"
+                        className="w-3 h-3 sm:w-3.5 sm:h-3.5 rounded-full border border-gray-300 shadow-xs flex-shrink-0"
                         style={{ backgroundColor: getColorDisplay(color) }}
                       />
                       <span>{color}</span>
@@ -294,14 +296,14 @@ export default function EnhancedProductDetail({ product }: { product: Product })
             </div>
 
             {/* Size Selection (Curvy Pills) */}
-            <div className="border-t border-gray-100 pt-5">
-              <div className="flex items-center justify-between mb-3">
-                <h3 className="text-xs font-bold text-gray-900 uppercase tracking-wider">
+            <div className="border-t border-gray-100 pt-3 sm:pt-5">
+              <div className="flex items-center justify-between mb-2 sm:mb-3">
+                <h3 className="text-[11px] sm:text-xs font-bold text-gray-900 uppercase tracking-wider">
                   Size: <span className="text-gray-950 font-extrabold">{selectedSize}</span>
                 </h3>
               </div>
 
-              <div className="flex gap-2 flex-wrap">
+              <div className="flex gap-1.5 sm:gap-2 flex-wrap">
                 {product.sizes.map((size) => {
                   const isSelected = selectedSize === size;
                   return (
@@ -309,7 +311,7 @@ export default function EnhancedProductDetail({ product }: { product: Product })
                       key={size}
                       type="button"
                       onClick={() => setSelectedSize(size)}
-                      className={`min-w-[48px] px-4 py-2 rounded-full border font-bold text-xs sm:text-sm transition-all ${
+                      className={`min-w-[40px] sm:min-w-[48px] px-3 sm:px-4 py-1.5 sm:py-2 rounded-full border font-bold text-xs sm:text-sm transition-all ${
                         isSelected
                           ? 'border-gray-950 bg-gray-950 text-white shadow-xs'
                           : 'border-gray-200 hover:border-gray-400 text-gray-700 bg-white'
@@ -323,34 +325,34 @@ export default function EnhancedProductDetail({ product }: { product: Product })
             </div>
 
             {/* Quantity Stepper (Curvy Buttons) */}
-            <div className="border-t border-gray-100 pt-5">
-              <h3 className="text-xs font-bold text-gray-900 uppercase tracking-wider mb-3">Quantity</h3>
-              <div className="flex items-center gap-3">
+            <div className="border-t border-gray-100 pt-3 sm:pt-5">
+              <h3 className="text-[11px] sm:text-xs font-bold text-gray-900 uppercase tracking-wider mb-2 sm:mb-3">Quantity</h3>
+              <div className="flex items-center gap-2 sm:gap-3">
                 <button
                   type="button"
                   onClick={() => setQuantity(Math.max(1, quantity - 1))}
-                  className="w-9 h-9 rounded-full border border-gray-300 flex items-center justify-center hover:bg-gray-100 text-gray-700 transition-colors"
+                  className="w-8 h-8 sm:w-9 sm:h-9 rounded-full border border-gray-300 flex items-center justify-center hover:bg-gray-100 text-gray-700 transition-colors"
                   aria-label="Decrease quantity"
                 >
-                  <Minus className="w-3.5 h-3.5" />
+                  <Minus className="w-3 h-3 sm:w-3.5 sm:h-3.5" />
                 </button>
-                <span className="text-base font-bold min-w-[2rem] text-center text-gray-900">
+                <span className="text-sm sm:text-base font-bold min-w-[1.8rem] sm:min-w-[2rem] text-center text-gray-900">
                   {quantity}
                 </span>
                 <button
                   type="button"
                   onClick={() => setQuantity(quantity + 1)}
-                  className="w-9 h-9 rounded-full border border-gray-300 flex items-center justify-center hover:bg-gray-100 text-gray-700 transition-colors"
+                  className="w-8 h-8 sm:w-9 sm:h-9 rounded-full border border-gray-300 flex items-center justify-center hover:bg-gray-100 text-gray-700 transition-colors"
                   aria-label="Increase quantity"
                 >
-                  <Plus className="w-3.5 h-3.5" />
+                  <Plus className="w-3 h-3 sm:w-3.5 sm:h-3.5" />
                 </button>
               </div>
             </div>
 
             {/* Fabric & Spec Highlights */}
             {(product.fabric || product.gsm || product.features) && (
-              <div className="border-t border-gray-100 pt-5 space-y-2 text-xs text-gray-600">
+              <div className="border-t border-gray-100 pt-3 sm:pt-5 space-y-1.5 sm:space-y-2 text-[11px] sm:text-xs text-gray-600">
                 {product.fabric && (
                   <div className="flex items-center justify-between">
                     <span className="font-semibold text-gray-700">Fabric Composition:</span>
@@ -365,11 +367,11 @@ export default function EnhancedProductDetail({ product }: { product: Product })
                 )}
                 {product.features && product.features.length > 0 && (
                   <div className="pt-1">
-                    <span className="font-semibold text-gray-700 block mb-1.5">Highlights:</span>
+                    <span className="font-semibold text-gray-700 block mb-1">Highlights:</span>
                     <ul className="space-y-1">
                       {product.features.map((feat, idx) => (
                         <li key={idx} className="flex items-center gap-2 text-gray-600">
-                          <Check className="w-3.5 h-3.5 text-emerald-600 flex-shrink-0" />
+                          <Check className="w-3 h-3 sm:w-3.5 sm:h-3.5 text-emerald-600 flex-shrink-0" />
                           <span>{feat}</span>
                         </li>
                       ))}
@@ -380,41 +382,41 @@ export default function EnhancedProductDetail({ product }: { product: Product })
             )}
 
             {/* Price & Shipping Summary */}
-            <div className="bg-gray-50 p-4 rounded-2xl border border-gray-200 space-y-2">
-              <div className="flex justify-between text-xs text-gray-600">
+            <div className="bg-gray-50 p-3 sm:p-4 rounded-2xl border border-gray-200 space-y-1.5 sm:space-y-2">
+              <div className="flex justify-between text-[11px] sm:text-xs text-gray-600">
                 <span>Subtotal ({quantity} {quantity > 1 ? 'items' : 'item'})</span>
                 <span className="font-semibold text-gray-900">₹{subtotal}</span>
               </div>
-              <div className="flex justify-between text-xs text-gray-600">
+              <div className="flex justify-between text-[11px] sm:text-xs text-gray-600">
                 <span>Shipping</span>
                 <span className={`font-semibold ${shipping === 0 ? 'text-emerald-600' : 'text-gray-900'}`}>
                   {shipping === 0 ? 'FREE' : `₹${shipping}`}
                 </span>
               </div>
               {shipping === 0 && (
-                <p className="text-[11px] text-emerald-700 font-semibold">🎉 Free shipping unlocked on this order!</p>
+                <p className="text-[10px] sm:text-[11px] text-emerald-700 font-semibold">🎉 Free shipping unlocked on this order!</p>
               )}
-              <div className="border-t border-gray-200 pt-2 flex justify-between items-baseline">
-                <span className="font-bold text-gray-900 text-sm">Total</span>
-                <span className="text-xl font-black text-gray-950">₹{total}</span>
+              <div className="border-t border-gray-200 pt-1.5 sm:pt-2 flex justify-between items-baseline">
+                <span className="font-bold text-gray-900 text-xs sm:text-sm">Total</span>
+                <span className="text-lg sm:text-xl font-black text-gray-950">₹{total}</span>
               </div>
             </div>
 
             {/* Curvly Action Buttons */}
-            <div className="space-y-2.5 pt-2">
+            <div className="space-y-2 sm:space-y-2.5 pt-1 sm:pt-2">
               <button
                 type="button"
                 onClick={handleAddToCart}
-                className="w-full flex items-center justify-center gap-2.5 px-6 py-3.5 rounded-full font-bold bg-[#FFC006] hover:bg-[#E5AC00] text-gray-950 shadow-xs hover:shadow transition-all text-sm sm:text-base border border-amber-400/60"
+                className="w-full flex items-center justify-center gap-2 px-4 sm:px-6 py-2.5 sm:py-3.5 rounded-full font-bold bg-[#FFC006] hover:bg-[#E5AC00] text-gray-950 shadow-xs hover:shadow transition-all text-xs sm:text-base border border-amber-400/60"
               >
-                <ShoppingCart className="w-4 h-4" />
+                <ShoppingCart className="w-3.5 h-3.5 sm:w-4 sm:h-4" />
                 <span>Add to Cart</span>
               </button>
 
               <button
                 type="button"
                 onClick={handleBuyNow}
-                className="w-full py-3.5 rounded-full font-bold bg-gray-900 hover:bg-black text-white transition-colors text-sm sm:text-base shadow-xs"
+                className="w-full py-2.5 sm:py-3.5 rounded-full font-bold bg-gray-900 hover:bg-black text-white transition-colors text-xs sm:text-base shadow-xs"
               >
                 Buy Now
               </button>

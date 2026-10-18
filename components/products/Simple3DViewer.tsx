@@ -140,21 +140,13 @@ export default function Simple3DViewer({
               src={views[currentView]}
               alt={`${productId} - ${currentView}`}
               fill
+              sizes="(max-width: 768px) 100vw, 50vw"
               className="object-contain p-8"
               priority
               draggable={false}
             />
           </motion.div>
         </AnimatePresence>
-
-        {/* View indicator */}
-        <motion.div
-          initial={{ opacity: 0, y: -20 }}
-          animate={{ opacity: 1, y: 0 }}
-          className="absolute top-4 left-1/2 -translate-x-1/2 bg-black/70 backdrop-blur-sm text-white px-4 py-2 rounded-full text-sm font-medium"
-        >
-          {getViewLabel()}
-        </motion.div>
 
         {/* Drag instruction */}
         {!isDragging && (

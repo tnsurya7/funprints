@@ -71,7 +71,7 @@ export default function Hero() {
             initial={{ opacity: 0, y: 20 }}
             animate={{ opacity: 1, y: 0 }}
             transition={{ duration: 0.6, delay: 0.1 }}
-            className="text-3xl sm:text-5xl md:text-7xl font-black text-gray-950 mb-3 sm:mb-5 leading-tight tracking-tight max-w-4xl mx-auto"
+            className="text-2xl sm:text-5xl md:text-7xl font-black text-gray-950 mb-2 sm:mb-5 leading-tight tracking-tight max-w-4xl mx-auto"
           >
             Create Your Perfect Custom T-Shirts & Hoodies
           </motion.h1>
@@ -81,7 +81,7 @@ export default function Hero() {
             initial={{ opacity: 0, y: 20 }}
             animate={{ opacity: 1, y: 0 }}
             transition={{ duration: 0.6, delay: 0.2 }}
-            className="text-sm sm:text-lg md:text-xl text-gray-600 mb-6 sm:mb-8 max-w-2xl mx-auto leading-relaxed"
+            className="text-xs sm:text-lg md:text-xl text-gray-600 mb-5 sm:mb-8 max-w-2xl mx-auto leading-relaxed"
           >
             High-grade fabrics, tailored fits, and crisp customized logo printing for individuals and corporate teams.
             Available for retail customized orders and factory-direct bulk orders.
@@ -92,16 +92,16 @@ export default function Hero() {
             initial={{ opacity: 0, y: 20 }}
             animate={{ opacity: 1, y: 0 }}
             transition={{ duration: 0.6, delay: 0.3 }}
-            className="flex flex-col sm:flex-row gap-3 sm:gap-4 justify-center items-center w-full max-w-md mx-auto"
+            className="flex flex-col sm:flex-row gap-2.5 sm:gap-4 justify-center items-center w-full max-w-md mx-auto"
           >
             <Link href="/products" className="w-full sm:w-auto">
               <motion.button
                 whileHover={{ scale: 1.02 }}
                 whileTap={{ scale: 0.98 }}
-                className="w-full sm:w-auto inline-flex items-center justify-center gap-2 py-3.5 px-8 rounded-full font-bold text-gray-950 text-sm sm:text-base bg-[#FFC006] hover:bg-[#E5AC00] border border-amber-400/60 shadow-sm hover:shadow-md transition-all duration-200"
+                className="w-full sm:w-auto inline-flex items-center justify-center gap-2 py-2.5 sm:py-3.5 px-5 sm:px-8 rounded-full font-bold text-gray-950 text-xs sm:text-base bg-[#FFC006] hover:bg-[#E5AC00] border border-amber-400/60 shadow-sm hover:shadow-md transition-all duration-200"
               >
                 <span>Shop Now</span>
-                <ArrowRight className="w-4 h-4" />
+                <ArrowRight className="w-3.5 h-3.5 sm:w-4 sm:h-4" />
               </motion.button>
             </Link>
 
@@ -109,7 +109,7 @@ export default function Hero() {
               <motion.button
                 whileHover={{ scale: 1.02 }}
                 whileTap={{ scale: 0.98 }}
-                className="w-full sm:w-auto inline-flex items-center justify-center gap-2 py-3.5 px-8 rounded-full font-bold text-gray-900 text-sm sm:text-base bg-white hover:bg-gray-100 border border-gray-300 shadow-sm transition-all duration-200"
+                className="w-full sm:w-auto inline-flex items-center justify-center gap-2 py-2.5 sm:py-3.5 px-5 sm:px-8 rounded-full font-bold text-gray-900 text-xs sm:text-base bg-white hover:bg-gray-100 border border-gray-300 shadow-sm transition-all duration-200"
               >
                 <span>Contact Us</span>
               </motion.button>

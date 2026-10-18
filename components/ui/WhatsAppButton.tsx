@@ -3,12 +3,14 @@
 import { motion } from 'framer-motion';
 
 export default function WhatsAppButton() {
-  const whatsappNumber = process.env.NEXT_PUBLIC_WHATSAPP_NUMBER || '919344925600';
+  const whatsappNumber = process.env.NEXT_PUBLIC_WHATSAPP_NUMBER || '';
   const message = encodeURIComponent('Hi! I want to know more about FunPrint custom t-shirts and hoodies.');
+
+  if (!whatsappNumber) return null;
 
   return (
     <motion.a
-      href={`https://wa.me/${whatsappNumber}?text=${message}`}
+      href={`https://wa.me/${whatsappNumber.replace(/\D/g, '')}?text=${message}`}
       target="_blank"
       rel="noopener noreferrer"
       className="fixed bottom-6 right-5 sm:right-6 z-50 group"
