@@ -4,6 +4,8 @@ import { getCustomerFromSession } from '@/lib/customer-auth';
 import { requireAdmin } from '@/lib/auth';
 import { sendOrderDeliveredEmail } from '@/lib/email';
 
+export const dynamic = 'force-dynamic';
+
 export async function GET(
   request: NextRequest,
   { params }: { params: { id: string } }

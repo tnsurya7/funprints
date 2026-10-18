@@ -18,6 +18,8 @@
     "@react-three/fiber": "^8.18.0",
     "@types/bcryptjs": "^2.4.6",
     "@types/jsonwebtoken": "^9.0.10",
+    "@vercel/analytics": "^2.0.1",
+    "@vercel/speed-insights": "^2.0.0",
     "axios": "^1.6.7",
     "bcryptjs": "^3.0.3",
     "canvas-confetti": "^1.9.2",

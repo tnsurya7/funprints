@@ -6,6 +6,8 @@ import { getProductImage } from '@/lib/enhanced-products';
 
 import { requireAdmin } from '@/lib/auth';
 
+export const dynamic = 'force-dynamic';
+
 export async function GET(request: NextRequest) {
   try {
     const sessionToken = request.cookies.get('funprint_session')?.value;
