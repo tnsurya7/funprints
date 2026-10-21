@@ -1282,3 +1282,160 @@ export async function sendOrderDeliveredEmail(data: {
   return transporter.sendMail(mailOptions);
 }
 
+// 10. BRAND BULK ORDER ENQUIRY (Sends to both admin receiver and sender customer)
+export interface BrandEnquiryEmailData {
+  name: string;
+  phone: string;
+  email: string;
+  brands: string[] | string;
+  message?: string;
+}
+
+export async function sendBrandEnquiryEmail(
+  data: BrandEnquiryEmailData,
+  adminRecipientOverride?: string | string[]
+) {
+  const brandsList = Array.isArray(data.brands)
+    ? data.brands
+    : (data.brands || '').split(',').map((b) => b.trim()).filter(Boolean);
+
+  const brandsText = brandsList.length > 0 ? brandsList.join(', ') : 'Selected Brands';
+
+  const brandsBadgesHtml = brandsList.length > 0
+    ? brandsList
+        .map(
+          (b) =>
+            `<span style="display: inline-block; background-color: #0f172a; color: #ffffff; border-radius: 6px; padding: 4px 10px; margin: 3px 5px 3px 0; font-size: 11.5px; font-weight: 700; letter-spacing: 0.2px;">${escapeHtml(b)}</span>`
+        )
+        .join('')
+    : `<span style="color: #0f172a; font-weight: 700; font-size: 11.5px;">All Brands</span>`;
+
+  // 1. Admin Email
+  const adminMail = {
+    from: `"FunPrint Brand Collaborations" <${process.env.SMTP_USER}>`,
+    to: adminRecipientOverride || ADMIN_NOTIFICATION_EMAILS,
+    replyTo: data.email || undefined,
+    subject: `New Brand Bulk Order Enquiry - ${escapeHtml(data.name)} (${escapeHtml(brandsText)})`,
+    html: `
+      <!DOCTYPE html>
+      <html>
+      <head>
+        ${getEmailHead(`Brand Bulk Enquiry - ${data.name}`)}
+      </head>
+      <body style="margin: 0; padding: 0; background-color: #f8fafc; font-family: 'TeX Gyre Termes', 'Times New Roman', Georgia, serif;">
+        <table width="100%" cellpadding="0" cellspacing="0" style="padding: 12px 0;">
+          <tr>
+            <td align="center" class="email-outer-td" style="padding: 0 6px;">
+              <table class="email-container" width="540" cellpadding="0" cellspacing="0" style="max-width: 540px; width: 100%; background: #ffffff; border-radius: 12px; overflow: hidden; box-shadow: 0 3px 10px rgba(0,0,0,0.05); border: 1px solid #e2e8f0;">
+                ${getEmailHeader('New Brand Bulk Order Enquiry', 'Top Brands Collaboration Lead', '#FFC006')}
+                <tr>
+                  <td class="email-card-padding" style="padding: 14px 14px;">
+                    <div class="email-inner-card" style="background: #f8fafc; border: 1px solid #e2e8f0; border-radius: 8px; padding: 10px 12px; margin-bottom: 10px; font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;">
+                      <p style="margin: 0 0 4px 0; color: #1e293b; font-size: 12px;"><strong>Contact Person:</strong> ${escapeHtml(data.name)}</p>
+                      <p style="margin: 0 0 4px 0; color: #1e293b; font-size: 12px;"><strong>Mobile / WhatsApp:</strong> <a href="tel:${escapeHtml(data.phone)}" style="color: #2563eb; text-decoration: none; font-weight: bold;">${escapeHtml(data.phone)}</a></p>
+                      <p style="margin: 0; color: #1e293b; font-size: 12px;"><strong>Email ID:</strong> <a href="mailto:${escapeHtml(data.email)}" style="color: #2563eb; text-decoration: none;">${escapeHtml(data.email)}</a></p>
+                    </div>
+
+                    <div class="email-inner-card" style="background: #f8fafc; border-radius: 8px; border: 1px solid #e2e8f0; padding: 10px 12px; margin-bottom: 10px; font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;">
+                      <div style="color: #64748b; font-size: 10.5px; font-weight: 700; text-transform: uppercase; letter-spacing: 0.3px; margin-bottom: 6px;">Selected Brands (Bulk Order):</div>
+                      <div style="line-height: 1.5;">
+                        ${brandsBadgesHtml}
+                      </div>
+                    </div>
+
+                    ${data.message ? `
+                      <div class="email-inner-card" style="background: #fefce8; border-left: 3px solid #ca8a04; border-radius: 8px; padding: 10px 12px; font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif; margin-bottom: 10px;">
+                        <strong style="color: #854d0e; display: block; margin-bottom: 4px; font-size: 11px; text-transform: uppercase;">Customer Concern &amp; Requirements:</strong>
+                        <div style="color: #713f12; line-height: 1.45; font-size: 12px; white-space: pre-wrap;">${escapeHtml(data.message)}</div>
+                      </div>
+                    ` : ''}
+
+                    <div style="text-align: center; margin-top: 14px;">
+                      <a href="https://wa.me/91${String(data.phone).replace(/\D/g, '').slice(-10)}?text=${encodeURIComponent(`Hi ${data.name}, thank you for reaching out to FunPrint regarding your bulk enquiry for ${brandsText}! How can we assist with your order requirements?`)}"
+                         style="display: inline-block; background-color: #16a34a; color: #ffffff; text-decoration: none; padding: 8px 16px; border-radius: 6px; font-weight: 700; font-size: 12px; font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;">
+                        Chat on WhatsApp with Customer
+                      </a>
+                    </div>
+                  </td>
+                </tr>
+                ${getEmailFooterHtml()}
+              </table>
+            </td>
+          </tr>
+        </table>
+      </body>
+      </html>
+    `,
+  };
+
+  const promises: Promise<any>[] = [transporter.sendMail(adminMail)];
+
+  // 2. Customer Confirmation Email
+  if (data.email) {
+    const customerMail = {
+      from: `"FunPrint Brand Collaborations" <${process.env.SMTP_USER}>`,
+      to: data.email,
+      subject: `We Received Your Brand Bulk Enquiry - FunPrint Collaboration`,
+      html: `
+        <!DOCTYPE html>
+        <html>
+        <head>
+          ${getEmailHead('Brand Bulk Enquiry Received')}
+        </head>
+        <body style="margin: 0; padding: 0; background-color: #f8fafc; font-family: 'TeX Gyre Termes', 'Times New Roman', Georgia, serif;">
+          <table width="100%" cellpadding="0" cellspacing="0" style="padding: 12px 0;">
+            <tr>
+              <td align="center" class="email-outer-td" style="padding: 0 6px;">
+                <table class="email-container" width="540" cellpadding="0" cellspacing="0" style="max-width: 540px; width: 100%; background: #ffffff; border-radius: 12px; overflow: hidden; box-shadow: 0 3px 10px rgba(0,0,0,0.05); border: 1px solid #e2e8f0;">
+                  ${getEmailHeader('Brand Bulk Enquiry Received', 'Top Brands & FunPrint Collaborations', '#FFC006')}
+                  <tr>
+                    <td class="email-card-padding" style="padding: 14px 14px;">
+                      <p style="color: #1e293b; font-size: 13.5px; margin-top: 0; margin-bottom: 8px; font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;">Hello <strong>${escapeHtml(data.name)}</strong>,</p>
+                      <div class="email-inner-card" style="background-color: #f0fdf4; border: 1px solid #86efac; border-radius: 8px; padding: 10px 14px; margin: 10px 0; text-align: center; color: #15803d; font-size: 13px; font-weight: 800; font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;">
+                        We received your enquiry form, we will contact you soon!
+                      </div>
+                      <p style="color: #475569; font-size: 12px; line-height: 1.5; font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif; margin: 8px 0;">
+                        Thank you for showing interest in our brand collaborations. FunPrint partners directly with top brands to offer the best factory bulk prices for your team, company, or institutional apparel needs.
+                      </p>
+
+                      <div class="email-inner-card" style="background: #f8fafc; border-radius: 8px; border: 1px solid #e2e8f0; padding: 10px 12px; margin: 10px 0; font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;">
+                        <div style="color: #64748b; font-size: 10.5px; font-weight: 700; text-transform: uppercase; letter-spacing: 0.3px; margin-bottom: 6px;">Requested Brands:</div>
+                        <div style="line-height: 1.5;">
+                          ${brandsBadgesHtml}
+                        </div>
+                      </div>
+
+                      ${data.message ? `
+                        <div class="email-inner-card" style="background: #f8fafc; border-radius: 8px; border: 1px solid #e2e8f0; padding: 10px 12px; margin: 10px 0; font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;">
+                          <div style="color: #64748b; font-size: 10.5px; font-weight: 700; text-transform: uppercase; letter-spacing: 0.3px; margin-bottom: 4px;">Your Concern / Message:</div>
+                          <div style="color: #334155; font-size: 12px; line-height: 1.45; white-space: pre-wrap;">${escapeHtml(data.message)}</div>
+                        </div>
+                      ` : ''}
+
+                      <p style="color: #475569; font-size: 11.5px; line-height: 1.5; font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif; margin: 12px 0 0 0;">
+                        Our wholesale brand coordinator will review stock availability and contact you via phone/WhatsApp at <strong>${escapeHtml(data.phone)}</strong> with bulk pricing quotes and customization options.
+                      </p>
+                    </td>
+                  </tr>
+                  ${getEmailFooterHtml()}
+                </table>
+              </td>
+            </tr>
+          </table>
+        </body>
+        </html>
+      `,
+    };
+
+    promises.push(transporter.sendMail(customerMail));
+  }
+
+  const results = await Promise.allSettled(promises);
+  const errors = results.filter((r) => r.status === 'rejected');
+  if (errors.length === promises.length) {
+    throw new Error('Failed to send all brand enquiry emails');
+  }
+  return { success: true };
+}
+
+

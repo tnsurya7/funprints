@@ -1,12 +1,14 @@
 'use client';
 
 import { motion } from 'framer-motion';
+import { usePathname } from 'next/navigation';
 
 export default function WhatsAppButton() {
+  const pathname = usePathname();
   const whatsappNumber = process.env.NEXT_PUBLIC_WHATSAPP_NUMBER || '';
   const message = encodeURIComponent('Hi! I want to know more about FunPrint custom t-shirts and hoodies.');
 
-  if (!whatsappNumber) return null;
+  if (pathname?.startsWith('/admin') || !whatsappNumber) return null;
 
   return (
     <motion.a

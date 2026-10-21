@@ -123,6 +123,12 @@ export default function Footer() {
                   </Link>
                 </li>
                 <li>
+                  <Link href="/brands" className="hover:text-white transition-colors flex items-center gap-1.5">
+                    <ChevronRight className="w-3 h-3 text-[#FFC006]" />
+                    <span>Brands</span>
+                  </Link>
+                </li>
+                <li>
                   <Link href="/contact" className="hover:text-white transition-colors flex items-center gap-1.5">
                     <ChevronRight className="w-3 h-3 text-[#FFC006]" />
                     <span>Contact Us</span>

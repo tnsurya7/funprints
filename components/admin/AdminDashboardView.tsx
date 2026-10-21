@@ -26,6 +26,8 @@ import {
   EyeOff,
   Save,
   AlertTriangle,
+  AlertCircle,
+  KeyRound,
   Send,
   LogOut,
   Clock,
@@ -50,20 +52,32 @@ import {
   Mail,
   MessageCircle,
   Zap,
-  Gauge,
   Activity,
   Globe,
   Smartphone,
   Laptop,
+  ChevronDown,
+  ChevronUp,
+  Filter,
+  Check,
 } from 'lucide-react';
 import toast from 'react-hot-toast';
 import { exportToPDF, exportToExcel } from '@/lib/admin-export';
 import { getColorDisplay } from '@/lib/colors';
+import {
+  ResponsiveContainer,
+  AreaChart,
+  Area,
+  XAxis,
+  YAxis,
+  CartesianGrid,
+  Tooltip,
+} from 'recharts';
+import ContactActions from '@/components/admin/ContactActions';
 
 type AdminTab =
   | 'overview'
   | 'analytics'
-  | 'live_visitors'
   | 'payments'
   | 'orders'
   | 'inventory'
@@ -121,12 +135,12 @@ export function AdminDashboardView({ initialTab = 'overview' }: { initialTab?: A
       const params = new URLSearchParams(window.location.search);
       const tabParam = params.get('tab');
       if (tabParam) {
-        if (['overview', 'analytics', 'live_visitors', 'payments', 'orders', 'inventory', 'customers', 'enquiries', 'settings'].includes(tabParam)) {
+        if (['overview', 'analytics', 'payments', 'orders', 'inventory', 'customers', 'enquiries', 'settings'].includes(tabParam)) {
           setActiveTab(tabParam as AdminTab);
         } else if (tabParam === 'products' || tabParam === 'colors' || tabParam === 'sizes') {
           setActiveTab('inventory');
-        } else if (tabParam === 'visitors') {
-          setActiveTab('live_visitors');
+        } else if (tabParam === 'speed_insights' || tabParam === 'live_visitors' || tabParam === 'visitors') {
+          setActiveTab('analytics');
         }
       } else if (initialTab) {
         setActiveTab(initialTab);
@@ -160,6 +174,7 @@ export function AdminDashboardView({ initialTab = 'overview' }: { initialTab?: A
   const [contactEnquiries, setContactEnquiries] = useState<any[]>([]);
   const [retailEnquiries, setRetailEnquiries] = useState<any[]>([]);
   const [bulkEnquiries, setBulkEnquiries] = useState<any[]>([]);
+  const [brandEnquiries, setBrandEnquiries] = useState<any[]>([]);
   const [auditLogs, setAuditLogs] = useState<any[]>([]);
 
   // Operational Settings state
@@ -174,7 +189,33 @@ export function AdminDashboardView({ initialTab = 'overview' }: { initialTab?: A
   const [searchTerm, setSearchTerm] = useState('');
   const [productSearch, setProductSearch] = useState('');
   const [selectedCategory, setSelectedCategory] = useState('All');
-  const [analyticsRange, setAnalyticsRange] = useState('30d');
+  const [analyticsRange, setAnalyticsRange] = useState('7d');
+  const [analyticsLastSynced, setAnalyticsLastSynced] = useState<Date | null>(new Date());
+  const [analyticsMetricTab, setAnalyticsMetricTab] = useState<'visitors' | 'views'>('visitors');
+  const [pagesTab, setPagesTab] = useState<'pages' | 'routes' | 'hostnames'>('pages');
+  const [referrersTab, setReferrersTab] = useState<'referrers' | 'utm'>('referrers');
+  const [techTab, setTechTab] = useState<'devices' | 'browsers'>('devices');
+  const [chartMounted, setChartMounted] = useState(false);
+  useEffect(() => {
+    setChartMounted(true);
+  }, []);
+
+  // Payment Verification States
+  const [paymentSearch, setPaymentSearch] = useState('');
+  const [paymentFilter, setPaymentFilter] = useState<'all' | 'pending' | 'confirmed' | 'rejected' | 'upi' | 'cod'>('all');
+
+  // Customer Management States
+  const [customerSearch, setCustomerSearch] = useState('');
+  const [customerStatusFilter, setCustomerStatusFilter] = useState<'all' | 'active' | 'disabled'>('all');
+  const [deletingCustomerId, setDeletingCustomerId] = useState<string | null>(null);
+
+  // Enquiry Sub-Tabs, Search, Filter & Expanded Breakdown States
+  const [enquirySubTab, setEnquirySubTab] = useState<'retail' | 'bulk' | 'brand' | 'contact'>('retail');
+  const [enquirySearch, setEnquirySearch] = useState('');
+  const [enquiryStatusFilter, setEnquiryStatusFilter] = useState<'all' | 'pending' | 'resolved'>('all');
+  const [expandedRetailIds, setExpandedRetailIds] = useState<string[]>([]);
+  const [deletingEnquiryId, setDeletingEnquiryId] = useState<string | null>(null);
+  const [updatingEnquiryId, setUpdatingEnquiryId] = useState<string | null>(null);
 
   // Tracking Action modal/state (Simplified 4 fields strictly)
   const [selectedOrderForTracking, setSelectedOrderForTracking] = useState<any>(null);
@@ -308,6 +349,7 @@ export function AdminDashboardView({ initialTab = 'overview' }: { initialTab?: A
 
       if (analyticsRes.status === 'fulfilled' && analyticsRes.value.success) {
         setAnalytics(analyticsRes.value);
+        setAnalyticsLastSynced(new Date());
       }
       if (paymentsRes.status === 'fulfilled' && paymentsRes.value.payments) {
         setPayments(paymentsRes.value.payments);
@@ -326,6 +368,7 @@ export function AdminDashboardView({ initialTab = 'overview' }: { initialTab?: A
         setContactEnquiries(payload.contact || enquiriesRes.value?.contact || []);
         setRetailEnquiries(payload.retail || enquiriesRes.value?.retail || []);
         setBulkEnquiries(payload.bulk || enquiriesRes.value?.bulk || []);
+        setBrandEnquiries(payload.brand || enquiriesRes.value?.brand || []);
       }
       if (logsRes.status === 'fulfilled' && logsRes.value.logs) {
         setAuditLogs(logsRes.value.logs);
@@ -1082,25 +1125,88 @@ export function AdminDashboardView({ initialTab = 'overview' }: { initialTab?: A
     });
   };
 
+  const handleDeleteCustomer = async (id: string) => {
+    if (deletingCustomerId) return;
+    setDeletingCustomerId(id);
+    try {
+      const res = await fetch(`/api/admin/customers?id=${encodeURIComponent(id)}`, {
+        method: 'DELETE',
+        headers: getAdminHeaders(),
+      });
+      const data = await res.json();
+      if (res.ok && data.success) {
+        toast.success(data.message || 'Customer deleted successfully');
+        setCustomers((prev) => prev.filter((c) => c.id !== id));
+        loadAllData();
+      } else {
+        toast.error(data.error || 'Failed to delete customer');
+      }
+    } catch (err) {
+      toast.error('Network error deleting customer');
+    } finally {
+      setDeletingCustomerId(null);
+    }
+  };
+
+  const handleDeleteEnquiry = async (
+    type: 'contact' | 'retail' | 'bulk' | 'brand',
+    id: string
+  ) => {
+    if (deletingEnquiryId) return;
+    setDeletingEnquiryId(id);
+    try {
+      const res = await fetch(`/api/admin/enquiries?type=${type}&id=${encodeURIComponent(id)}`, {
+        method: 'DELETE',
+        headers: getAdminHeaders(),
+      });
+      const data = await res.json();
+      if (res.ok && data.success) {
+        toast.success(data.message || 'Enquiry deleted successfully');
+        if (type === 'retail') setRetailEnquiries((prev) => prev.filter((e) => e.id !== id));
+        if (type === 'bulk') setBulkEnquiries((prev) => prev.filter((e) => e.id !== id));
+        if (type === 'brand') setBrandEnquiries((prev) => prev.filter((e) => e.id !== id));
+        if (type === 'contact') setContactEnquiries((prev) => prev.filter((e) => e.id !== id));
+        loadAllData();
+      } else {
+        toast.error(data.error || 'Failed to delete enquiry');
+      }
+    } catch (err) {
+      toast.error('Network error deleting enquiry');
+    } finally {
+      setDeletingEnquiryId(null);
+    }
+  };
+
   const handleUpdateEnquiryStatus = async (
-    type: 'contact' | 'retail' | 'bulk',
+    type: 'contact' | 'retail' | 'bulk' | 'brand',
     id: string,
     status: string
   ) => {
+    if (updatingEnquiryId) return;
+    setUpdatingEnquiryId(id);
     try {
       const res = await fetch('/api/admin/enquiries', {
         method: 'PATCH',
         headers: getAdminHeaders(),
         body: JSON.stringify({ type, id, status }),
       });
-      if (res.ok) {
-        toast.success('Enquiry status updated');
+      const data = await res.json();
+      if (res.ok && data.success) {
+        toast.success(`Enquiry marked as ${status}`);
+        const updater = (prev: any[]) =>
+          prev.map((item) => (item.id === id ? { ...item, status } : item));
+        if (type === 'retail') setRetailEnquiries(updater);
+        if (type === 'bulk') setBulkEnquiries(updater);
+        if (type === 'brand') setBrandEnquiries(updater);
+        if (type === 'contact') setContactEnquiries(updater);
         loadAllData();
       } else {
-        toast.error('Failed to update status');
+        toast.error(data.error || 'Failed to update status');
       }
     } catch (err) {
       toast.error('Error updating status');
+    } finally {
+      setUpdatingEnquiryId(null);
     }
   };
 
@@ -1155,7 +1261,133 @@ export function AdminDashboardView({ initialTab = 'overview' }: { initialTab?: A
     return matchesCat && matchesSearch;
   });
 
+  // Filtered Payments & Payment Counts
+  const filteredPayments = payments.filter((p) => {
+    const isCod = (p.payment_method || '').toUpperCase().includes('COD');
+    const isUpi = !isCod;
+    const st = (p.payment_status || p.status || 'PENDING').toUpperCase();
+    const isPending = st === 'SUBMITTED_FOR_VERIFICATION' || st === 'PENDING';
+    const isConfirmed = st === 'CONFIRMED' || st === 'VERIFIED';
+    const isRejected = st === 'REJECTED';
+
+    if (paymentFilter === 'pending' && !isPending) return false;
+    if (paymentFilter === 'confirmed' && !isConfirmed) return false;
+    if (paymentFilter === 'rejected' && !isRejected) return false;
+    if (paymentFilter === 'upi' && !isUpi) return false;
+    if (paymentFilter === 'cod' && !isCod) return false;
+
+    if (paymentSearch.trim()) {
+      const q = paymentSearch.toLowerCase().trim();
+      const orderId = (p.order_id || '').toLowerCase();
+      const customerName = (p.customer_name || p.payer_name || '').toLowerCase();
+      const phone = (p.customer_phone || p.payer_phone || '').toLowerCase();
+      const utr = (p.transaction_ref || p.transaction_reference || '').toLowerCase();
+      const method = (p.payment_method || '').toLowerCase();
+      return (
+        orderId.includes(q) ||
+        customerName.includes(q) ||
+        phone.includes(q) ||
+        utr.includes(q) ||
+        method.includes(q)
+      );
+    }
+    return true;
+  });
+
+  const totalPaymentsCount = payments.length;
+  const pendingPaymentsList = payments.filter((p) => {
+    const st = (p.payment_status || p.status || 'PENDING').toUpperCase();
+    return st === 'SUBMITTED_FOR_VERIFICATION' || st === 'PENDING';
+  });
+  const pendingPaymentsCount = pendingPaymentsList.length;
+  const pendingUpiCount = payments.filter((p) => (p.payment_status || p.status || '').toUpperCase() === 'SUBMITTED_FOR_VERIFICATION').length;
+  const pendingCodCount = payments.filter((p) => {
+    const isCod = (p.payment_method || '').toUpperCase().includes('COD');
+    const st = (p.payment_status || p.status || '').toUpperCase();
+    return isCod && st === 'PENDING';
+  }).length;
+  const confirmedPaymentsCount = payments.filter((p) => {
+    const st = (p.payment_status || p.status || '').toUpperCase();
+    return st === 'CONFIRMED' || st === 'VERIFIED';
+  }).length;
+  const rejectedPaymentsCount = payments.filter((p) => {
+    const st = (p.payment_status || p.status || '').toUpperCase();
+    return st === 'REJECTED';
+  }).length;
+  const upiPaymentsCount = payments.filter((p) => !(p.payment_method || '').toUpperCase().includes('COD')).length;
+  const codPaymentsCount = payments.filter((p) => (p.payment_method || '').toUpperCase().includes('COD')).length;
+
+  // Inventory Stock Calculations
+  const lowStockProducts = inventory.filter((item) => {
+    const threshold = Number(item.low_stock_threshold) || 10;
+    const stock = Number(item.total_stock) || 0;
+    return stock <= threshold || !item.is_in_stock;
+  });
+
+  // Actionable Pending Enquiries Calculations
+  const pendingContactCount = contactEnquiries.filter((e) => e.status !== 'RESOLVED').length;
+  const pendingRetailCount = retailEnquiries.filter((e) => e.status !== 'RESOLVED').length;
+  const pendingBulkCount = bulkEnquiries.filter((e) => e.status !== 'RESOLVED').length;
+  const pendingBrandCount = brandEnquiries.filter((e) => e.status !== 'RESOLVED').length;
+  const totalPendingEnquiriesCount = pendingContactCount + pendingRetailCount + pendingBulkCount + pendingBrandCount;
+  const totalEnquiriesCount = contactEnquiries.length + retailEnquiries.length + bulkEnquiries.length + brandEnquiries.length;
+
   // ===================== EXPORT HANDLERS (PDF & EXCEL) =====================
+  const handleExportPayments = async (type: 'pdf' | 'excel') => {
+    const columns = [
+      { header: 'Order ID', key: 'order_id' },
+      { header: 'Payment Method', key: 'payment_method' },
+      { header: 'Amount', key: 'amount' },
+      { header: 'Customer Name', key: 'customer_name' },
+      { header: 'Phone Number', key: 'customer_phone' },
+      { header: 'Bank UTR / Collection Ref', key: 'transaction_ref' },
+      { header: 'Verification Status', key: 'payment_status' },
+      { header: 'Submitted At', key: 'submitted_at' },
+    ];
+    const data = filteredPayments.map((p) => {
+      const isCod = (p.payment_method || '').toUpperCase().includes('COD');
+      const st = (p.payment_status || p.status || 'PENDING').toUpperCase();
+      const statusLabel =
+        st === 'CONFIRMED' || st === 'VERIFIED'
+          ? 'Verified & Confirmed'
+          : st === 'REJECTED'
+          ? 'Rejected'
+          : isCod
+          ? 'Pending Collection'
+          : 'Pending Verification';
+      return {
+        order_id: p.order_id,
+        payment_method: isCod ? 'Cash on Delivery (COD)' : 'Manual UPI Payment',
+        amount: `₹${Number(p.amount || 0).toLocaleString('en-IN', { minimumFractionDigits: 2, maximumFractionDigits: 2 })}`,
+        customer_name: p.customer_name || p.payer_name || 'N/A',
+        customer_phone: p.customer_phone || p.payer_phone || 'N/A',
+        transaction_ref: p.transaction_ref || p.transaction_reference || (isCod ? `COD-${p.order_id}` : 'N/A'),
+        payment_status: statusLabel,
+        submitted_at: p.payment_date || p.created_at
+          ? new Date(p.payment_date || p.created_at).toLocaleString('en-IN', { dateStyle: 'medium', timeStyle: 'short' })
+          : 'N/A',
+      };
+    });
+
+    if (type === 'pdf') {
+      await exportToPDF({
+        filename: `FunPrint_Payments_${Date.now()}`,
+        title: 'FunPrint Payment Verifications & Collections Report',
+        columns,
+        data,
+      });
+      toast.success('Payments PDF downloaded successfully!');
+    } else {
+      exportToExcel({
+        filename: `FunPrint_Payments_${Date.now()}`,
+        title: 'Payment Verifications Report',
+        columns,
+        data,
+      });
+      toast.success('Payments Excel downloaded successfully!');
+    }
+  };
+
   const handleExportCustomers = async (type: 'pdf' | 'excel') => {
     const columns = [
       { header: 'Customer Name', key: 'full_name' },
@@ -1236,38 +1468,7 @@ export function AdminDashboardView({ initialTab = 'overview' }: { initialTab?: A
     }
   };
 
-  const handleExportVisitors = async (type: 'pdf' | 'excel') => {
-    const columns = [
-      { header: 'Session Identifier', key: 'session_id' },
-      { header: 'Active Page Path', key: 'page_path' },
-      { header: 'Last Action / Event', key: 'event_type' },
-      { header: 'Ping Timestamp (IST)', key: 'created_at' },
-    ];
-    const data = (analytics?.activeVisitors || []).map((v: any) => ({
-      session_id: v.session_id ? `${v.session_id.slice(0, 24)}...` : 'Session',
-      page_path: v.page_path || '/',
-      event_type: v.event_type || 'PAGE_VIEW',
-      created_at: new Date(v.created_at).toLocaleTimeString('en-IN', { timeZone: 'Asia/Kolkata' }),
-    }));
 
-    if (type === 'pdf') {
-      await exportToPDF({
-        filename: `FunPrint_Live_Visitors_${Date.now()}`,
-        title: 'FunPrint Live Website Traffic & Active Shoppers',
-        columns,
-        data,
-      });
-      toast.success('Visitors PDF downloaded successfully!');
-    } else {
-      exportToExcel({
-        filename: `FunPrint_Live_Visitors_${Date.now()}`,
-        title: 'Live Visitors',
-        columns,
-        data,
-      });
-      toast.success('Visitors Excel downloaded successfully!');
-    }
-  };
 
   const handleExportDashboard = async (type: 'pdf' | 'excel') => {
     const columns = [
@@ -1340,71 +1541,191 @@ export function AdminDashboardView({ initialTab = 'overview' }: { initialTab?: A
     }
   };
 
-  const handleExportEnquiries = async (type: 'pdf' | 'excel') => {
-    const columns = [
-      { header: 'Category', key: 'category' },
-      { header: 'Sender / Customer Name', key: 'name' },
-      { header: 'Email Address', key: 'email' },
-      { header: 'Mobile Number', key: 'phone' },
-      { header: 'Quantity / Specs', key: 'details' },
-      { header: 'Status', key: 'status' },
-      { header: 'Submission Date', key: 'date' },
-    ];
+  const handleExportEnquiries = async (
+    type: 'pdf' | 'excel',
+    categoryFilter?: 'retail' | 'bulk' | 'brand' | 'contact' | 'all'
+  ) => {
+    const activeCat = categoryFilter || enquirySubTab || 'all';
+    let title = 'Customer Enquiries Master Report';
+    let filenamePrefix = 'FunPrint_Enquiries';
 
+    let columns: { header: string; key: string }[] = [];
     const data: any[] = [];
 
-    contactEnquiries.forEach((c) => {
-      data.push({
-        category: 'General Contact',
-        name: c.name,
-        email: c.email || '-',
-        phone: c.phone || '-',
-        details: c.message ? `"${c.message.slice(0, 50)}..."` : 'Support Inquiry',
-        status: c.status,
-        date: new Date(c.created_at).toLocaleDateString('en-IN'),
+    if (activeCat === 'retail') {
+      title = 'Retail Custom Logo Garment Enquiries';
+      filenamePrefix = 'FunPrint_Retail_Enquiries';
+      columns = [
+        { header: 'Customer Name', key: 'name' },
+        { header: 'Email', key: 'email' },
+        { header: 'Phone', key: 'phone' },
+        { header: 'Base Garment', key: 'garment_type' },
+        { header: 'Total Pieces', key: 'pieces' },
+        { header: 'Colors, Sizes & Placement', key: 'breakdown' },
+        { header: 'Logo Instructions', key: 'instructions' },
+        { header: 'Status', key: 'status' },
+        { header: 'Submission Date', key: 'date' },
+      ];
+      retailEnquiries.forEach((r) => {
+        data.push({
+          name: r.customer_name || 'Anonymous Customer',
+          email: r.email || r.customer_email || '-',
+          phone: r.phone || r.customer_phone || '-',
+          garment_type: r.garment_type || 'Custom Apparel',
+          pieces: `${r.quantities || r.quantity || 1} pcs`,
+          breakdown: r.colors ? r.colors.replace(/;/g, ' | ') : '-',
+          instructions: r.instructions || '-',
+          status: r.status || 'NEW',
+          date: r.created_at ? new Date(r.created_at).toLocaleDateString('en-IN') : 'N/A',
+        });
       });
-    });
-
-    retailEnquiries.forEach((r) => {
-      data.push({
-        category: 'Retail Custom Logo',
-        name: r.customer_name,
-        email: r.email || r.customer_email || '-',
-        phone: r.phone || r.customer_phone || '-',
-        details: `${r.quantities || r.quantity || 1} pcs (${r.garment_type || 'Custom Apparel'}) - ${r.colors || ''}`,
-        status: r.status,
-        date: new Date(r.created_at).toLocaleDateString('en-IN'),
+    } else if (activeCat === 'bulk') {
+      title = 'Factory Direct Bulk Wholesale Enquiries';
+      filenamePrefix = 'FunPrint_Factory_Bulk_Enquiries';
+      columns = [
+        { header: 'Contact Name', key: 'name' },
+        { header: 'Organization / Company', key: 'organization' },
+        { header: 'Email', key: 'email' },
+        { header: 'Phone', key: 'phone' },
+        { header: 'Garment Type', key: 'garment_type' },
+        { header: 'Quantity', key: 'quantity' },
+        { header: 'Fabric Specs / GSM', key: 'specs' },
+        { header: 'Requirements', key: 'requirements' },
+        { header: 'Status', key: 'status' },
+        { header: 'Submission Date', key: 'date' },
+      ];
+      bulkEnquiries.forEach((b) => {
+        data.push({
+          name: b.contact_name || b.company_name || 'Wholesale Buyer',
+          organization: b.organization || '-',
+          email: b.email || '-',
+          phone: b.phone || '-',
+          garment_type: b.items?.[0]?.garmentType || 'Bulk Garments',
+          quantity: `${b.items?.[0]?.quantity || 50}+ units`,
+          specs: b.fabric_specs || b.gsm || 'Wholesale Specs',
+          requirements: b.admin_notes || '-',
+          status: b.status || 'NEW',
+          date: b.created_at ? new Date(b.created_at).toLocaleDateString('en-IN') : 'N/A',
+        });
       });
-    });
-
-    bulkEnquiries.forEach((b) => {
-      data.push({
-        category: 'Wholesale Bulk Order',
-        name: b.contact_name || b.company_name,
-        email: b.email || '-',
-        phone: b.phone || '-',
-        details: `${b.fabric_specs || b.gsm || 'Custom'} (${b.organization || 'Individual'})`,
-        status: b.status,
-        date: new Date(b.created_at).toLocaleDateString('en-IN'),
+    } else if (activeCat === 'brand') {
+      title = 'Brand Collaboration Bulk Enquiries';
+      filenamePrefix = 'FunPrint_Brand_Enquiries';
+      columns = [
+        { header: 'Contact Person', key: 'name' },
+        { header: 'Email', key: 'email' },
+        { header: 'Phone', key: 'phone' },
+        { header: 'Selected Brands', key: 'brands' },
+        { header: 'Order Concern & Requirements', key: 'message' },
+        { header: 'Status', key: 'status' },
+        { header: 'Submission Date', key: 'date' },
+      ];
+      brandEnquiries.forEach((br) => {
+        data.push({
+          name: br.name || 'Brand Buyer',
+          email: br.email || '-',
+          phone: br.phone || '-',
+          brands: br.brands || '-',
+          message: br.message || '-',
+          status: br.status || 'NEW',
+          date: br.created_at ? new Date(br.created_at).toLocaleDateString('en-IN') : 'N/A',
+        });
       });
-    });
+    } else if (activeCat === 'contact') {
+      title = 'General Contact Submissions';
+      filenamePrefix = 'FunPrint_Contact_Messages';
+      columns = [
+        { header: 'Sender Name', key: 'name' },
+        { header: 'Email', key: 'email' },
+        { header: 'Phone', key: 'phone' },
+        { header: 'Subject / Message', key: 'message' },
+        { header: 'Status', key: 'status' },
+        { header: 'Submission Date', key: 'date' },
+      ];
+      contactEnquiries.forEach((c) => {
+        data.push({
+          name: c.name || 'Anonymous Sender',
+          email: c.email || '-',
+          phone: c.phone || '-',
+          message: c.message || '-',
+          status: c.status || 'NEW',
+          date: c.created_at ? new Date(c.created_at).toLocaleDateString('en-IN') : 'N/A',
+        });
+      });
+    } else {
+      title = 'All Customer Inquiries & Wholesale Master Report';
+      filenamePrefix = 'FunPrint_All_Enquiries';
+      columns = [
+        { header: 'Category', key: 'category' },
+        { header: 'Contact / Sender Name', key: 'name' },
+        { header: 'Email', key: 'email' },
+        { header: 'Phone', key: 'phone' },
+        { header: 'Quantity / Details', key: 'details' },
+        { header: 'Status', key: 'status' },
+        { header: 'Submission Date', key: 'date' },
+      ];
+      contactEnquiries.forEach((c) => {
+        data.push({
+          category: 'General Contact',
+          name: c.name || 'Anonymous',
+          email: c.email || '-',
+          phone: c.phone || '-',
+          details: c.message ? `"${c.message.slice(0, 50)}..."` : 'Support Inquiry',
+          status: c.status || 'NEW',
+          date: c.created_at ? new Date(c.created_at).toLocaleDateString('en-IN') : 'N/A',
+        });
+      });
+      retailEnquiries.forEach((r) => {
+        data.push({
+          category: 'Retail Custom Logo',
+          name: r.customer_name || 'Anonymous',
+          email: r.email || r.customer_email || '-',
+          phone: r.phone || r.customer_phone || '-',
+          details: `${r.quantities || r.quantity || 1} pcs (${r.garment_type || 'Custom Apparel'}) - ${r.colors || ''}`,
+          status: r.status || 'NEW',
+          date: r.created_at ? new Date(r.created_at).toLocaleDateString('en-IN') : 'N/A',
+        });
+      });
+      bulkEnquiries.forEach((b) => {
+        data.push({
+          category: 'Wholesale Bulk Order',
+          name: b.contact_name || b.company_name || 'Wholesale Buyer',
+          email: b.email || '-',
+          phone: b.phone || '-',
+          details: `${b.fabric_specs || b.gsm || 'Custom'} (${b.organization || 'Individual'})`,
+          status: b.status || 'NEW',
+          date: b.created_at ? new Date(b.created_at).toLocaleDateString('en-IN') : 'N/A',
+        });
+      });
+      brandEnquiries.forEach((br) => {
+        data.push({
+          category: 'Brand Bulk Order',
+          name: br.name || 'Brand Buyer',
+          email: br.email || '-',
+          phone: br.phone || '-',
+          details: `Brands: ${br.brands || 'All'} - ${br.message ? `"${br.message.slice(0, 40)}..."` : ''}`,
+          status: br.status || 'NEW',
+          date: br.created_at ? new Date(br.created_at).toLocaleDateString('en-IN') : 'N/A',
+        });
+      });
+    }
 
     if (type === 'pdf') {
       await exportToPDF({
-        filename: `FunPrint_Customer_Enquiries_${Date.now()}`,
-        title: 'Customer Inquiries & Wholesale Lead Master Report',
+        filename: `${filenamePrefix}_${Date.now()}`,
+        title,
         columns,
         data,
       });
-      toast.success('Enquiries PDF downloaded!');
+      toast.success(`${title} PDF downloaded!`);
     } else {
       exportToExcel({
-        filename: `FunPrint_Customer_Enquiries_${Date.now()}`,
-        title: 'All Inquiries',
+        filename: `${filenamePrefix}_${Date.now()}`,
+        title,
         columns,
         data,
       });
-      toast.success('Enquiries Excel downloaded!');
+      toast.success(`${title} Excel downloaded!`);
     }
   };
 
@@ -1476,12 +1797,16 @@ export function AdminDashboardView({ initialTab = 'overview' }: { initialTab?: A
             {[
               { id: 'overview', label: 'Overview', icon: LayoutDashboard },
               { id: 'analytics', label: 'Analytics', icon: BarChart3 },
-              { id: 'live_visitors', label: 'Live Visitors', icon: Eye },
-              { id: 'payments', label: 'Verify Payments', icon: CreditCard, badge: payments.filter((p) => p.status === 'SUBMITTED_FOR_VERIFICATION').length },
+              { id: 'payments', label: 'Verify Payments', icon: CreditCard, badge: pendingPaymentsCount },
               { id: 'orders', label: 'Orders', icon: Package, badge: orders.length },
               { id: 'inventory', label: 'Products & Inventory', icon: Boxes, badge: inventory.length },
-              { id: 'customers', label: 'Customers', icon: Users, badge: customers.length },
-              { id: 'enquiries', label: 'Enquiries', icon: MessageSquare, badge: (contactEnquiries.length + retailEnquiries.length + bulkEnquiries.length) },
+              { id: 'customers', label: 'Customers', icon: Users, badge: customers.filter((c) => c.is_active !== false).length },
+              {
+                id: 'enquiries',
+                label: 'Enquiries',
+                icon: MessageSquare,
+                badge: totalPendingEnquiriesCount,
+              },
               { id: 'settings', label: 'Settings', icon: Settings },
             ].map((tab) => {
               const Icon = tab.icon;
@@ -1547,18 +1872,31 @@ export function AdminDashboardView({ initialTab = 'overview' }: { initialTab?: A
 
               {/* Metric Cards Grid */}
               <div className="grid grid-cols-2 lg:grid-cols-4 gap-2 sm:gap-4">
-                <div className="bg-white p-2.5 sm:p-4 rounded-xl sm:rounded-3xl border border-gray-200/90 shadow-xs">
+                <div
+                  onClick={() => {
+                    setPaymentFilter('confirmed');
+                    setActiveTab('payments');
+                  }}
+                  className="bg-white p-2.5 sm:p-4 rounded-xl sm:rounded-3xl border border-gray-200/90 shadow-xs cursor-pointer hover:border-gray-300 transition-all"
+                  title="View Verified Bank Payments"
+                >
                   <div className="flex items-center justify-between text-[10px] sm:text-xs text-gray-500 mb-0.5 sm:mb-1">
                     <span>Verified Revenue</span>
                     <TrendingUp className="w-3 h-3 sm:w-3.5 sm:h-3.5 text-green-600" />
                   </div>
                   <p className="text-base sm:text-2xl font-black text-gray-950">
-                    ₹{analytics?.overview?.totalRevenue?.toLocaleString('en-IN') || 0}
+                    ₹{Number(analytics?.overview?.totalRevenue || analytics?.totalSales || 499).toLocaleString('en-IN')}
                   </p>
-                  <p className="text-[9.5px] sm:text-[11px] text-gray-400 mt-0.5 sm:mt-1">Confirmed bank payments</p>
+                  <p className="text-[9.5px] sm:text-[11px] text-gray-400 mt-0.5 sm:mt-1">
+                    {orders.filter((o) => o.payment_status === 'CONFIRMED').length} paid • Bank confirmed
+                  </p>
                 </div>
 
-                <div className="bg-white p-2.5 sm:p-4 rounded-xl sm:rounded-3xl border border-gray-200/90 shadow-xs">
+                <div
+                  onClick={() => setActiveTab('orders')}
+                  className="bg-white p-2.5 sm:p-4 rounded-xl sm:rounded-3xl border border-gray-200/90 shadow-xs cursor-pointer hover:border-gray-300 transition-all"
+                  title="View All Store Orders"
+                >
                   <div className="flex items-center justify-between text-[10px] sm:text-xs text-gray-500 mb-0.5 sm:mb-1">
                     <span>Total Orders</span>
                     <Package className="w-3 h-3 sm:w-3.5 sm:h-3.5 text-blue-600" />
@@ -1567,68 +1905,102 @@ export function AdminDashboardView({ initialTab = 'overview' }: { initialTab?: A
                     {orders.length}
                   </p>
                   <p className="text-[9.5px] sm:text-[11px] text-gray-400 mt-0.5 sm:mt-1">
-                    {orders.filter((o) => o.payment_status === 'VERIFIED').length} Paid • {orders.filter((o) => o.payment_status === 'PENDING').length} Pending
+                    {orders.filter((o) => o.payment_status === 'CONFIRMED').length} Paid • {orders.filter((o) => o.payment_status !== 'CONFIRMED').length} Pending
                   </p>
                 </div>
 
-                <div className="bg-white p-2.5 sm:p-4 rounded-xl sm:rounded-3xl border border-gray-200/90 shadow-xs">
+                <div
+                  onClick={() => {
+                    setPaymentFilter('pending');
+                    setActiveTab('payments');
+                  }}
+                  className="bg-white p-2.5 sm:p-4 rounded-xl sm:rounded-3xl border border-gray-200/90 shadow-xs cursor-pointer hover:border-amber-300 transition-all"
+                  title="View Pending Payment Verifications"
+                >
                   <div className="flex items-center justify-between text-[10px] sm:text-xs text-gray-500 mb-0.5 sm:mb-1">
                     <span>Pending UPI Check</span>
                     <CreditCard className="w-3 h-3 sm:w-3.5 sm:h-3.5 text-amber-600" />
                   </div>
                   <p className="text-base sm:text-2xl font-black text-amber-600">
-                    {payments.filter((p) => p.status === 'SUBMITTED_FOR_VERIFICATION').length}
+                    {pendingUpiCount}
                   </p>
-                  <p className="text-[9.5px] sm:text-[11px] text-gray-400 mt-0.5 sm:mt-1">Awaiting verification</p>
+                  <p className="text-[9.5px] sm:text-[11px] text-gray-400 mt-0.5 sm:mt-1">
+                    {pendingUpiCount} UPI check • {pendingCodCount} COD pending
+                  </p>
                 </div>
 
-                <div className="bg-white p-2.5 sm:p-4 rounded-xl sm:rounded-3xl border border-gray-200/90 shadow-xs">
+                <div
+                  onClick={() => setActiveTab('analytics')}
+                  className="bg-white p-2.5 sm:p-4 rounded-xl sm:rounded-3xl border border-gray-200/90 shadow-xs cursor-pointer hover:border-emerald-300 transition-all"
+                  title="Open Vercel Telemetry & Web Analytics"
+                >
                   <div className="flex items-center justify-between text-[10px] sm:text-xs text-gray-500 mb-0.5 sm:mb-1">
-                    <span>Live Visitors</span>
+                    <span>Visitors (7 Days)</span>
                     <Eye className="w-3 h-3 sm:w-3.5 sm:h-3.5 text-emerald-600" />
                   </div>
                   <p className="text-base sm:text-2xl font-black text-emerald-600">
-                    {analytics?.activeVisitorsCount || 1}
+                    {analytics?.vercelWebAnalytics?.status === 'ok'
+                      ? (analytics.vercelWebAnalytics.overview?.visitors ?? 0)
+                      : '—'}
                   </p>
-                  <p className="text-[9.5px] sm:text-[11px] text-gray-400 mt-0.5 sm:mt-1">Active in last 5 min</p>
+                  <p className="text-[9.5px] sm:text-[11px] text-gray-400 mt-0.5 sm:mt-1">
+                    {analytics?.vercelWebAnalytics?.status === 'ok'
+                      ? `${analytics.vercelWebAnalytics.overview?.pageViews ?? 0} Page Views • Vercel`
+                      : analytics?.vercelWebAnalytics?.status === 'token_missing'
+                      ? 'Token required • Vercel'
+                      : analytics?.vercelWebAnalytics?.status === 'unauthorized'
+                      ? 'Auth required • Vercel'
+                      : 'Unavailable • Vercel'}
+                  </p>
                 </div>
               </div>
 
               {/* Quick Actions & Recent Activity */}
               <div className="grid grid-cols-1 lg:grid-cols-3 gap-3 sm:gap-6">
-                {/* Pending UPI Verifications quick box */}
+                {/* Pending UPI & COD Verifications quick box */}
                 <div className="lg:col-span-2 bg-white rounded-xl sm:rounded-3xl border border-gray-200/90 p-3 sm:p-6 shadow-xs">
                   <div className="flex items-center justify-between mb-3 sm:mb-4">
                     <h3 className="font-extrabold text-xs sm:text-base text-gray-950 flex items-center gap-1.5 sm:gap-2">
                       <CreditCard className="w-3.5 h-3.5 sm:w-4 sm:h-4 text-amber-600" />
-                      <span>Pending UPI Verifications</span>
+                      <span>Pending Payment Verifications</span>
                     </h3>
                     <button
-                      onClick={() => setActiveTab('payments')}
+                      onClick={() => {
+                        setPaymentFilter('pending');
+                        setActiveTab('payments');
+                      }}
                       className="text-[11px] sm:text-xs font-bold text-amber-700 hover:underline"
                     >
-                      View All ({payments.length})
+                      View All ({pendingPaymentsCount})
                     </button>
                   </div>
 
-                  {payments.filter((p) => p.status === 'SUBMITTED_FOR_VERIFICATION').length === 0 ? (
+                  {pendingPaymentsList.length === 0 ? (
                     <div className="text-center py-6 sm:py-8 text-xs text-gray-500">
                       <CheckCircle2 className="w-7 h-7 sm:w-8 sm:h-8 text-green-500 mx-auto mb-2" />
                       All submitted customer payments have been processed!
                     </div>
                   ) : (
                     <div className="divide-y divide-gray-100">
-                      {payments
-                        .filter((p) => p.status === 'SUBMITTED_FOR_VERIFICATION')
-                        .slice(0, 5)
-                        .map((p) => (
-                          <div key={p.id} className="py-2 sm:py-3 flex flex-wrap items-center justify-between gap-2 text-[10.5px] sm:text-xs">
-                            <div>
-                              <p className="font-bold text-gray-950">
-                                Order: {p.order_id} • ₹{p.amount}
-                              </p>
+                      {pendingPaymentsList.slice(0, 5).map((p) => {
+                        const isCod = (p.payment_method || '').toUpperCase().includes('COD');
+                        return (
+                          <div key={p.id} className="py-2.5 sm:py-3 flex flex-wrap items-center justify-between gap-2 text-[10.5px] sm:text-xs">
+                            <div className="space-y-0.5">
+                              <div className="flex items-center gap-2">
+                                <span className="font-mono font-bold text-gray-950">{p.order_id}</span>
+                                <span className="font-black text-gray-900">₹{p.amount}</span>
+                                <span className={`px-2 py-0.2 rounded-full text-[9px] font-black uppercase ${
+                                  isCod ? 'bg-blue-50 text-blue-800 border border-blue-200' : 'bg-purple-50 text-purple-800 border border-purple-200'
+                                }`}>
+                                  {isCod ? 'COD Doorstep' : 'Manual UPI'}
+                                </span>
+                              </div>
                               <p className="text-[10px] sm:text-[11px] text-gray-500">
-                                Payer: <span className="font-semibold text-gray-800">{p.payer_name}</span> ({p.payer_phone || 'No phone'}) • UTR: <span className="font-mono font-bold text-gray-900">{p.transaction_reference}</span>
+                                Customer: <span className="font-semibold text-gray-800">{p.customer_name || p.payer_name || 'Customer'}</span> ({p.customer_phone || p.payer_phone || 'No phone'})
+                                {!isCod && p.transaction_ref && (
+                                  <> • UTR: <span className="font-mono font-bold text-gray-900">{p.transaction_ref}</span></>
+                                )}
                               </p>
                             </div>
                             <div className="flex items-center gap-1 sm:gap-1.5">
@@ -1648,43 +2020,97 @@ export function AdminDashboardView({ initialTab = 'overview' }: { initialTab?: A
                               </button>
                             </div>
                           </div>
-                        ))}
+                        );
+                      })}
                     </div>
                   )}
                 </div>
 
                 {/* Right side status column */}
                 <div className="space-y-3 sm:space-y-4">
+                  {/* Inventory Status Card */}
                   <div className="bg-white rounded-xl sm:rounded-3xl border border-gray-200/90 p-3 sm:p-5 shadow-xs">
-                    <h3 className="font-extrabold text-xs sm:text-sm text-gray-950 mb-2 sm:mb-3 flex items-center gap-1.5 sm:gap-2">
-                      <Boxes className="w-3.5 h-3.5 sm:w-4 sm:h-4 text-amber-600" />
-                      <span>Inventory Alerts</span>
-                    </h3>
-                    <div className="space-y-1.5 sm:space-y-2 text-[10.5px] sm:text-xs">
-                      {inventory.slice(0, 4).map((item) => (
-                        <div key={item.id} className="flex items-center justify-between py-1 border-b border-gray-100 last:border-0">
-                          <span className="font-semibold text-gray-800 truncate max-w-[140px] sm:max-w-[160px]">{item.name}</span>
-                          <span className="font-mono font-bold text-gray-950">
-                            {item.total_stock || 150} in stock
-                          </span>
-                        </div>
-                      ))}
+                    <div className="flex items-center justify-between mb-2 sm:mb-3">
+                      <h3 className="font-extrabold text-xs sm:text-sm text-gray-950 flex items-center gap-1.5 sm:gap-2">
+                        <Boxes className="w-3.5 h-3.5 sm:w-4 sm:h-4 text-amber-600" />
+                        <span>Inventory Alerts</span>
+                      </h3>
+                      <button
+                        onClick={() => setActiveTab('inventory')}
+                        className="text-[10px] sm:text-[11px] font-bold text-amber-800 hover:underline"
+                      >
+                        Catalog ({inventory.length})
+                      </button>
                     </div>
+
+                    {lowStockProducts.length === 0 ? (
+                      <div className="p-3 rounded-2xl bg-emerald-50/70 border border-emerald-200 text-center space-y-1">
+                        <CheckCircle2 className="w-5 h-5 text-emerald-600 mx-auto" />
+                        <p className="text-xs font-black text-emerald-950">All Inventory Healthy</p>
+                        <p className="text-[10px] text-emerald-700">All {inventory.length} catalog items are stocked above their low-stock thresholds.</p>
+                      </div>
+                    ) : (
+                      <div className="space-y-1.5 sm:space-y-2 text-[10.5px] sm:text-xs">
+                        {lowStockProducts.map((item) => (
+                          <div key={item.id} className="flex items-center justify-between py-1 border-b border-gray-100 last:border-0">
+                            <span className="font-semibold text-gray-800 truncate max-w-[140px] sm:max-w-[160px]">{item.name}</span>
+                            <span className="font-mono font-bold text-red-600">
+                              {item.total_stock || 0} in stock
+                            </span>
+                          </div>
+                        ))}
+                      </div>
+                    )}
                   </div>
 
-                  <div className="bg-white rounded-xl sm:rounded-3xl border border-gray-200/90 p-3 sm:p-5 shadow-xs">
-                    <h3 className="font-extrabold text-xs sm:text-sm text-gray-950 mb-1.5 sm:mb-2 flex items-center gap-1.5 sm:gap-2">
-                      <MessageSquare className="w-3.5 h-3.5 sm:w-4 sm:h-4 text-gray-700" />
-                      <span>New Enquiries</span>
-                    </h3>
-                    <p className="text-[10px] sm:text-xs text-gray-600 mb-2 sm:mb-3">
-                      {contactEnquiries.length} General • {retailEnquiries.length} Custom Apparel • {bulkEnquiries.length} Factory Bulk
-                    </p>
+                  {/* Enquiries Summary Card */}
+                  <div className="bg-white rounded-xl sm:rounded-3xl border border-gray-200/90 p-3 sm:p-5 shadow-xs space-y-2.5">
+                    <div className="flex items-center justify-between">
+                      <h3 className="font-extrabold text-xs sm:text-sm text-gray-950 flex items-center gap-1.5 sm:gap-2">
+                        <MessageSquare className="w-3.5 h-3.5 sm:w-4 sm:h-4 text-purple-600" />
+                        <span>Enquiries &amp; Leads</span>
+                      </h3>
+                      <span className={`px-2 py-0.5 rounded-full text-[10px] font-black ${
+                        totalPendingEnquiriesCount > 0
+                          ? 'bg-amber-100 text-amber-950 border border-amber-300'
+                          : 'bg-emerald-50 text-emerald-800 border border-emerald-200'
+                      }`}>
+                        {totalPendingEnquiriesCount > 0 ? `${totalPendingEnquiriesCount} Pending` : 'All Resolved'}
+                      </span>
+                    </div>
+
+                    <div className="grid grid-cols-2 gap-2 text-[10px] sm:text-[11px]">
+                      <div className="p-2 rounded-xl bg-stone-50/80 border border-gray-100">
+                        <span className="text-gray-500 block text-[9.5px]">Retail Custom</span>
+                        <span className="font-black text-gray-950">
+                          {pendingRetailCount} pending <span className="text-gray-400 font-normal">/ {retailEnquiries.length}</span>
+                        </span>
+                      </div>
+                      <div className="p-2 rounded-xl bg-stone-50/80 border border-gray-100">
+                        <span className="text-gray-500 block text-[9.5px]">Factory Bulk</span>
+                        <span className="font-black text-gray-950">
+                          {pendingBulkCount} pending <span className="text-gray-400 font-normal">/ {bulkEnquiries.length}</span>
+                        </span>
+                      </div>
+                      <div className="p-2 rounded-xl bg-stone-50/80 border border-gray-100">
+                        <span className="text-gray-500 block text-[9.5px]">Brand Collab</span>
+                        <span className="font-black text-gray-950">
+                          {pendingBrandCount} pending <span className="text-gray-400 font-normal">/ {brandEnquiries.length}</span>
+                        </span>
+                      </div>
+                      <div className="p-2 rounded-xl bg-stone-50/80 border border-gray-100">
+                        <span className="text-gray-500 block text-[9.5px]">General Contact</span>
+                        <span className="font-black text-gray-950">
+                          {pendingContactCount} pending <span className="text-gray-400 font-normal">/ {contactEnquiries.length}</span>
+                        </span>
+                      </div>
+                    </div>
+
                     <button
                       onClick={() => setActiveTab('enquiries')}
-                      className="w-full py-1.5 sm:py-2 bg-white hover:bg-gray-50 border border-gray-200 text-gray-900 font-bold text-[10.5px] sm:text-xs rounded-full transition-colors shadow-xs"
+                      className="w-full py-1.5 sm:py-2 bg-stone-50 hover:bg-stone-100 border border-gray-200 text-gray-900 font-bold text-[10.5px] sm:text-xs rounded-full transition-colors shadow-2xs"
                     >
-                      Manage Enquiries
+                      Manage Enquiries ({totalEnquiriesCount})
                     </button>
                   </div>
                 </div>
@@ -1692,438 +2118,871 @@ export function AdminDashboardView({ initialTab = 'overview' }: { initialTab?: A
             </div>
           )}
 
-          {/* TAB 2: ANALYTICS & SPEED INSIGHTS */}
+          {/* TAB 2: VERCEL WEB ANALYTICS */}
           {activeTab === 'analytics' && (
-            <div className="space-y-4 sm:space-y-6">
-              {/* Header */}
-              <div className="flex flex-wrap items-center justify-between gap-3">
-                <div>
-                  <h2 className="text-sm sm:text-lg font-black text-gray-950 flex items-center gap-2">
-                    <BarChart3 className="w-5 h-5 text-gray-900" />
-                    <span>Website &amp; Performance Analytics</span>
-                  </h2>
-                  <p className="text-xs text-gray-500 mt-0.5">
-                    Live telemetry synchronized with Vercel Web Analytics &amp; Speed Insights
-                  </p>
+            <div className="space-y-4 sm:space-y-5">
+              {/* Vercel Header Bar */}
+              <div className="bg-white p-3.5 sm:p-5 rounded-2xl sm:rounded-3xl border border-gray-200 shadow-xs flex flex-wrap items-center justify-between gap-3 text-gray-950">
+                <div className="flex flex-wrap items-center gap-2.5 sm:gap-4">
+                  <a
+                    href="https://funprints.vercel.app"
+                    target="_blank"
+                    rel="noopener noreferrer"
+                    className="flex items-center gap-1.5 text-xs sm:text-sm font-black text-gray-950 hover:text-blue-600 transition"
+                  >
+                    <span>funprints.vercel.app</span>
+                    <ExternalLink className="w-3.5 h-3.5 text-gray-400" />
+                  </a>
+                  <span className="inline-flex items-center gap-1.5 px-2.5 py-0.5 rounded-full text-[10.5px] font-bold bg-emerald-50 text-emerald-800 border border-emerald-200">
+                    <span className="w-1.5 h-1.5 rounded-full bg-emerald-500 animate-ping" />
+                    1 online
+                  </span>
+                  <span className="px-2.5 py-0.5 rounded-full text-[10.5px] font-bold bg-stone-100 text-gray-700 border border-gray-200">
+                    Production
+                  </span>
                 </div>
-                <div className="flex items-center gap-1.5 sm:gap-2">
-                  <div className="flex items-center gap-1 text-[10px] sm:text-xs font-bold bg-white p-1 rounded-full border border-gray-200">
+
+                <div className="flex items-center gap-2 flex-wrap">
+                  <div className="flex items-center gap-1 text-[10px] sm:text-xs font-bold bg-stone-100 p-0.5 rounded-full border border-gray-200">
                     {['today', '7d', '30d'].map((r) => (
                       <button
                         key={r}
                         onClick={() => setAnalyticsRange(r)}
-                        className={`px-2.5 sm:px-3 py-1 rounded-full uppercase transition-all ${
+                        className={`px-3 py-1 rounded-full uppercase transition-all ${
                           analyticsRange === r
-                            ? 'bg-gray-950 text-white shadow-xs'
-                            : 'text-gray-600 hover:bg-gray-100'
+                            ? 'bg-gray-950 text-white font-black shadow-xs'
+                            : 'text-gray-600 hover:text-gray-950'
                         }`}
                       >
-                        {r}
+                        {r === '7d' ? 'Last 7 Days' : r}
                       </button>
                     ))}
                   </div>
+
+                  {analyticsLastSynced && (
+                    <span className="text-[11px] text-gray-400 font-medium hidden md:inline">
+                      Synced {analyticsLastSynced.toLocaleTimeString('en-IN', { hour: '2-digit', minute: '2-digit' })}
+                    </span>
+                  )}
+
                   <button
                     onClick={loadAllData}
-                    className="p-1.5 sm:px-3 sm:py-1.5 rounded-full bg-white hover:bg-gray-50 border border-gray-200 text-gray-700 text-xs font-bold flex items-center gap-1.5 transition-colors shadow-xs"
-                    title="Refresh Analytics"
+                    disabled={refreshing}
+                    className="px-3.5 py-1.5 rounded-full bg-gray-950 text-white hover:bg-gray-800 text-xs font-black flex items-center gap-1.5 transition shadow-xs disabled:opacity-50"
+                    title="Synchronize Live with Vercel Web Analytics"
                   >
-                    <RefreshCw className="w-3.5 h-3.5" />
-                    <span className="hidden sm:inline">Sync Live</span>
+                    <RefreshCw className={`w-3 h-3 ${refreshing ? 'animate-spin' : ''}`} />
+                    <span>Sync Live</span>
                   </button>
                 </div>
               </div>
 
-              {/* Vercel Integration Sync Status Banner */}
-              <div className="bg-gradient-to-r from-gray-950 via-gray-900 to-black text-white p-4 sm:p-6 rounded-2xl sm:rounded-3xl shadow-md border border-gray-800">
-                <div className="flex flex-col lg:flex-row lg:items-center justify-between gap-4">
-                  <div className="space-y-2">
-                    <div className="flex flex-wrap items-center gap-2">
-                      <span className="inline-flex items-center gap-1.5 px-2.5 py-0.5 rounded-full text-[10px] font-black uppercase tracking-wider bg-emerald-500/20 text-emerald-300 border border-emerald-500/30">
-                        <span className="w-1.5 h-1.5 rounded-full bg-emerald-400 animate-ping" />
-                        Vercel Analytics Synced
-                      </span>
-                      <span className="inline-flex items-center gap-1 px-2 py-0.5 rounded-full text-[10px] font-bold bg-white/10 text-gray-300 border border-white/10">
-                        Project: funprints
-                      </span>
-                      <span className="inline-flex items-center gap-1 px-2 py-0.5 rounded-full text-[10px] font-bold bg-white/10 text-gray-300 border border-white/10">
-                        Env: Production
-                      </span>
+              {/* Vercel Web Analytics Top KPI Tabs & Trend Area Chart */}
+              <div className="bg-white rounded-2xl sm:rounded-3xl border border-gray-200 shadow-xs overflow-hidden">
+                {/* Diagnostic Status Banners */}
+                {analytics?.vercelWebAnalytics?.status === 'token_missing' && (
+                  <div className="p-3 sm:p-4 bg-amber-50/90 border-b border-amber-200 text-amber-950 flex items-start gap-2.5 sm:gap-3 text-xs">
+                    <AlertCircle className="w-4 h-4 text-amber-600 shrink-0 mt-0.5" />
+                    <div className="space-y-0.5">
+                      <p className="font-black text-amber-950 text-xs sm:text-[13px]">Vercel Web Analytics API Token Not Configured</p>
+                      <p className="text-amber-800 leading-relaxed text-[11px] sm:text-xs">
+                        To query official Vercel Web Analytics in this admin dashboard, configure <code className="font-mono bg-amber-100/90 px-1.5 py-0.5 rounded font-bold text-amber-950">VERCEL_API_TOKEN</code> in your server environment variables. Project ID: <code className="font-mono bg-amber-100/90 px-1 py-0.5 rounded text-[10.5px]">prj_lEB0bm4c3VRX7YTfgSeM3iIsAUZa</code>.
+                      </p>
                     </div>
-                    <h3 className="text-base sm:text-xl font-black text-white tracking-tight">
-                      Vercel Web Analytics &amp; Speed Insights Connected
-                    </h3>
-                    <p className="text-xs sm:text-sm text-gray-400 max-w-2xl leading-relaxed">
-                      Telemetries from <code>@vercel/analytics</code> and <code>@vercel/speed-insights</code> are actively measuring user experience, Core Web Vitals, and live customer traffic across all devices.
-                    </p>
                   </div>
+                )}
+                {analytics?.vercelWebAnalytics?.status === 'unauthorized' && (
+                  <div className="p-3 sm:p-4 bg-rose-50/90 border-b border-rose-200 text-rose-950 flex items-start gap-2.5 sm:gap-3 text-xs">
+                    <AlertCircle className="w-4 h-4 text-rose-600 shrink-0 mt-0.5" />
+                    <div className="space-y-0.5">
+                      <p className="font-black text-rose-950 text-xs sm:text-[13px]">Vercel API Authentication Failed (401 / 403)</p>
+                      <p className="text-rose-800 leading-relaxed text-[11px] sm:text-xs">
+                        The configured Vercel API token is expired, invalid, or unauthorized for project <code className="font-mono bg-rose-100/90 px-1.5 py-0.5 rounded font-bold text-rose-950">prj_lEB0bm4c3VRX7YTfgSeM3iIsAUZa</code>. Verify your Personal Access Token in Vercel settings.
+                      </p>
+                    </div>
+                  </div>
+                )}
+                {analytics?.vercelWebAnalytics?.status === 'error' && (
+                  <div className="p-3 sm:p-4 bg-rose-50/90 border-b border-rose-200 text-rose-950 flex items-start gap-2.5 sm:gap-3 text-xs">
+                    <AlertCircle className="w-4 h-4 text-rose-600 shrink-0 mt-0.5" />
+                    <div className="space-y-0.5">
+                      <p className="font-black text-rose-950 text-xs sm:text-[13px]">Upstream Vercel Analytics API Error</p>
+                      <p className="text-rose-800 leading-relaxed text-[11px] sm:text-xs">
+                        {analytics?.vercelWebAnalytics?.message || 'Unable to fetch telemetry from api.vercel.com. Please retry.'}
+                      </p>
+                    </div>
+                  </div>
+                )}
 
-                  {/* Direct Launch Buttons to Vercel */}
-                  <div className="flex flex-wrap sm:flex-nowrap items-center gap-2">
-                    <a
-                      href="https://vercel.com/surya-kumars-projects-d7755a57/funprints/analytics"
-                      target="_blank"
-                      rel="noopener noreferrer"
-                      className="flex-1 sm:flex-none inline-flex items-center justify-center gap-1.5 px-3.5 py-2 rounded-xl text-xs font-bold bg-white text-gray-950 hover:bg-gray-100 transition shadow-sm"
-                    >
-                      <Activity className="w-3.5 h-3.5 text-blue-600" />
-                      <span>Vercel Analytics</span>
-                      <ExternalLink className="w-3 h-3 text-gray-400" />
-                    </a>
-                    <a
-                      href="https://vercel.com/surya-kumars-projects-d7755a57/funprints/speed-insights"
-                      target="_blank"
-                      rel="noopener noreferrer"
-                      className="flex-1 sm:flex-none inline-flex items-center justify-center gap-1.5 px-3.5 py-2 rounded-xl text-xs font-bold bg-white/10 hover:bg-white/20 text-white border border-white/15 transition shadow-sm"
-                    >
-                      <Gauge className="w-3.5 h-3.5 text-emerald-400" />
-                      <span>Speed Insights</span>
-                      <ExternalLink className="w-3 h-3 text-gray-400" />
-                    </a>
-                  </div>
+                {/* Metric Tabs */}
+                <div className="grid grid-cols-2 border-b border-gray-200 bg-white">
+                  <button
+                    onClick={() => setAnalyticsMetricTab('visitors')}
+                    className={`p-3.5 sm:p-5 text-left transition-colors border-b-2 ${
+                      analyticsMetricTab === 'visitors'
+                        ? 'border-gray-950 bg-stone-50/70'
+                        : 'border-transparent hover:bg-stone-50/40'
+                    }`}
+                  >
+                    <p className="text-[10px] sm:text-xs text-gray-400 font-bold uppercase tracking-wider">Visitors</p>
+                    <div className="flex items-baseline gap-2 flex-wrap">
+                      <p className="text-xl sm:text-3xl font-black text-gray-950 mt-1">
+                        {analytics?.vercelWebAnalytics?.status === 'ok'
+                          ? (analytics.vercelWebAnalytics.overview?.visitors ?? 0)
+                          : '—'}
+                      </p>
+                      {analytics?.vercelWebAnalytics?.status && analytics.vercelWebAnalytics.status !== 'ok' && (
+                        <span className="text-[9.5px] font-bold text-amber-800 bg-amber-100/80 px-1.5 py-0.5 rounded border border-amber-300">
+                          {analytics.vercelWebAnalytics.status === 'token_missing' ? 'Token required' : 'Auth required'}
+                        </span>
+                      )}
+                    </div>
+                  </button>
+
+                  <button
+                    onClick={() => setAnalyticsMetricTab('views')}
+                    className={`p-3.5 sm:p-5 text-left transition-colors border-b-2 border-l border-gray-200 ${
+                      analyticsMetricTab === 'views'
+                        ? 'border-gray-950 bg-stone-50/70'
+                        : 'border-transparent hover:bg-stone-50/40'
+                    }`}
+                  >
+                    <p className="text-[10px] sm:text-xs text-gray-400 font-bold uppercase tracking-wider">Page Views</p>
+                    <div className="flex items-baseline gap-2 flex-wrap">
+                      <p className="text-xl sm:text-3xl font-black text-gray-950 mt-1">
+                        {analytics?.vercelWebAnalytics?.status === 'ok'
+                          ? (analytics.vercelWebAnalytics.overview?.pageViews ?? 0)
+                          : '—'}
+                      </p>
+                      {analytics?.vercelWebAnalytics?.status && analytics.vercelWebAnalytics.status !== 'ok' && (
+                        <span className="text-[9.5px] font-bold text-amber-800 bg-amber-100/80 px-1.5 py-0.5 rounded border border-amber-300">
+                          {analytics.vercelWebAnalytics.status === 'token_missing' ? 'Token required' : 'Auth required'}
+                        </span>
+                      )}
+                    </div>
+                  </button>
                 </div>
 
-                {/* Speed Insights Core Web Vitals Grid */}
-                <div className="mt-5 pt-4 border-t border-white/10 grid grid-cols-2 sm:grid-cols-3 lg:grid-cols-6 gap-2.5 sm:gap-3">
-                  <div className="bg-white/5 p-2.5 rounded-xl border border-white/10">
-                    <p className="text-[10px] text-gray-400 font-bold uppercase tracking-wider">RES Score</p>
-                    <p className="text-lg font-black text-emerald-400 mt-0.5">
-                      {analytics?.vercelIntegration?.speedInsightsVitals?.realExperienceScore || 97}
-                      <span className="text-[10px] text-gray-400 font-normal"> / 100</span>
-                    </p>
-                    <p className="text-[9px] text-emerald-300 font-medium mt-0.5">Great Performance</p>
-                  </div>
-                  <div className="bg-white/5 p-2.5 rounded-xl border border-white/10">
-                    <p className="text-[10px] text-gray-400 font-bold uppercase tracking-wider">LCP (Load Speed)</p>
-                    <p className="text-lg font-black text-white mt-0.5">1.08s</p>
-                    <p className="text-[9px] text-emerald-300 font-medium mt-0.5">Target &lt; 2.5s (Good)</p>
-                  </div>
-                  <div className="bg-white/5 p-2.5 rounded-xl border border-white/10">
-                    <p className="text-[10px] text-gray-400 font-bold uppercase tracking-wider">FCP (First Paint)</p>
-                    <p className="text-lg font-black text-white mt-0.5">0.64s</p>
-                    <p className="text-[9px] text-emerald-300 font-medium mt-0.5">Target &lt; 1.8s (Good)</p>
-                  </div>
-                  <div className="bg-white/5 p-2.5 rounded-xl border border-white/10">
-                    <p className="text-[10px] text-gray-400 font-bold uppercase tracking-wider">INP (Responsiveness)</p>
-                    <p className="text-lg font-black text-white mt-0.5">34ms</p>
-                    <p className="text-[9px] text-emerald-300 font-medium mt-0.5">Target &lt; 200ms (Good)</p>
-                  </div>
-                  <div className="bg-white/5 p-2.5 rounded-xl border border-white/10">
-                    <p className="text-[10px] text-gray-400 font-bold uppercase tracking-wider">CLS (Layout Shift)</p>
-                    <p className="text-lg font-black text-white mt-0.5">0.004</p>
-                    <p className="text-[9px] text-emerald-300 font-medium mt-0.5">Target &lt; 0.1 (Good)</p>
-                  </div>
-                  <div className="bg-white/5 p-2.5 rounded-xl border border-white/10">
-                    <p className="text-[10px] text-gray-400 font-bold uppercase tracking-wider">TTFB (Server Delay)</p>
-                    <p className="text-lg font-black text-white mt-0.5">78ms</p>
-                    <p className="text-[9px] text-emerald-300 font-medium mt-0.5">Edge Serverless Fast</p>
-                  </div>
-                </div>
-              </div>
+                {/* Recharts Area / Line Chart with Clean White Theme */}
+                <div className="p-4 sm:p-6 space-y-2 bg-white">
+                  {(() => {
+                    const timeseries = analytics?.vercelWebAnalytics?.timeseries || [];
 
-              {/* Funnel & Conversion Stats */}
-              <div className="grid grid-cols-2 sm:grid-cols-4 gap-2.5 sm:gap-4">
-                <div className="bg-white p-3 sm:p-4 rounded-xl sm:rounded-2xl border border-gray-200 shadow-xs">
-                  <div className="flex items-center justify-between text-gray-500">
-                    <p className="text-[10px] sm:text-xs font-medium">Total Page Views</p>
-                    <Eye className="w-3.5 h-3.5 text-blue-500" />
-                  </div>
-                  <p className="text-base sm:text-2xl font-black text-gray-950 mt-1">
-                    {analytics?.eventsSummary?.find((e: any) => e.event_type === 'page_view')?.count || 245}
-                  </p>
-                  <p className="text-[10px] text-emerald-600 font-bold mt-0.5">Synced via Vercel</p>
-                </div>
-
-                <div className="bg-white p-3 sm:p-4 rounded-xl sm:rounded-2xl border border-gray-200 shadow-xs">
-                  <div className="flex items-center justify-between text-gray-500">
-                    <p className="text-[10px] sm:text-xs font-medium">Cart Additions</p>
-                    <Boxes className="w-3.5 h-3.5 text-amber-500" />
-                  </div>
-                  <p className="text-base sm:text-2xl font-black text-gray-950 mt-1">
-                    {analytics?.eventsSummary?.find((e: any) => e.event_type === 'add_to_cart')?.count || 18}
-                  </p>
-                  <p className="text-[10px] text-gray-500 mt-0.5">Customizer to Cart</p>
-                </div>
-
-                <div className="bg-white p-3 sm:p-4 rounded-xl sm:rounded-2xl border border-gray-200 shadow-xs">
-                  <div className="flex items-center justify-between text-gray-500">
-                    <p className="text-[10px] sm:text-xs font-medium">Checkout Inits</p>
-                    <CreditCard className="w-3.5 h-3.5 text-purple-500" />
-                  </div>
-                  <p className="text-base sm:text-2xl font-black text-gray-950 mt-1">
-                    {analytics?.eventsSummary?.find((e: any) => e.event_type === 'begin_checkout')?.count || 9}
-                  </p>
-                  <p className="text-[10px] text-gray-500 mt-0.5">Addresses &amp; Payment</p>
-                </div>
-
-                <div className="bg-white p-3 sm:p-4 rounded-xl sm:rounded-2xl border border-gray-200 shadow-xs">
-                  <div className="flex items-center justify-between text-gray-500">
-                    <p className="text-[10px] sm:text-xs font-medium">Confirmed Orders</p>
-                    <CheckCircle2 className="w-3.5 h-3.5 text-emerald-500" />
-                  </div>
-                  <p className="text-base sm:text-2xl font-black text-gray-950 mt-1">
-                    {orders.filter((o: any) => o.payment_status === 'CONFIRMED').length || orders.length}
-                  </p>
-                  <p className="text-[10px] text-gray-500 mt-0.5">Verified &amp; Paid</p>
-                </div>
-              </div>
-
-              {/* Two Column Layout: Top Pages & Traffic/Device Breakdown */}
-              <div className="grid grid-cols-1 lg:grid-cols-2 gap-4">
-                {/* Top Visited Pages */}
-                <div className="bg-white p-4 sm:p-6 rounded-2xl sm:rounded-3xl border border-gray-200 shadow-xs space-y-3">
-                  <div className="flex items-center justify-between pb-2 border-b border-gray-100">
-                    <h4 className="text-xs sm:text-sm font-black text-gray-950 flex items-center gap-1.5">
-                      <Globe className="w-4 h-4 text-blue-600" />
-                      <span>Most Visited Pages &amp; Routes</span>
-                    </h4>
-                    <span className="text-[10px] font-bold text-gray-400 uppercase">Page Views</span>
-                  </div>
-                  <div className="space-y-2.5">
-                    {(analytics?.topPages || [
-                      { page: '/', views: 245 },
-                      { page: '/products', views: 182 },
-                      { page: '/products/fp-tee-crew', views: 94 },
-                      { page: '/cart', views: 56 },
-                      { page: '/checkout', views: 32 },
-                      { page: '/bulk-order', views: 21 },
-                    ]).map((p: any, idx: number) => {
-                      const maxViews = 250;
-                      const pct = Math.min(Math.round((p.views / maxViews) * 100), 100);
+                    if (!chartMounted || loading) {
                       return (
-                        <div key={idx} className="space-y-1">
-                          <div className="flex items-center justify-between text-xs">
-                            <span className="font-mono text-gray-800 font-bold truncate max-w-[200px] sm:max-w-[280px]">
-                              {p.page}
-                            </span>
-                            <span className="font-bold text-gray-950">{p.views} views</span>
-                          </div>
-                          <div className="w-full h-1.5 bg-gray-100 rounded-full overflow-hidden">
-                            <div
-                              className="h-full bg-blue-600 rounded-full transition-all duration-500"
-                              style={{ width: `${Math.max(pct, 8)}%` }}
-                            />
-                          </div>
+                        <div className="w-full h-48 sm:h-56 bg-stone-50 animate-pulse rounded-xl flex items-center justify-center text-xs text-gray-400">
+                          <span className="flex items-center gap-2">
+                            <RefreshCw className="w-4 h-4 animate-spin text-gray-400" />
+                            Loading live telemetry...
+                          </span>
                         </div>
                       );
-                    })}
+                    }
+
+                    if (timeseries.length === 0) {
+                      const vStatus = analytics?.vercelWebAnalytics?.status;
+                      if (vStatus === 'token_missing') {
+                        return (
+                          <div className="w-full h-48 sm:h-56 flex flex-col items-center justify-center text-center p-4 rounded-xl bg-stone-50/60 border border-gray-200/60 space-y-2">
+                            <div className="w-10 h-10 rounded-full bg-amber-100/80 border border-amber-300 flex items-center justify-center text-amber-700">
+                              <KeyRound className="w-5 h-5" />
+                            </div>
+                            <h4 className="text-xs font-black text-gray-950">Vercel Web Analytics Token Required</h4>
+                            <p className="text-[11px] text-gray-500 max-w-md leading-relaxed">
+                              Configure <code className="font-mono bg-stone-100 text-gray-900 px-1 py-0.5 rounded font-semibold text-[10px]">VERCEL_API_TOKEN</code> in your server environment to stream live production traffic metrics.
+                            </p>
+                          </div>
+                        );
+                      }
+                      if (vStatus === 'unauthorized') {
+                        return (
+                          <div className="w-full h-48 sm:h-56 flex flex-col items-center justify-center text-center p-4 rounded-xl bg-rose-50/40 border border-rose-200/60 space-y-2">
+                            <div className="w-10 h-10 rounded-full bg-rose-100 border border-rose-300 flex items-center justify-center text-rose-700">
+                              <AlertCircle className="w-5 h-5" />
+                            </div>
+                            <h4 className="text-xs font-black text-gray-950">Vercel API Authentication Failed</h4>
+                            <p className="text-[11px] text-gray-500 max-w-md leading-relaxed">
+                              The configured token was rejected by Vercel with status 401/403. Check personal access token permissions for project <code className="font-mono text-[10px]">prj_lEB0bm4c3VRX7YTfgSeM3iIsAUZa</code>.
+                            </p>
+                          </div>
+                        );
+                      }
+                      return (
+                        <div className="w-full h-48 sm:h-56 flex flex-col items-center justify-center text-gray-400 text-xs text-center p-4 space-y-1">
+                          <p className="font-semibold text-gray-700">Zero visits recorded for this period</p>
+                          <p className="text-[11px] text-gray-400">Live telemetry will appear here as users browse the production store.</p>
+                        </div>
+                      );
+                    }
+
+                    return (
+                      <div className="w-full h-48 sm:h-56">
+                        <ResponsiveContainer width="100%" height="100%">
+                          <AreaChart
+                            data={timeseries}
+                            margin={{ top: 10, right: 10, left: -20, bottom: 0 }}
+                          >
+                            <defs>
+                              <linearGradient id="analyticsBlueGrad" x1="0" y1="0" x2="0" y2="1">
+                                <stop offset="5%" stopColor="#0070F3" stopOpacity={0.25} />
+                                <stop offset="95%" stopColor="#0070F3" stopOpacity={0.0} />
+                              </linearGradient>
+                            </defs>
+                            <CartesianGrid strokeDasharray="3 3" stroke="#F3F4F6" vertical={false} />
+                            <XAxis
+                              dataKey="date"
+                              stroke="#9CA3AF"
+                              fontSize={11}
+                              tickLine={false}
+                              axisLine={{ stroke: '#E5E7EB' }}
+                            />
+                            <YAxis
+                              stroke="#9CA3AF"
+                              fontSize={11}
+                              tickLine={false}
+                              axisLine={false}
+                              allowDecimals={false}
+                            />
+                            <Tooltip
+                              content={({ active, payload, label }) => {
+                                if (active && payload && payload.length) {
+                                  return (
+                                    <div className="bg-white/95 backdrop-blur-md p-2.5 rounded-xl border border-gray-200 shadow-md text-xs space-y-1.5 z-50">
+                                      <p className="font-black text-gray-950 border-b border-gray-100 pb-1">{label}</p>
+                                      {payload.map((item: any, idx: number) => (
+                                        <div key={idx} className="flex items-center justify-between gap-4">
+                                          <div className="flex items-center gap-1.5">
+                                            <span
+                                              className="w-2 h-2 rounded-full"
+                                              style={{ backgroundColor: item.color }}
+                                            />
+                                            <span className="text-gray-600 font-medium">{item.name}:</span>
+                                          </div>
+                                          <span className="font-black text-gray-950">{item.value}</span>
+                                        </div>
+                                      ))}
+                                    </div>
+                                  );
+                                }
+                                return null;
+                              }}
+                            />
+                            {analyticsMetricTab === 'visitors' && (
+                              <Area
+                                type="monotone"
+                                dataKey="visitors"
+                                name="Visitors"
+                                stroke="#0070F3"
+                                strokeWidth={2.5}
+                                fill="url(#analyticsBlueGrad)"
+                                activeDot={{ r: 5, fill: '#0070F3', stroke: '#ffffff', strokeWidth: 2 }}
+                              />
+                            )}
+                            {analyticsMetricTab === 'views' && (
+                              <Area
+                                type="monotone"
+                                dataKey="views"
+                                name="Page Views"
+                                stroke="#0070F3"
+                                strokeWidth={2.5}
+                                fill="url(#analyticsBlueGrad)"
+                                activeDot={{ r: 5, fill: '#0070F3', stroke: '#ffffff', strokeWidth: 2 }}
+                              />
+                            )}
+                          </AreaChart>
+                        </ResponsiveContainer>
+                      </div>
+                    );
+                  })()}
+                </div>
+              </div>
+
+              {/* Two Column Layout: Pages / Routes / Hostnames and Referrers */}
+              <div className="grid grid-cols-1 lg:grid-cols-2 gap-4">
+                {/* Card 1: Pages / Routes / Hostnames */}
+                <div className="bg-white rounded-2xl sm:rounded-3xl border border-gray-200 p-4 sm:p-5 shadow-xs space-y-3">
+                  <div className="flex items-center justify-between border-b border-gray-100 pb-2.5">
+                    <div className="flex items-center gap-1 sm:gap-2">
+                      {(['pages', 'routes', 'hostnames'] as const).map((tab) => (
+                        <button
+                          key={tab}
+                          onClick={() => setPagesTab(tab)}
+                          className={`px-3 py-1 rounded-lg text-xs font-bold capitalize transition-colors ${
+                            pagesTab === tab
+                              ? 'bg-gray-950 text-white shadow-2xs'
+                              : 'text-gray-600 hover:text-gray-950'
+                          }`}
+                        >
+                          {tab}
+                        </button>
+                      ))}
+                    </div>
+                    <div className="flex items-center gap-4 text-[10px] font-bold text-gray-400 uppercase tracking-wider">
+                      <span>Page Views</span>
+                      <span>Visitors</span>
+                    </div>
+                  </div>
+
+                  <div className="space-y-1.5 text-xs">
+                    {pagesTab === 'pages' && (
+                      (analytics?.vercelWebAnalytics?.pages && analytics.vercelWebAnalytics.pages.length > 0) ? (
+                        analytics.vercelWebAnalytics.pages.map((item: any, idx: number) => (
+                          <div key={idx} className="relative overflow-hidden p-2.5 rounded-xl bg-stone-50/70 border border-gray-200/80 hover:bg-stone-100/70 transition">
+                            <div
+                              className="absolute inset-y-0 left-0 bg-blue-100/70 rounded-xl transition-all"
+                              style={{ width: `${item.pct || 0}%` }}
+                            />
+                            <div className="relative flex items-center justify-between gap-2">
+                              <span className="font-mono text-gray-900 truncate font-semibold">{item.path}</span>
+                              <div className="flex items-center gap-6 shrink-0 font-bold">
+                                <span className="text-gray-400 text-[11px] w-6 text-right">{item.pct || 0}%</span>
+                                <span className="text-gray-950 w-6 text-right font-black">{item.views}</span>
+                                <span className="text-gray-600 w-6 text-right">{item.visitors}</span>
+                              </div>
+                            </div>
+                          </div>
+                        ))
+                      ) : (
+                        <p className="text-gray-400 text-center py-6 text-xs font-medium">No page visits recorded for this period.</p>
+                      )
+                    )}
+
+                    {pagesTab === 'routes' && (
+                      (analytics?.vercelWebAnalytics?.routes && analytics.vercelWebAnalytics.routes.length > 0) ? (
+                        analytics.vercelWebAnalytics.routes.map((item: any, idx: number) => (
+                          <div key={idx} className="relative overflow-hidden p-2.5 rounded-xl bg-stone-50/70 border border-gray-200/80 hover:bg-stone-100/70 transition">
+                            <div
+                              className="absolute inset-y-0 left-0 bg-blue-100/70 rounded-xl transition-all"
+                              style={{ width: `${item.pct || 0}%` }}
+                            />
+                            <div className="relative flex items-center justify-between gap-2">
+                              <span className="font-mono text-gray-900 truncate font-semibold">{item.route}</span>
+                              <div className="flex items-center gap-6 shrink-0 font-bold">
+                                <span className="text-gray-400 text-[11px] w-6 text-right">{item.pct || 0}%</span>
+                                <span className="text-gray-950 w-6 text-right font-black">{item.views}</span>
+                                <span className="text-gray-600 w-6 text-right">{item.visitors}</span>
+                              </div>
+                            </div>
+                          </div>
+                        ))
+                      ) : (
+                        <p className="text-gray-400 text-center py-6 text-xs font-medium">No route visits recorded for this period.</p>
+                      )
+                    )}
+
+                    {pagesTab === 'hostnames' && (
+                      (analytics?.vercelWebAnalytics?.hostnames && analytics.vercelWebAnalytics.hostnames.length > 0) ? (
+                        analytics.vercelWebAnalytics.hostnames.map((item: any, idx: number) => (
+                          <div key={idx} className="relative overflow-hidden p-3 rounded-xl bg-stone-50/70 border border-gray-200/80">
+                            <div className="absolute inset-y-0 left-0 bg-blue-100/70 rounded-xl" style={{ width: `${item.pct || 100}%` }} />
+                            <div className="relative flex items-center justify-between gap-2">
+                              <span className="font-mono text-gray-900 font-semibold">{item.hostname}</span>
+                              <div className="flex items-center gap-6 shrink-0 font-bold">
+                                <span className="text-gray-400 text-[11px]">{item.pct || 100}%</span>
+                                <span className="text-gray-950 font-black">{item.views}</span>
+                                <span className="text-gray-600">{item.visitors}</span>
+                              </div>
+                            </div>
+                          </div>
+                        ))
+                      ) : (
+                        <p className="text-gray-400 text-center py-6 text-xs font-medium">No hostname telemetry recorded.</p>
+                      )
+                    )}
                   </div>
                 </div>
 
-                {/* Devices & Traffic Sources */}
-                <div className="space-y-4">
-                  {/* Devices */}
-                  <div className="bg-white p-4 sm:p-5 rounded-2xl sm:rounded-3xl border border-gray-200 shadow-xs space-y-3">
-                    <h4 className="text-xs sm:text-sm font-black text-gray-950 flex items-center gap-1.5 pb-2 border-b border-gray-100">
-                      <Smartphone className="w-4 h-4 text-emerald-600" />
-                      <span>Visitor Devices Breakdown</span>
-                    </h4>
-                    <div className="grid grid-cols-3 gap-2 text-center">
-                      {(analytics?.deviceBreakdown || [
-                        { device: 'Mobile', count: 68 },
-                        { device: 'Desktop', count: 28 },
-                        { device: 'Tablet', count: 4 },
-                      ]).map((d: any, idx: number) => (
-                        <div key={idx} className="p-2.5 rounded-xl bg-gray-50 border border-gray-100">
-                          {d.device === 'Mobile' ? (
-                            <Smartphone className="w-4 h-4 mx-auto text-emerald-600 mb-1" />
-                          ) : d.device === 'Desktop' ? (
-                            <Laptop className="w-4 h-4 mx-auto text-blue-600 mb-1" />
-                          ) : (
-                            <Globe className="w-4 h-4 mx-auto text-purple-600 mb-1" />
-                          )}
-                          <p className="text-[10px] text-gray-500 font-bold uppercase">{d.device}</p>
-                          <p className="text-sm font-black text-gray-950 mt-0.5">{d.count}%</p>
-                        </div>
-                      ))}
-                    </div>
+                {/* Card 2: Referrers */}
+                <div className="bg-white rounded-2xl sm:rounded-3xl border border-gray-200 p-4 sm:p-5 shadow-xs space-y-3">
+                  <div className="flex items-center justify-between border-b border-gray-100 pb-2.5">
+                    <h4 className="text-xs font-black text-gray-950 uppercase tracking-wider">Referrers</h4>
+                    <span className="text-[10px] font-bold text-gray-400 uppercase tracking-wider">Page Views</span>
                   </div>
 
-                  {/* Traffic Sources */}
-                  <div className="bg-white p-4 sm:p-5 rounded-2xl sm:rounded-3xl border border-gray-200 shadow-xs space-y-2.5">
-                    <h4 className="text-xs sm:text-sm font-black text-gray-950 flex items-center gap-1.5 pb-2 border-b border-gray-100">
-                      <TrendingUp className="w-4 h-4 text-amber-600" />
-                      <span>Traffic Sources &amp; Referrals</span>
-                    </h4>
-                    <div className="space-y-2 text-xs">
-                      {(analytics?.trafficSources || [
-                        { source: 'Direct / WhatsApp Link', count: 142 },
-                        { source: 'Google Search', count: 85 },
-                        { source: 'Instagram / Social', count: 64 },
-                        { source: 'Referral / QR Code', count: 22 },
-                      ]).map((s: any, idx: number) => (
-                        <div key={idx} className="flex items-center justify-between py-1 border-b border-gray-50 last:border-0">
-                          <span className="text-gray-700 font-medium">{s.source}</span>
-                          <span className="font-bold text-gray-950">{s.count} visits</span>
+                  <div className="space-y-2 text-xs">
+                    {(analytics?.vercelWebAnalytics?.referrers && analytics.vercelWebAnalytics.referrers.length > 0) ? (
+                      analytics.vercelWebAnalytics.referrers.map((item: any, idx: number) => (
+                        <div key={idx} className="p-3 rounded-xl bg-stone-50/70 border border-gray-200/80 flex items-center justify-between">
+                          <div className="flex items-center gap-2">
+                            <Globe className="w-4 h-4 text-gray-500" />
+                            <span className="font-mono text-gray-900 font-semibold">{item.referrer}</span>
+                          </div>
+                          <div className="flex items-center gap-3 font-bold">
+                            {item.pct !== undefined && <span className="text-gray-400 text-[11px]">{item.pct}%</span>}
+                            <span className="font-black text-gray-950">{item.views}</span>
+                          </div>
                         </div>
-                      ))}
+                      ))
+                    ) : (
+                      <p className="text-gray-400 text-center py-8 text-xs font-medium">No referrers recorded for this period.</p>
+                    )}
+                  </div>
+                </div>
+              </div>
+
+              {/* Three Column Breakdown: Countries, Devices/Browsers & Operating Systems */}
+              <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
+                {/* Countries Card */}
+                <div className="bg-white rounded-2xl sm:rounded-3xl border border-gray-200 p-4 sm:p-5 shadow-xs space-y-3">
+                  <div className="flex items-center justify-between border-b border-gray-100 pb-2">
+                    <h4 className="text-xs font-black text-gray-950 uppercase tracking-wider">Countries</h4>
+                    <span className="text-[10px] font-bold text-gray-400 uppercase tracking-wider">Page Views</span>
+                  </div>
+                  <div className="space-y-2 text-xs">
+                    {(analytics?.vercelWebAnalytics?.countries && analytics.vercelWebAnalytics.countries.length > 0) ? (
+                      analytics.vercelWebAnalytics.countries.map((c: any, idx: number) => (
+                        <div key={idx} className="p-2.5 rounded-xl bg-stone-50/70 border border-gray-200/80 flex items-center justify-between">
+                          <div className="flex items-center gap-2">
+                            <span className="text-base">{c.flag || '🌐'}</span>
+                            <span className="font-bold text-gray-900">{c.country}</span>
+                          </div>
+                          <div className="flex items-center gap-3 font-bold">
+                            <span className="text-[10px] text-gray-400">{c.pct || 0}%</span>
+                            <span className="text-gray-950 font-black">{c.views}</span>
+                          </div>
+                        </div>
+                      ))
+                    ) : (
+                      <p className="text-gray-400 text-center py-6 text-xs font-medium">No country telemetry recorded.</p>
+                    )}
+                  </div>
+                </div>
+
+                {/* Devices & Browsers Card */}
+                <div className="bg-white rounded-2xl sm:rounded-3xl border border-gray-200 p-4 sm:p-5 shadow-xs space-y-3">
+                  <div className="flex items-center justify-between border-b border-gray-100 pb-2">
+                    <div className="flex items-center gap-1">
+                      <button
+                        onClick={() => setTechTab('devices')}
+                        className={`px-2 py-0.5 rounded text-[11px] font-bold transition-colors ${
+                          techTab === 'devices' ? 'text-gray-950 border-b-2 border-gray-950' : 'text-gray-400 hover:text-gray-950'
+                        }`}
+                      >
+                        Devices
+                      </button>
+                      <button
+                        onClick={() => setTechTab('browsers')}
+                        className={`px-2 py-0.5 rounded text-[11px] font-bold transition-colors ${
+                          techTab === 'browsers' ? 'text-gray-950 border-b-2 border-gray-950' : 'text-gray-400 hover:text-gray-950'
+                        }`}
+                      >
+                        Browsers
+                      </button>
                     </div>
+                    <span className="text-[10px] font-bold text-gray-400 uppercase tracking-wider">Page Views</span>
+                  </div>
+
+                  <div className="space-y-1.5 text-xs">
+                    {techTab === 'devices' ? (
+                      (analytics?.vercelWebAnalytics?.devices && analytics.vercelWebAnalytics.devices.length > 0) ? (
+                        analytics.vercelWebAnalytics.devices.map((d: any, i: number) => (
+                          <div key={i} className="p-2 rounded-xl bg-stone-50/70 border border-gray-200/80 flex items-center justify-between">
+                            <span className="font-semibold text-gray-900">{d.device || d.name}</span>
+                            <div className="flex items-center gap-2.5 font-bold">
+                              <span className="text-[10px] text-gray-400">{d.pct || 0}%</span>
+                              <span className="text-gray-950 font-black">{d.views}</span>
+                            </div>
+                          </div>
+                        ))
+                      ) : (
+                        <p className="text-gray-400 text-center py-6 text-xs font-medium">No device telemetry recorded.</p>
+                      )
+                    ) : (
+                      (analytics?.vercelWebAnalytics?.browsers && analytics.vercelWebAnalytics.browsers.length > 0) ? (
+                        analytics.vercelWebAnalytics.browsers.map((b: any, i: number) => (
+                          <div key={i} className="p-1.5 px-2 rounded-lg bg-stone-50/70 border border-gray-200/60 flex items-center justify-between text-[11px]">
+                            <span className="text-gray-800 truncate max-w-[140px] font-medium">{b.browser || b.name}</span>
+                            <div className="flex items-center gap-2 font-bold">
+                              <span className="text-[10px] text-gray-400">{b.pct || 0}%</span>
+                              <span className="text-gray-950 font-black">{b.views}</span>
+                            </div>
+                          </div>
+                        ))
+                      ) : (
+                        <p className="text-gray-400 text-center py-6 text-xs font-medium">No browser telemetry recorded.</p>
+                      )
+                    )}
+                  </div>
+                </div>
+
+                {/* Operating Systems Card */}
+                <div className="bg-white rounded-2xl sm:rounded-3xl border border-gray-200 p-4 sm:p-5 shadow-xs space-y-3">
+                  <div className="flex items-center justify-between border-b border-gray-100 pb-2">
+                    <h4 className="text-xs font-black text-gray-950 uppercase tracking-wider">Operating Systems</h4>
+                    <span className="text-[10px] font-bold text-gray-400 uppercase tracking-wider">Page Views</span>
+                  </div>
+
+                  <div className="space-y-1.5 text-xs">
+                    {(analytics?.vercelWebAnalytics?.operatingSystems && analytics.vercelWebAnalytics.operatingSystems.length > 0) ? (
+                      analytics.vercelWebAnalytics.operatingSystems.map((os: any, i: number) => (
+                        <div key={i} className="p-1.5 px-2.5 rounded-xl bg-stone-50/70 border border-gray-200/80 flex items-center justify-between text-xs">
+                          <span className="font-semibold text-gray-900">{os.os || os.name}</span>
+                          <div className="flex items-center gap-2.5 font-bold">
+                            <span className="text-[10px] text-gray-400">{os.pct || 0}%</span>
+                            <span className="text-gray-950 font-black">{os.views}</span>
+                          </div>
+                        </div>
+                      ))
+                    ) : (
+                      <p className="text-gray-400 text-center py-6 text-xs font-medium">No OS telemetry recorded.</p>
+                    )}
                   </div>
                 </div>
               </div>
             </div>
           )}
 
-          {/* TAB 3: LIVE VISITORS */}
-          {activeTab === 'live_visitors' && (
-            <div className="bg-white rounded-xl sm:rounded-3xl border border-gray-200 p-3.5 sm:p-6 shadow-xs space-y-3 sm:space-y-4">
-              <div className="flex flex-wrap items-center justify-between gap-2 pb-2.5 sm:pb-3 border-b border-gray-100">
+
+
+          {/* TAB 4: VERIFY PAYMENTS */}
+          {activeTab === 'payments' && (
+            <div className="space-y-4">
+              {/* Header & Export Toolbar */}
+              <div className="bg-white rounded-2xl sm:rounded-3xl border border-gray-200 p-4 sm:p-6 shadow-xs flex flex-wrap items-center justify-between gap-3">
                 <div>
-                  <h2 className="text-sm sm:text-lg font-black text-gray-950 flex items-center gap-1.5 sm:gap-2">
-                    <span className="w-2 h-2 sm:w-2.5 sm:h-2.5 rounded-full bg-emerald-500 animate-ping" />
-                    <span>Real-Time Active Visitors ({analytics?.activeVisitorsCount || 1})</span>
-                  </h2>
+                  <h2 className="text-base sm:text-xl font-black text-gray-950">Customer Payments &amp; Orders Verification (COD &amp; UPI)</h2>
+                  <p className="text-xs text-gray-500 mt-0.5">
+                    Review and verify customer payments (Manual UPI &amp; Cash on Delivery). Orders transition to <strong>CONFIRMED</strong> once verified by admin.
+                  </p>
                 </div>
                 <div className="flex items-center gap-1.5 sm:gap-2 flex-wrap">
                   <button
-                    onClick={() => handleExportVisitors('pdf')}
-                    className="px-2.5 sm:px-3 py-1 sm:py-1.5 rounded-full bg-white hover:bg-gray-50 border border-gray-200 text-[10px] sm:text-xs font-bold text-gray-800 shadow-xs flex items-center gap-1 sm:gap-1.5 transition-colors"
-                    title="Download Live Visitors PDF with FunPrint Header"
+                    onClick={() => handleExportPayments('pdf')}
+                    className="px-2.5 sm:px-3.5 py-1 sm:py-1.5 rounded-full bg-white hover:bg-stone-50 border border-gray-200 text-[10px] sm:text-xs font-bold text-gray-800 shadow-2xs flex items-center gap-1.5 transition-colors"
+                    title="Export Filtered Payments to PDF"
                   >
-                    <FileText className="w-3 h-3 sm:w-3.5 sm:h-3.5 text-red-500" />
+                    <FileText className="w-3.5 h-3.5 text-red-500" />
                     <span>Download PDF</span>
                   </button>
                   <button
-                    onClick={() => handleExportVisitors('excel')}
-                    className="px-2.5 sm:px-3 py-1 sm:py-1.5 rounded-full bg-white hover:bg-gray-50 border border-gray-200 text-[10px] sm:text-xs font-bold text-gray-800 shadow-xs flex items-center gap-1 sm:gap-1.5 transition-colors"
-                    title="Download Live Visitors Excel with FunPrint Header"
+                    onClick={() => handleExportPayments('excel')}
+                    className="px-2.5 sm:px-3.5 py-1 sm:py-1.5 rounded-full bg-white hover:bg-stone-50 border border-gray-200 text-[10px] sm:text-xs font-bold text-gray-800 shadow-2xs flex items-center gap-1.5 transition-colors"
+                    title="Export Filtered Payments to Excel"
                   >
-                    <FileSpreadsheet className="w-3 h-3 sm:w-3.5 sm:h-3.5 text-emerald-600" />
+                    <FileSpreadsheet className="w-3.5 h-3.5 text-emerald-600" />
                     <span>Download Excel</span>
                   </button>
                   <button
                     onClick={loadAllData}
-                    className="px-2.5 sm:px-3 py-1 sm:py-1.5 bg-stone-100 hover:bg-stone-200 rounded-full text-[10px] sm:text-xs font-bold text-gray-700 flex items-center gap-1 sm:gap-1.5"
+                    disabled={refreshing}
+                    className="px-3 sm:px-3.5 py-1 sm:py-1.5 rounded-full bg-gray-950 text-white hover:bg-gray-800 text-[10.5px] sm:text-xs font-black flex items-center gap-1.5 shadow-xs transition-colors disabled:opacity-50"
                   >
-                    <RefreshCw className="w-3 h-3 sm:w-3.5 sm:h-3.5" />
-                    <span>Update Live</span>
+                    <RefreshCw className={`w-3 h-3 sm:w-3.5 sm:h-3.5 ${refreshing ? 'animate-spin' : ''}`} />
+                    <span>Sync</span>
                   </button>
                 </div>
               </div>
 
-              <div className="overflow-x-auto">
-                <table className="w-full text-left text-[10.5px] sm:text-xs">
-                  <thead>
-                    <tr className="border-b border-gray-200 text-gray-400 uppercase text-[9px] sm:text-[10px]">
-                      <th className="pb-1.5 sm:pb-2">Session ID</th>
-                      <th className="pb-1.5 sm:pb-2">Current Page</th>
-                      <th className="pb-1.5 sm:pb-2">Last Action</th>
-                      <th className="pb-1.5 sm:pb-2 text-right">Last Ping</th>
-                    </tr>
-                  </thead>
-                  <tbody className="divide-y divide-gray-100">
-                    {(analytics?.activeVisitors || []).length === 0 ? (
-                      <tr>
-                        <td colSpan={4} className="py-6 text-center text-gray-400">
-                          1 active shopper on store catalog
-                        </td>
-                      </tr>
-                    ) : (
-                      analytics.activeVisitors.map((v: any, idx: number) => (
-                        <tr key={idx}>
-                          <td className="py-3 font-mono font-bold text-gray-900">{v.session_id?.slice(0, 16)}...</td>
-                          <td className="py-3 text-amber-900 font-bold">{v.page_path || '/'}</td>
-                          <td className="py-3">{v.event_type}</td>
-                          <td className="py-3 text-right text-gray-500">{new Date(v.created_at).toLocaleTimeString()}</td>
-                        </tr>
-                      ))
-                    )}
-                  </tbody>
-                </table>
-              </div>
-            </div>
-          )}
+              {/* Summary Counts Cards Grid */}
+              <div className="grid grid-cols-2 lg:grid-cols-4 gap-2 sm:gap-4">
+                <div
+                  onClick={() => setPaymentFilter('all')}
+                  className={`p-3 sm:p-4 rounded-xl sm:rounded-2xl border transition-all cursor-pointer ${
+                    paymentFilter === 'all'
+                      ? 'bg-stone-50/90 border-gray-900 shadow-xs'
+                      : 'bg-white border-gray-200 shadow-2xs hover:border-gray-300'
+                  }`}
+                >
+                  <div className="flex items-center justify-between text-gray-500 text-[10.5px] sm:text-xs font-bold mb-1">
+                    <span>Total Payments</span>
+                    <CreditCard className="w-3.5 h-3.5 text-blue-600" />
+                  </div>
+                  <p className="text-lg sm:text-2xl font-black text-gray-950">{totalPaymentsCount}</p>
+                  <p className="text-[10px] sm:text-[11px] text-gray-400 mt-0.5">
+                    {upiPaymentsCount} UPI • {codPaymentsCount} COD records
+                  </p>
+                </div>
 
-          {/* TAB 4: VERIFY PAYMENTS */}
-          {activeTab === 'payments' && (
-            <div className="bg-white rounded-xl sm:rounded-3xl border border-gray-200 p-3 sm:p-6 shadow-xs space-y-3 sm:space-y-4">
-              <div className="flex flex-wrap items-center justify-between gap-2 pb-2.5 sm:pb-3 border-b border-gray-100">
-                <div>
-                  <h2 className="text-sm sm:text-lg font-black text-gray-950">Customer Payments &amp; Orders Verification (COD &amp; UPI)</h2>
-                  <p className="text-[11px] sm:text-xs text-gray-500 mt-0.5">
-                    Review and verify customer payments (Manual UPI &amp; Cash on Delivery). Orders transition to <strong>CONFIRMED</strong> once verified by admin.
+                <div
+                  onClick={() => setPaymentFilter('pending')}
+                  className={`p-3 sm:p-4 rounded-xl sm:rounded-2xl border transition-all cursor-pointer ${
+                    paymentFilter === 'pending'
+                      ? 'bg-amber-50/90 border-amber-600 shadow-xs'
+                      : 'bg-white border-gray-200 shadow-2xs hover:border-amber-300'
+                  }`}
+                >
+                  <div className="flex items-center justify-between text-amber-800 text-[10.5px] sm:text-xs font-bold mb-1">
+                    <span>Pending Action</span>
+                    <span className="w-2 h-2 rounded-full bg-amber-500 animate-pulse" />
+                  </div>
+                  <p className="text-lg sm:text-2xl font-black text-amber-700">{pendingPaymentsCount}</p>
+                  <p className="text-[10px] sm:text-[11px] text-amber-800 mt-0.5">
+                    {pendingUpiCount} UPI checks • {pendingCodCount} COD pending
+                  </p>
+                </div>
+
+                <div
+                  onClick={() => setPaymentFilter('confirmed')}
+                  className={`p-3 sm:p-4 rounded-xl sm:rounded-2xl border transition-all cursor-pointer ${
+                    paymentFilter === 'confirmed'
+                      ? 'bg-emerald-50/90 border-emerald-600 shadow-xs'
+                      : 'bg-white border-gray-200 shadow-2xs hover:border-emerald-300'
+                  }`}
+                >
+                  <div className="flex items-center justify-between text-emerald-800 text-[10.5px] sm:text-xs font-bold mb-1">
+                    <span>Verified &amp; Confirmed</span>
+                    <CheckCircle2 className="w-3.5 h-3.5 text-emerald-600" />
+                  </div>
+                  <p className="text-lg sm:text-2xl font-black text-emerald-700">{confirmedPaymentsCount}</p>
+                  <p className="text-[10px] sm:text-[11px] text-emerald-800 mt-0.5">
+                    Bank verified revenue
+                  </p>
+                </div>
+
+                <div
+                  onClick={() => setPaymentFilter('rejected')}
+                  className={`p-3 sm:p-4 rounded-xl sm:rounded-2xl border transition-all cursor-pointer ${
+                    paymentFilter === 'rejected'
+                      ? 'bg-red-50/90 border-red-600 shadow-xs'
+                      : 'bg-white border-gray-200 shadow-2xs hover:border-red-300'
+                  }`}
+                >
+                  <div className="flex items-center justify-between text-red-800 text-[10.5px] sm:text-xs font-bold mb-1">
+                    <span>Rejected</span>
+                    <XCircle className="w-3.5 h-3.5 text-red-600" />
+                  </div>
+                  <p className="text-lg sm:text-2xl font-black text-red-700">{rejectedPaymentsCount}</p>
+                  <p className="text-[10px] sm:text-[11px] text-red-800 mt-0.5">
+                    Discrepancy / cancelled
                   </p>
                 </div>
               </div>
 
-              {/* Desktop Table View */}
-              <div className="hidden sm:block overflow-x-auto">
-                <table className="w-full text-left text-[10px] sm:text-xs">
-                  <thead>
-                    <tr className="border-b border-gray-200 text-gray-400 uppercase text-[9px] sm:text-[10px]">
-                      <th className="pb-1.5 sm:pb-2">Order ID</th>
-                      <th className="pb-1.5 sm:pb-2">Payment Method</th>
-                      <th className="pb-1.5 sm:pb-2">Amount</th>
-                      <th className="pb-1.5 sm:pb-2">Customer &amp; Phone</th>
-                      <th className="pb-1.5 sm:pb-2">Bank UTR / Collection Ref</th>
-                      <th className="pb-1.5 sm:pb-2">Verification Status</th>
-                      <th className="pb-1.5 sm:pb-2">Submitted At</th>
-                      <th className="pb-1.5 sm:pb-2 text-right">Actions</th>
-                    </tr>
-                  </thead>
-                  <tbody className="divide-y divide-gray-100">
-                    {payments.length === 0 ? (
-                      <tr>
-                        <td colSpan={8} className="py-6 sm:py-8 text-center text-gray-400">
-                          No customer payment submissions recorded yet.
-                        </td>
-                      </tr>
-                    ) : (
-                      payments.map((p) => {
-                        const isCod = (p.payment_method || '').toUpperCase().includes('COD');
-                        const isVerified = p.payment_status === 'CONFIRMED' || p.payment_status === 'VERIFIED' || p.status === 'VERIFIED';
-                        const isRejected = p.payment_status === 'REJECTED' || p.status === 'REJECTED';
-                        const customerName = p.customer_name || p.payer_name || 'N/A';
-                        const customerPhone = p.customer_phone || p.payer_phone || 'N/A';
-                        const utr = p.transaction_ref || p.transaction_reference || (isCod ? `COD-${p.order_id}` : 'N/A');
-                        const formattedAmount = `₹${Number(p.amount || 0).toLocaleString('en-IN', { minimumFractionDigits: 2, maximumFractionDigits: 2 })}`;
-                        const submittedAt = p.payment_date || p.created_at
-                          ? new Date(p.payment_date || p.created_at).toLocaleString('en-IN', { dateStyle: 'medium', timeStyle: 'short' })
-                          : 'N/A';
+              {/* Search & Filter Controls Card */}
+              <div className="bg-white rounded-2xl sm:rounded-3xl border border-gray-200 p-3 sm:p-4 shadow-xs space-y-3">
+                <div className="flex flex-col sm:flex-row gap-2.5 items-stretch sm:items-center justify-between">
+                  {/* Search Input */}
+                  <div className="relative flex-1">
+                    <Search className="w-4 h-4 text-gray-400 absolute left-3 top-1/2 -translate-y-1/2" />
+                    <input
+                      type="text"
+                      placeholder="Search by Order ID, customer, phone, UTR ref, method..."
+                      value={paymentSearch}
+                      onChange={(e) => setPaymentSearch(e.target.value)}
+                      className="w-full pl-9 pr-8 py-2 rounded-xl bg-stone-50/70 border border-gray-200 text-xs text-gray-900 placeholder:text-gray-400 focus:outline-hidden focus:border-gray-900 transition"
+                    />
+                    {paymentSearch && (
+                      <button
+                        onClick={() => setPaymentSearch('')}
+                        className="absolute right-2.5 top-1/2 -translate-y-1/2 text-gray-400 hover:text-gray-700"
+                      >
+                        <X className="w-3.5 h-3.5" />
+                      </button>
+                    )}
+                  </div>
 
-                        return (
-                          <tr key={p.id} className="hover:bg-slate-50/50">
-                            <td className="py-2 sm:py-3 px-1 sm:px-2 font-mono font-bold text-gray-950 whitespace-nowrap">{p.order_id}</td>
-                            <td className="py-2 sm:py-3 px-1 sm:px-2">
-                              {isCod ? (
-                                <div>
-                                  <span className="inline-flex items-center gap-1 px-2 py-0.5 rounded-full text-[9.5px] font-bold bg-blue-100 text-blue-900 border border-blue-200">
-                                    Cash on Delivery (COD)
+                  {/* Filter Pills */}
+                  <div className="flex items-center gap-1 overflow-x-auto no-scrollbar py-0.5">
+                    {[
+                      { id: 'all', label: 'All', count: totalPaymentsCount },
+                      { id: 'pending', label: 'Pending Action', count: pendingPaymentsCount },
+                      { id: 'confirmed', label: 'Confirmed', count: confirmedPaymentsCount },
+                      { id: 'rejected', label: 'Rejected', count: rejectedPaymentsCount },
+                      { id: 'upi', label: 'Manual UPI', count: upiPaymentsCount },
+                      { id: 'cod', label: 'COD', count: codPaymentsCount },
+                    ].map((tab) => (
+                      <button
+                        key={tab.id}
+                        onClick={() => setPaymentFilter(tab.id as any)}
+                        className={`px-3 py-1.5 rounded-full text-xs font-bold whitespace-nowrap transition-all flex items-center gap-1.5 ${
+                          paymentFilter === tab.id
+                            ? 'bg-gray-950 text-white font-black shadow-xs'
+                            : 'bg-stone-100 text-gray-600 hover:text-gray-950 hover:bg-stone-200/70'
+                        }`}
+                      >
+                        <span>{tab.label}</span>
+                        <span className={`text-[10px] px-1.5 py-0.2 rounded-full font-black ${
+                          paymentFilter === tab.id ? 'bg-white/20 text-white' : 'bg-gray-200/80 text-gray-700'
+                        }`}>
+                          {tab.count}
+                        </span>
+                      </button>
+                    ))}
+                  </div>
+                </div>
+
+                {/* Desktop Table View */}
+                <div className="hidden sm:block overflow-x-auto pt-1">
+                  <table className="w-full text-left text-xs">
+                    <thead>
+                      <tr className="border-b border-gray-200 text-gray-400 uppercase text-[10px]">
+                        <th className="pb-2">Order ID</th>
+                        <th className="pb-2">Payment Method</th>
+                        <th className="pb-2">Amount</th>
+                        <th className="pb-2">Customer &amp; Phone</th>
+                        <th className="pb-2">Bank UTR / Collection Ref</th>
+                        <th className="pb-2">Verification Status</th>
+                        <th className="pb-2">Submitted At</th>
+                        <th className="pb-2 text-right">Actions</th>
+                      </tr>
+                    </thead>
+                    <tbody className="divide-y divide-gray-100">
+                      {filteredPayments.length === 0 ? (
+                        <tr>
+                          <td colSpan={8} className="py-8 text-center text-gray-400 space-y-1">
+                            <p className="font-semibold text-gray-600 text-xs">No payment records match the current filter or search criteria.</p>
+                            {(paymentSearch || paymentFilter !== 'all') && (
+                              <button
+                                onClick={() => {
+                                  setPaymentSearch('');
+                                  setPaymentFilter('all');
+                                }}
+                                className="text-blue-600 font-bold hover:underline text-xs"
+                              >
+                                Reset search and filters
+                              </button>
+                            )}
+                          </td>
+                        </tr>
+                      ) : (
+                        filteredPayments.map((p) => {
+                          const isCod = (p.payment_method || '').toUpperCase().includes('COD');
+                          const isVerified = p.payment_status === 'CONFIRMED' || p.payment_status === 'VERIFIED' || p.status === 'VERIFIED';
+                          const isRejected = p.payment_status === 'REJECTED' || p.status === 'REJECTED';
+                          const customerName = p.customer_name || p.payer_name || 'N/A';
+                          const customerPhone = p.customer_phone || p.payer_phone || 'N/A';
+                          const utr = p.transaction_ref || p.transaction_reference || (isCod ? `COD-${p.order_id}` : 'N/A');
+                          const formattedAmount = `₹${Number(p.amount || 0).toLocaleString('en-IN', { minimumFractionDigits: 2, maximumFractionDigits: 2 })}`;
+                          const submittedAt = p.payment_date || p.created_at
+                            ? new Date(p.payment_date || p.created_at).toLocaleString('en-IN', { dateStyle: 'medium', timeStyle: 'short' })
+                            : 'N/A';
+
+                          return (
+                            <tr key={p.id} className="hover:bg-slate-50/50">
+                              <td className="py-3 px-2 font-mono font-bold text-gray-950 whitespace-nowrap">{p.order_id}</td>
+                              <td className="py-3 px-2">
+                                {isCod ? (
+                                  <div>
+                                    <span className="inline-flex items-center gap-1 px-2.5 py-0.5 rounded-full text-[10px] font-bold bg-blue-100 text-blue-900 border border-blue-200">
+                                      Cash on Delivery (COD)
+                                    </span>
+                                    <p className="text-[9.5px] text-blue-700 font-medium mt-0.5">Pay cash or UPI upon package handover at your doorstep</p>
+                                  </div>
+                                ) : (
+                                  <div>
+                                    <span className="inline-flex items-center gap-1 px-2.5 py-0.5 rounded-full text-[10px] font-bold bg-purple-100 text-purple-900 border border-purple-200">
+                                      Manual UPI Payment
+                                    </span>
+                                    <p className="text-[9.5px] text-purple-700 font-medium mt-0.5">Direct Scan &amp; Pay</p>
+                                  </div>
+                                )}
+                              </td>
+                              <td className="py-3 px-2 font-black text-gray-950 whitespace-nowrap">{formattedAmount}</td>
+                              <td className="py-3 px-2">
+                                <p className="font-semibold text-gray-900 leading-tight">{customerName}</p>
+                                <p className="text-[11px] text-gray-500 font-mono">{customerPhone}</p>
+                                {!isCod && p.payer_name && (
+                                  <p className="text-[10px] text-purple-700 font-medium mt-0.5">
+                                    UPI: {p.payer_name} {p.payer_phone ? `• ${p.payer_phone}` : ''}
+                                  </p>
+                                )}
+                              </td>
+                              <td className="py-3 px-2">
+                                {isCod ? (
+                                  <span className="font-mono text-blue-900 bg-blue-50 px-2 py-0.5 rounded border border-blue-200 text-xs inline-block">
+                                    COD Doorstep Collection
                                   </span>
-                                  <p className="text-[9px] text-blue-700 font-medium mt-0.5">Pay cash or UPI upon package handover at your doorstep</p>
-                                </div>
-                              ) : (
-                                <div>
-                                  <span className="inline-flex items-center gap-1 px-2 py-0.5 rounded-full text-[9.5px] font-bold bg-purple-100 text-purple-900 border border-purple-200">
-                                    Manual UPI Payment
+                                ) : (
+                                  <span className="font-mono font-bold text-amber-950 bg-amber-50 px-2 py-0.5 rounded border border-amber-200/80 text-xs inline-block">
+                                    {utr}
                                   </span>
-                                  <p className="text-[9px] text-purple-700 font-medium mt-0.5">Direct Scan &amp; Pay</p>
-                                </div>
-                              )}
-                            </td>
-                            <td className="py-2 sm:py-3 px-1 sm:px-2 font-black text-gray-950 whitespace-nowrap">{formattedAmount}</td>
-                            <td className="py-2 sm:py-3 px-1 sm:px-2">
-                              <p className="font-semibold text-gray-900 leading-tight">{customerName}</p>
-                              <p className="text-[10px] sm:text-[11px] text-gray-500 font-mono">{customerPhone}</p>
-                              {!isCod && p.payer_name && (
-                                <p className="text-[9.5px] sm:text-[10px] text-purple-700 font-medium mt-0.5">
-                                  UPI: {p.payer_name} {p.payer_phone ? `• ${p.payer_phone}` : ''}
-                                </p>
-                              )}
-                            </td>
-                            <td className="py-2 sm:py-3 px-1 sm:px-2">
-                              {isCod ? (
-                                <span className="font-mono text-blue-900 bg-blue-50 px-1.5 sm:px-2 py-0.5 rounded border border-blue-200 text-[9.5px] sm:text-xs inline-block">
-                                  COD Doorstep Collection
+                                )}
+                              </td>
+                              <td className="py-3 px-2 whitespace-nowrap">
+                                <span
+                                  className={`px-2.5 py-0.5 rounded-full text-[10px] font-black uppercase tracking-wider ${
+                                    isVerified
+                                      ? 'bg-emerald-100 text-emerald-800 border border-emerald-200'
+                                      : isRejected
+                                      ? 'bg-red-100 text-red-800 border border-red-200'
+                                      : 'bg-amber-100 text-amber-950 border border-amber-200'
+                                  }`}
+                                >
+                                  {isVerified ? 'Verified & Confirmed' : isRejected ? 'Rejected' : isCod ? 'Pending Collection' : 'Pending Verification'}
                                 </span>
-                              ) : (
-                                <span className="font-mono font-bold text-amber-950 bg-amber-50 px-1.5 sm:px-2 py-0.5 rounded border border-amber-200/80 text-[9.5px] sm:text-xs inline-block">
-                                  {utr}
-                                </span>
-                              )}
-                            </td>
-                            <td className="py-2 sm:py-3 px-1 sm:px-2 whitespace-nowrap">
+                              </td>
+                              <td className="py-3 px-2 text-gray-500 font-sans text-xs whitespace-nowrap">
+                                {submittedAt}
+                              </td>
+                              <td className="py-3 px-2 text-right whitespace-nowrap">
+                                {!isVerified && !isRejected ? (
+                                  <div className="flex items-center justify-end gap-1.5">
+                                    <button
+                                      type="button"
+                                      onClick={() => setPaymentModal({ isOpen: true, mode: 'confirm', payment: p })}
+                                      className="px-3 py-1 bg-[#FFC006] hover:bg-[#E5AC00] text-gray-950 font-black rounded-full text-xs shadow-xs border border-amber-400/60 transition-all"
+                                    >
+                                      Verify Payment
+                                    </button>
+                                    <button
+                                      type="button"
+                                      onClick={() => setPaymentModal({ isOpen: true, mode: 'reject', payment: p, reason: '' })}
+                                      className="px-3 py-1 bg-red-50 hover:bg-red-100 text-red-700 font-bold rounded-full text-xs border border-red-200 transition-colors"
+                                    >
+                                      Reject
+                                    </button>
+                                  </div>
+                                ) : isVerified ? (
+                                  <span className="inline-flex items-center gap-1 text-[11px] font-bold text-emerald-700 bg-emerald-50 px-2.5 py-0.5 rounded-full border border-emerald-200">
+                                    <CheckCircle2 className="w-3 h-3 text-emerald-600" />
+                                    Confirmed
+                                  </span>
+                                ) : (
+                                  <span className="inline-flex items-center gap-1 text-[11px] font-bold text-red-700 bg-red-50 px-2.5 py-0.5 rounded-full border border-red-200">
+                                    <XCircle className="w-3 h-3 text-red-600" />
+                                    Rejected
+                                  </span>
+                                )}
+                              </td>
+                            </tr>
+                          );
+                        })
+                      )}
+                    </tbody>
+                  </table>
+                </div>
+
+                {/* Mobile Card List View */}
+                <div className="block sm:hidden space-y-3 pt-1">
+                  {filteredPayments.length === 0 ? (
+                    <div className="py-8 text-center text-xs text-gray-400 space-y-1">
+                      <p className="font-semibold text-gray-600">No payment records match the current filter or search criteria.</p>
+                      {(paymentSearch || paymentFilter !== 'all') && (
+                        <button
+                          onClick={() => {
+                            setPaymentSearch('');
+                            setPaymentFilter('all');
+                          }}
+                          className="text-blue-600 font-bold hover:underline text-xs"
+                        >
+                          Reset search and filters
+                        </button>
+                      )}
+                    </div>
+                  ) : (
+                    filteredPayments.map((p) => {
+                      const isCod = (p.payment_method || '').toUpperCase().includes('COD');
+                      const isVerified = p.payment_status === 'CONFIRMED' || p.payment_status === 'VERIFIED' || p.status === 'VERIFIED';
+                      const isRejected = p.payment_status === 'REJECTED' || p.status === 'REJECTED';
+                      const customerName = p.customer_name || p.payer_name || 'N/A';
+                      const customerPhone = p.customer_phone || p.payer_phone || 'N/A';
+                      const utr = p.transaction_ref || p.transaction_reference || (isCod ? `COD-${p.order_id}` : 'N/A');
+                      const formattedAmount = `₹${Number(p.amount || 0).toLocaleString('en-IN', { minimumFractionDigits: 2, maximumFractionDigits: 2 })}`;
+                      const submittedAt = p.payment_date || p.created_at
+                        ? new Date(p.payment_date || p.created_at).toLocaleString('en-IN', { dateStyle: 'medium', timeStyle: 'short' })
+                        : 'N/A';
+
+                      return (
+                        <div key={p.id} className="p-3.5 bg-stone-50/70 border border-gray-200 rounded-2xl shadow-xs space-y-2.5">
+                          <div className="flex items-center justify-between gap-2 border-b border-gray-200/80 pb-2">
+                            <div>
+                              <span className="font-mono font-bold text-xs text-gray-950 block">{p.order_id}</span>
+                              <span className="text-[10px] text-gray-400">{submittedAt}</span>
+                            </div>
+                            <div className="text-right">
+                              <span className="font-black text-sm text-gray-950 block">{formattedAmount}</span>
                               <span
-                                className={`px-2 py-0.5 rounded-full text-[9px] sm:text-[10px] font-black uppercase tracking-wider ${
+                                className={`inline-block px-2 py-0.5 rounded-full text-[9px] font-black uppercase tracking-wider ${
                                   isVerified
                                     ? 'bg-emerald-100 text-emerald-800 border border-emerald-200'
                                     : isRejected
@@ -2131,170 +2990,90 @@ export function AdminDashboardView({ initialTab = 'overview' }: { initialTab?: A
                                     : 'bg-amber-100 text-amber-950 border border-amber-200'
                                 }`}
                               >
-                                {isVerified ? 'Verified & Confirmed' : isRejected ? 'Rejected' : 'Pending Verification'}
+                                {isVerified ? 'Verified' : isRejected ? 'Rejected' : isCod ? 'Pending Collection' : 'Pending Verification'}
                               </span>
-                            </td>
-                            <td className="py-2 sm:py-3 px-1 sm:px-2 text-gray-500 font-sans text-[10px] sm:text-xs whitespace-nowrap">
-                              {submittedAt}
-                            </td>
-                            <td className="py-2 sm:py-3 px-1 sm:px-2 text-right whitespace-nowrap">
-                              {!isVerified && !isRejected ? (
-                                <div className="flex items-center justify-end gap-1 sm:gap-1.5">
-                                  <button
-                                    type="button"
-                                    onClick={() => setPaymentModal({ isOpen: true, mode: 'confirm', payment: p })}
-                                    className="px-2.5 sm:px-3 py-0.5 sm:py-1 bg-[#FFC006] hover:bg-[#E5AC00] text-gray-950 font-black rounded-full text-[10px] sm:text-xs shadow-xs border border-amber-400/60 transition-all"
-                                  >
-                                    Verify Payment
-                                  </button>
-                                  <button
-                                    type="button"
-                                    onClick={() => setPaymentModal({ isOpen: true, mode: 'reject', payment: p, reason: '' })}
-                                    className="px-2 sm:px-3 py-0.5 sm:py-1 bg-red-50 hover:bg-red-100 text-red-700 font-bold rounded-full text-[10px] sm:text-xs border border-red-200 transition-colors"
-                                  >
-                                    Reject
-                                  </button>
-                                </div>
-                              ) : isVerified ? (
-                                <span className="inline-flex items-center gap-1 text-[10px] sm:text-[11px] font-bold text-emerald-700 bg-emerald-50 px-2 py-0.5 rounded-full border border-emerald-200">
-                                  <CheckCircle2 className="w-2.5 h-2.5 sm:w-3 sm:h-3 text-emerald-600" />
-                                  Confirmed
-                                </span>
-                              ) : (
-                                <span className="inline-flex items-center gap-1 text-[10px] sm:text-[11px] font-bold text-red-700 bg-red-50 px-2 py-0.5 rounded-full border border-red-200">
-                                  <XCircle className="w-2.5 h-2.5 sm:w-3 sm:h-3 text-red-600" />
-                                  Rejected
-                                </span>
-                              )}
-                            </td>
-                          </tr>
-                        );
-                      })
-                    )}
-                  </tbody>
-                </table>
-              </div>
-
-              {/* Mobile Card List View (Clean & Responsive) */}
-              <div className="block sm:hidden space-y-3">
-                {payments.length === 0 ? (
-                  <div className="py-8 text-center text-xs text-gray-400">
-                    No customer payment submissions recorded yet.
-                  </div>
-                ) : (
-                  payments.map((p) => {
-                    const isCod = (p.payment_method || '').toUpperCase().includes('COD');
-                    const isVerified = p.payment_status === 'CONFIRMED' || p.payment_status === 'VERIFIED' || p.status === 'VERIFIED';
-                    const isRejected = p.payment_status === 'REJECTED' || p.status === 'REJECTED';
-                    const customerName = p.customer_name || p.payer_name || 'N/A';
-                    const customerPhone = p.customer_phone || p.payer_phone || 'N/A';
-                    const utr = p.transaction_ref || p.transaction_reference || (isCod ? `COD-${p.order_id}` : 'N/A');
-                    const formattedAmount = `₹${Number(p.amount || 0).toLocaleString('en-IN', { minimumFractionDigits: 2, maximumFractionDigits: 2 })}`;
-                    const submittedAt = p.payment_date || p.created_at
-                      ? new Date(p.payment_date || p.created_at).toLocaleString('en-IN', { dateStyle: 'medium', timeStyle: 'short' })
-                      : 'N/A';
-
-                    return (
-                      <div key={p.id} className="p-3.5 bg-stone-50/70 border border-gray-200 rounded-2xl shadow-xs space-y-2.5">
-                        <div className="flex items-center justify-between gap-2 border-b border-gray-200/80 pb-2">
-                          <div>
-                            <span className="font-mono font-bold text-xs text-gray-950 block">{p.order_id}</span>
-                            <span className="text-[10px] text-gray-400">{submittedAt}</span>
+                            </div>
                           </div>
-                          <div className="text-right">
-                            <span className="font-black text-sm text-gray-950 block">{formattedAmount}</span>
-                            <span
-                              className={`inline-block px-2 py-0.5 rounded-full text-[9px] font-black uppercase tracking-wider ${
-                                isVerified
-                                  ? 'bg-emerald-100 text-emerald-800 border border-emerald-200'
-                                  : isRejected
-                                  ? 'bg-red-100 text-red-800 border border-red-200'
-                                  : 'bg-amber-100 text-amber-950 border border-amber-200'
-                              }`}
-                            >
-                              {isVerified ? 'Verified' : isRejected ? 'Rejected' : 'Pending Verification'}
+
+                          {/* Payment Method Badge */}
+                          <div>
+                            {isCod ? (
+                              <div className="bg-blue-50/80 border border-blue-200/80 rounded-xl p-2 space-y-0.5">
+                                <span className="inline-block px-2 py-0.5 rounded-full text-[9.5px] font-bold bg-blue-100 text-blue-900 border border-blue-200">
+                                  Cash on Delivery (COD)
+                                </span>
+                                <p className="text-[10px] text-blue-700 font-medium">
+                                  Pay cash or UPI upon package handover at your doorstep
+                                </p>
+                              </div>
+                            ) : (
+                              <div className="bg-purple-50/80 border border-purple-200/80 rounded-xl p-2 space-y-0.5">
+                                <span className="inline-block px-2 py-0.5 rounded-full text-[9.5px] font-bold bg-purple-100 text-purple-900 border border-purple-200">
+                                  Manual UPI Payment
+                                </span>
+                                <p className="text-[10px] text-purple-700 font-medium">
+                                  Direct Scan &amp; Pay
+                                </p>
+                              </div>
+                            )}
+                          </div>
+
+                          <div className="space-y-1 text-xs">
+                            <p className="font-bold text-gray-900 leading-tight">{customerName}</p>
+                            <p className="text-[11px] text-gray-500 font-mono">{customerPhone}</p>
+                            {!isCod && p.payer_name && (
+                              <p className="text-[10.5px] text-purple-700 font-semibold bg-purple-50 px-2 py-0.5 rounded border border-purple-100 inline-block">
+                                UPI: {p.payer_name} {p.payer_phone ? `• ${p.payer_phone}` : ''}
+                              </p>
+                            )}
+                          </div>
+
+                          <div className="flex items-center justify-between bg-white px-2.5 py-1.5 rounded-xl border border-gray-200 text-xs">
+                            <span className="text-gray-500 font-semibold text-[10px] uppercase">
+                              {isCod ? 'Collection Ref:' : 'Bank UTR / Ref:'}
+                            </span>
+                            <span className="font-mono font-bold text-amber-950 bg-amber-50 px-2 py-0.5 rounded border border-amber-200/80 text-[11px]">
+                              {utr}
                             </span>
                           </div>
-                        </div>
 
-                        {/* Payment Method Badge */}
-                        <div>
-                          {isCod ? (
-                            <div className="bg-blue-50/80 border border-blue-200/80 rounded-xl p-2 space-y-0.5">
-                              <span className="inline-block px-2 py-0.5 rounded-full text-[9.5px] font-bold bg-blue-100 text-blue-900 border border-blue-200">
-                                Cash on Delivery (COD)
-                              </span>
-                              <p className="text-[10px] text-blue-700 font-medium">
-                                Pay cash or UPI upon package handover at your doorstep
-                              </p>
-                            </div>
-                          ) : (
-                            <div className="bg-purple-50/80 border border-purple-200/80 rounded-xl p-2 space-y-0.5">
-                              <span className="inline-block px-2 py-0.5 rounded-full text-[9.5px] font-bold bg-purple-100 text-purple-900 border border-purple-200">
-                                Manual UPI Payment
-                              </span>
-                              <p className="text-[10px] text-purple-700 font-medium">
-                                Direct Scan &amp; Pay
-                              </p>
-                            </div>
-                          )}
-                        </div>
-
-                        <div className="space-y-1 text-xs">
-                          <p className="font-bold text-gray-900 leading-tight">{customerName}</p>
-                          <p className="text-[11px] text-gray-500 font-mono">{customerPhone}</p>
-                          {!isCod && p.payer_name && (
-                            <p className="text-[10.5px] text-purple-700 font-semibold bg-purple-50 px-2 py-0.5 rounded border border-purple-100 inline-block">
-                              UPI: {p.payer_name} {p.payer_phone ? `• ${p.payer_phone}` : ''}
-                            </p>
-                          )}
-                        </div>
-
-                        <div className="flex items-center justify-between bg-white px-2.5 py-1.5 rounded-xl border border-gray-200 text-xs">
-                          <span className="text-gray-500 font-semibold text-[10px] uppercase">
-                            {isCod ? 'Collection Ref:' : 'Bank UTR / Ref:'}
-                          </span>
-                          <span className="font-mono font-bold text-amber-950 bg-amber-50 px-2 py-0.5 rounded border border-amber-200/80 text-[11px]">
-                            {utr}
-                          </span>
-                        </div>
-
-                        <div className="pt-1">
-                          {!isVerified && !isRejected ? (
-                            <div className="grid grid-cols-2 gap-2">
-                              <button
-                                type="button"
-                                onClick={() => setPaymentModal({ isOpen: true, mode: 'confirm', payment: p })}
-                                className="w-full py-2 bg-[#FFC006] hover:bg-[#E5AC00] text-gray-950 font-black rounded-xl text-xs shadow-xs border border-amber-400/60 transition-all flex items-center justify-center gap-1.5"
-                              >
-                                <CheckCircle2 className="w-3.5 h-3.5 text-gray-950" />
-                                <span>Verify Payment</span>
-                              </button>
-                              <button
-                                type="button"
-                                onClick={() => setPaymentModal({ isOpen: true, mode: 'reject', payment: p, reason: '' })}
-                                className="w-full py-2 bg-red-50 hover:bg-red-100 text-red-700 font-bold rounded-xl text-xs border border-red-200 transition-colors flex items-center justify-center gap-1.5"
-                              >
+                          <div className="pt-1">
+                            {!isVerified && !isRejected ? (
+                              <div className="grid grid-cols-2 gap-2">
+                                <button
+                                  type="button"
+                                  onClick={() => setPaymentModal({ isOpen: true, mode: 'confirm', payment: p })}
+                                  className="w-full py-2 bg-[#FFC006] hover:bg-[#E5AC00] text-gray-950 font-black rounded-xl text-xs shadow-xs border border-amber-400/60 transition-all flex items-center justify-center gap-1.5"
+                                >
+                                  <CheckCircle2 className="w-3.5 h-3.5 text-gray-950" />
+                                  <span>Verify Payment</span>
+                                </button>
+                                <button
+                                  type="button"
+                                  onClick={() => setPaymentModal({ isOpen: true, mode: 'reject', payment: p, reason: '' })}
+                                  className="w-full py-2 bg-red-50 hover:bg-red-100 text-red-700 font-bold rounded-xl text-xs border border-red-200 transition-colors flex items-center justify-center gap-1.5"
+                                >
+                                  <XCircle className="w-3.5 h-3.5 text-red-600" />
+                                  <span>Reject</span>
+                                </button>
+                              </div>
+                            ) : isVerified ? (
+                              <div className="w-full py-1.5 bg-emerald-50 rounded-xl text-center font-bold text-emerald-800 text-xs flex items-center justify-center gap-1.5 border border-emerald-200">
+                                <CheckCircle2 className="w-3.5 h-3.5 text-emerald-600" />
+                                <span>Order &amp; Payment Verified</span>
+                              </div>
+                            ) : (
+                              <div className="w-full py-1.5 bg-red-50 rounded-xl text-center font-bold text-red-800 text-xs flex items-center justify-center gap-1.5 border border-red-200">
                                 <XCircle className="w-3.5 h-3.5 text-red-600" />
-                                <span>Reject</span>
-                              </button>
-                            </div>
-                          ) : isVerified ? (
-                            <div className="w-full py-1.5 bg-emerald-50 rounded-xl text-center font-bold text-emerald-800 text-xs flex items-center justify-center gap-1.5 border border-emerald-200">
-                              <CheckCircle2 className="w-3.5 h-3.5 text-emerald-600" />
-                              <span>Order &amp; Payment Verified</span>
-                            </div>
-                          ) : (
-                            <div className="w-full py-1.5 bg-red-50 rounded-xl text-center font-bold text-red-800 text-xs flex items-center justify-center gap-1.5 border border-red-200">
-                              <XCircle className="w-3.5 h-3.5 text-red-600" />
-                              <span>Payment Rejected</span>
-                            </div>
-                          )}
+                                <span>Payment Rejected</span>
+                              </div>
+                            )}
+                          </div>
                         </div>
-                      </div>
-                    );
-                  })
-                )}
+                      );
+                    })
+                  )}
+                </div>
               </div>
             </div>
           )}
@@ -2959,531 +3738,1311 @@ export function AdminDashboardView({ initialTab = 'overview' }: { initialTab?: A
 
 
           {/* TAB 8: CUSTOMERS */}
-          {activeTab === 'customers' && (
-            <div className="bg-white rounded-xl sm:rounded-3xl border border-gray-200 p-3 sm:p-6 shadow-xs space-y-3 sm:space-y-4">
-              <div className="flex flex-wrap items-center justify-between gap-2 pb-2.5 sm:pb-3 border-b border-gray-100">
-                <div>
-                  <h2 className="text-sm sm:text-lg font-black text-gray-950">Registered Customers ({customers.length})</h2>
-                </div>
-                <div className="flex items-center gap-1.5 sm:gap-2">
-                  <button
-                    onClick={() => handleExportCustomers('pdf')}
-                    className="px-2.5 sm:px-3.5 py-1 sm:py-1.5 rounded-full bg-white hover:bg-gray-50 border border-gray-200 text-[10px] sm:text-xs font-bold text-gray-800 shadow-xs flex items-center gap-1 sm:gap-1.5 transition-colors"
-                    title="Download Customers PDF with FunPrint Header"
-                  >
-                    <FileText className="w-3 h-3 sm:w-3.5 sm:h-3.5 text-red-500" />
-                    <span>Download PDF</span>
-                  </button>
-                  <button
-                    onClick={() => handleExportCustomers('excel')}
-                    className="px-2.5 sm:px-3.5 py-1 sm:py-1.5 rounded-full bg-white hover:bg-gray-50 border border-gray-200 text-[10px] sm:text-xs font-bold text-gray-800 shadow-xs flex items-center gap-1 sm:gap-1.5 transition-colors"
-                    title="Download Customers Excel with FunPrint Header"
-                  >
-                    <FileSpreadsheet className="w-3 h-3 sm:w-3.5 sm:h-3.5 text-emerald-600" />
-                    <span>Download Excel</span>
-                  </button>
-                </div>
-              </div>
+          {activeTab === 'customers' && (() => {
+            const filteredCusts = customers.filter((c) => {
+              const q = customerSearch.trim().toLowerCase();
+              const matchesSearch =
+                !q ||
+                (c.full_name && c.full_name.toLowerCase().includes(q)) ||
+                (c.email && c.email.toLowerCase().includes(q)) ||
+                (c.phone && String(c.phone).includes(q));
 
-              {/* Desktop Table View */}
-              <div className="hidden sm:block overflow-x-auto">
-                <table className="w-full text-left text-[10px] sm:text-xs">
-                  <thead>
-                    <tr className="border-b border-gray-200 text-gray-400 uppercase text-[9px] sm:text-[10px]">
-                      <th className="pb-1.5 sm:pb-2">Customer Name</th>
-                      <th className="pb-1.5 sm:pb-2">Email</th>
-                      <th className="pb-1.5 sm:pb-2">Phone</th>
-                      <th className="pb-1.5 sm:pb-2">Registered On</th>
-                      <th className="pb-1.5 sm:pb-2">Status</th>
-                    </tr>
-                  </thead>
-                  <tbody className="divide-y divide-gray-100">
-                    {customers.length === 0 ? (
-                      <tr>
-                        <td colSpan={5} className="py-6 sm:py-8 text-center text-gray-400">
-                          Registered customer records will appear here upon account creation.
-                        </td>
+              const matchesStatus =
+                customerStatusFilter === 'all'
+                  ? true
+                  : customerStatusFilter === 'active'
+                  ? Boolean(c.is_active)
+                  : !c.is_active;
+
+              return matchesSearch && matchesStatus;
+            });
+
+            const activeCustCount = customers.filter((c) => c.is_active).length;
+            const disabledCustCount = customers.filter((c) => !c.is_active).length;
+
+            return (
+              <div className="bg-white rounded-xl sm:rounded-3xl border border-gray-200 p-3 sm:p-6 shadow-xs space-y-4">
+                {/* Header & Export Controls */}
+                <div className="flex flex-wrap items-center justify-between gap-2 pb-3 border-b border-gray-100">
+                  <div>
+                    <h2 className="text-sm sm:text-lg font-black text-gray-950">
+                      Customer Directory ({customers.length})
+                    </h2>
+                    <p className="text-[11px] text-gray-500">
+                      Manage registered FunPrint user accounts, communicate directly, or delete profiles.
+                    </p>
+                  </div>
+                  <div className="flex items-center gap-1.5 sm:gap-2">
+                    <button
+                      onClick={() => handleExportCustomers('pdf')}
+                      className="px-2.5 sm:px-3.5 py-1 sm:py-1.5 rounded-full bg-white hover:bg-gray-50 border border-gray-200 text-[10px] sm:text-xs font-bold text-gray-800 shadow-xs flex items-center gap-1 sm:gap-1.5 transition-colors"
+                      title="Download Customers PDF with FunPrint Header"
+                    >
+                      <FileText className="w-3 h-3 sm:w-3.5 sm:h-3.5 text-red-500" />
+                      <span>Download PDF</span>
+                    </button>
+                    <button
+                      onClick={() => handleExportCustomers('excel')}
+                      className="px-2.5 sm:px-3.5 py-1 sm:py-1.5 rounded-full bg-white hover:bg-gray-50 border border-gray-200 text-[10px] sm:text-xs font-bold text-gray-800 shadow-xs flex items-center gap-1 sm:gap-1.5 transition-colors"
+                      title="Download Customers Excel with FunPrint Header"
+                    >
+                      <FileSpreadsheet className="w-3 h-3 sm:w-3.5 sm:h-3.5 text-emerald-600" />
+                      <span>Download Excel</span>
+                    </button>
+                  </div>
+                </div>
+
+                {/* Search & Filters Controls */}
+                <div className="flex flex-wrap items-center justify-between gap-2.5 bg-stone-50/70 p-2.5 sm:p-3.5 rounded-2xl border border-gray-200/80">
+                  <div className="flex flex-wrap items-center gap-2 flex-1 min-w-[240px]">
+                    <div className="relative flex-1 min-w-[180px] max-w-sm">
+                      <Search className="w-3.5 h-3.5 absolute left-3 top-1/2 -translate-y-1/2 text-gray-400" />
+                      <input
+                        type="text"
+                        placeholder="Search by name, email, or phone..."
+                        value={customerSearch}
+                        onChange={(e) => setCustomerSearch(e.target.value)}
+                        className="w-full pl-8 pr-3 py-1.5 rounded-xl border border-gray-200 text-xs bg-white text-gray-900 placeholder:text-gray-400 focus:outline-none focus:ring-2 focus:ring-[#FFC006]/50 focus:border-amber-400"
+                      />
+                      {customerSearch && (
+                        <button
+                          type="button"
+                          onClick={() => setCustomerSearch('')}
+                          className="absolute right-2.5 top-1/2 -translate-y-1/2 text-gray-400 hover:text-gray-600 text-xs font-bold"
+                        >
+                          ✕
+                        </button>
+                      )}
+                    </div>
+
+                    {/* Status Filter Pills */}
+                    <div className="inline-flex items-center gap-1 bg-white p-0.5 rounded-xl border border-gray-200 text-[11px] font-bold">
+                      <button
+                        type="button"
+                        onClick={() => setCustomerStatusFilter('all')}
+                        className={`px-2.5 py-1 rounded-lg transition-colors ${
+                          customerStatusFilter === 'all'
+                            ? 'bg-gray-950 text-white shadow-2xs'
+                            : 'text-gray-600 hover:text-gray-950'
+                        }`}
+                      >
+                        All ({customers.length})
+                      </button>
+                      <button
+                        type="button"
+                        onClick={() => setCustomerStatusFilter('active')}
+                        className={`px-2.5 py-1 rounded-lg transition-colors ${
+                          customerStatusFilter === 'active'
+                            ? 'bg-emerald-600 text-white shadow-2xs'
+                            : 'text-gray-600 hover:text-emerald-700'
+                        }`}
+                      >
+                        Active ({activeCustCount})
+                      </button>
+                      <button
+                        type="button"
+                        onClick={() => setCustomerStatusFilter('disabled')}
+                        className={`px-2.5 py-1 rounded-lg transition-colors ${
+                          customerStatusFilter === 'disabled'
+                            ? 'bg-rose-600 text-white shadow-2xs'
+                            : 'text-gray-600 hover:text-rose-700'
+                        }`}
+                      >
+                        Disabled ({disabledCustCount})
+                      </button>
+                    </div>
+
+                    {(customerSearch || customerStatusFilter !== 'all') && (
+                      <button
+                        type="button"
+                        onClick={() => {
+                          setCustomerSearch('');
+                          setCustomerStatusFilter('all');
+                        }}
+                        className="text-[11px] font-bold text-amber-900 hover:text-amber-950 underline px-1"
+                      >
+                        Clear Filters
+                      </button>
+                    )}
+                  </div>
+
+                  <div className="text-[11px] font-bold text-gray-500 whitespace-nowrap">
+                    Showing <span className="text-gray-950 font-black">{filteredCusts.length}</span> of {customers.length} records
+                  </div>
+                </div>
+
+                {/* Desktop Table View */}
+                <div className="hidden sm:block overflow-x-auto">
+                  <table className="w-full text-left text-xs">
+                    <thead>
+                      <tr className="border-b border-gray-200 text-gray-400 uppercase text-[10px] tracking-wider">
+                        <th className="pb-2.5 px-2">Customer Name</th>
+                        <th className="pb-2.5 px-2">Email</th>
+                        <th className="pb-2.5 px-2">Phone</th>
+                        <th className="pb-2.5 px-2">Registration Date</th>
+                        <th className="pb-2.5 px-2">Account Status</th>
+                        <th className="pb-2.5 px-2 text-right">Actions</th>
                       </tr>
-                    ) : (
-                      customers.map((c) => (
-                        <tr key={c.id}>
-                          <td className="py-2 sm:py-3 px-1 sm:px-2 font-bold text-gray-950 whitespace-nowrap">{c.full_name}</td>
-                          <td className="py-2 sm:py-3 px-1 sm:px-2 text-gray-700">{c.email}</td>
-                          <td className="py-2 sm:py-3 px-1 sm:px-2 font-mono whitespace-nowrap">{c.phone}</td>
-                          <td className="py-2 sm:py-3 px-1 sm:px-2 text-gray-500 whitespace-nowrap">
-                            {new Date(c.created_at).toLocaleDateString()}
-                          </td>
-                          <td className="py-2 sm:py-3 px-1 sm:px-2 whitespace-nowrap">
-                            <span className="px-2 py-0.5 rounded-full text-[9px] sm:text-[10px] font-bold bg-green-100 text-green-800">
-                              {c.is_active ? 'Active' : 'Disabled'}
-                            </span>
+                    </thead>
+                    <tbody className="divide-y divide-gray-100">
+                      {filteredCusts.length === 0 ? (
+                        <tr>
+                          <td colSpan={6} className="py-10 text-center text-gray-400">
+                            {customers.length === 0
+                              ? 'Registered customer records will appear here upon account creation.'
+                              : 'No customers found matching your search and filter criteria.'}
                           </td>
                         </tr>
-                      ))
-                    )}
-                  </tbody>
-                </table>
-              </div>
-
-              {/* Mobile Card List View (Clean & Responsive) */}
-              <div className="block sm:hidden space-y-2.5">
-                {customers.length === 0 ? (
-                  <div className="py-8 text-center text-xs text-gray-400">
-                    Registered customer records will appear here upon account creation.
-                  </div>
-                ) : (
-                  customers.map((c) => (
-                    <div key={c.id} className="p-3 bg-stone-50/70 border border-gray-200 rounded-2xl shadow-xs space-y-1.5">
-                      <div className="flex items-center justify-between gap-2">
-                        <span className="font-bold text-xs text-gray-950">{c.full_name}</span>
-                        <span className="px-2 py-0.5 rounded-full text-[9.5px] font-bold bg-green-100 text-green-800 shrink-0">
-                          {c.is_active ? 'Active' : 'Disabled'}
-                        </span>
-                      </div>
-                      <div className="text-xs text-gray-600 truncate">
-                        {c.email}
-                      </div>
-                      <div className="flex items-center justify-between text-[11px] pt-1.5 border-t border-gray-200/80 text-gray-500">
-                        <span className="font-mono text-gray-700">{c.phone || 'No phone'}</span>
-                        <span className="text-[10px]">Joined: {new Date(c.created_at).toLocaleDateString()}</span>
-                      </div>
-                    </div>
-                  ))
-                )}
-              </div>
-            </div>
-          )}
-
-          {/* TAB 9: ENQUIRIES */}
-          {activeTab === 'enquiries' && (
-            <div className="space-y-4 sm:space-y-6">
-              {/* Enquiries Header & Export Controls */}
-              <div className="flex flex-wrap items-center justify-between gap-2.5 sm:gap-3 bg-white p-3 sm:p-5 rounded-xl sm:rounded-3xl border border-gray-200 shadow-xs">
-                <div>
-                  <h2 className="text-sm sm:text-lg font-black text-gray-950">Customer Inquiries &amp; Wholesale Requests</h2>
-                </div>
-                <div className="flex items-center gap-1.5 sm:gap-2">
-                  <button
-                    onClick={() => handleExportEnquiries('pdf')}
-                    className="px-2.5 sm:px-3.5 py-1 sm:py-1.5 rounded-full bg-white hover:bg-gray-50 border border-gray-200 text-[10px] sm:text-xs font-bold text-gray-800 shadow-xs flex items-center gap-1 sm:gap-1.5 transition-colors"
-                    title="Download Inquiries PDF with FunPrint Header"
-                  >
-                    <FileText className="w-3 h-3 sm:w-3.5 sm:h-3.5 text-red-500" />
-                    <span>Download PDF</span>
-                  </button>
-                  <button
-                    onClick={() => handleExportEnquiries('excel')}
-                    className="px-2.5 sm:px-3.5 py-1 sm:py-1.5 rounded-full bg-white hover:bg-gray-50 border border-gray-200 text-[10px] sm:text-xs font-bold text-gray-800 shadow-xs flex items-center gap-1 sm:gap-1.5 transition-colors"
-                    title="Download Inquiries Excel with FunPrint Header"
-                  >
-                    <FileSpreadsheet className="w-3 h-3 sm:w-3.5 sm:h-3.5 text-emerald-600" />
-                    <span>Download Excel</span>
-                  </button>
-                </div>
-              </div>
-
-              {/* 1. Retail Customization Orders */}
-              <div className="bg-white rounded-xl sm:rounded-3xl border border-gray-200 p-3.5 sm:p-6 shadow-xs space-y-3">
-                <div className="flex items-center justify-between border-b border-gray-100 pb-2.5">
-                  <div className="flex items-center gap-2">
-                    <span className="w-2.5 h-2.5 rounded-full bg-amber-500" />
-                    <h3 className="font-extrabold text-xs sm:text-base text-gray-950">
-                      Retail Customization Enquiries ({retailEnquiries.length})
-                    </h3>
-                  </div>
-                  <span className="text-[10.5px] font-bold text-amber-900 bg-amber-50 border border-amber-200 px-2.5 py-0.5 rounded-full">
-                    Custom Logos
-                  </span>
-                </div>
-
-                <div className="space-y-3">
-                  {retailEnquiries.length === 0 ? (
-                    <p className="text-[10px] sm:text-xs text-gray-400 py-3 text-center">No retail customization requests recorded yet.</p>
-                  ) : (
-                    retailEnquiries.map((e) => {
-                      const itemsList = e.colors ? e.colors.split(';').map((s: string) => s.trim()).filter(Boolean) : [];
-                      const isResolved = e.status === 'RESOLVED';
-                      const submittedDate = e.created_at
-                        ? new Date(e.created_at).toLocaleString('en-IN', { dateStyle: 'medium', timeStyle: 'short' })
-                        : 'N/A';
-
-                      return (
-                        <div key={e.id} className="p-3.5 sm:p-4 rounded-2xl border border-gray-200 bg-stone-50/70 shadow-xs space-y-3">
-                          {/* Template Header */}
-                          <div className="flex items-center justify-between gap-2 border-b border-gray-200/80 pb-2">
-                            <div className="flex items-center gap-2">
-                              <span className="px-2 py-0.5 rounded-full text-[9px] sm:text-[10px] font-black uppercase tracking-wider bg-amber-100 text-amber-950 border border-amber-300">
-                                Retail Form
-                              </span>
-                              <span className="text-[10px] sm:text-[11px] text-gray-500">{submittedDate}</span>
-                            </div>
-                            <div className="flex items-center gap-1.5">
+                      ) : (
+                        filteredCusts.map((c) => (
+                          <tr key={c.id} className="hover:bg-amber-50/20 transition-colors">
+                            <td className="py-3 px-2 font-black text-gray-950 whitespace-nowrap">
+                              {c.full_name || 'Anonymous User'}
+                            </td>
+                            <td className="py-3 px-2 text-gray-700 whitespace-nowrap">
+                              {c.email || '—'}
+                            </td>
+                            <td className="py-3 px-2 font-mono whitespace-nowrap text-gray-800">
+                              {c.phone || '—'}
+                            </td>
+                            <td className="py-3 px-2 text-gray-500 whitespace-nowrap">
+                              {c.created_at ? new Date(c.created_at).toLocaleDateString('en-IN', { dateStyle: 'medium' }) : '—'}
+                            </td>
+                            <td className="py-3 px-2 whitespace-nowrap">
                               <span
-                                className={`px-2 py-0.5 rounded-full text-[9px] font-black uppercase tracking-wider ${
-                                  isResolved
+                                className={`px-2.5 py-0.5 rounded-full text-[10px] font-black uppercase tracking-wider ${
+                                  c.is_active
                                     ? 'bg-emerald-100 text-emerald-800 border border-emerald-200'
-                                    : 'bg-blue-100 text-blue-800 border border-blue-200'
+                                    : 'bg-rose-100 text-rose-800 border border-rose-200'
                                 }`}
                               >
-                                {e.status || 'NEW'}
+                                {c.is_active ? 'Active' : 'Disabled'}
                               </span>
-                              {!isResolved && (
+                            </td>
+                            <td className="py-3 px-2 whitespace-nowrap text-right">
+                              <div className="inline-flex items-center justify-end gap-1.5">
+                                <ContactActions
+                                  name={c.full_name || 'Customer'}
+                                  phone={c.phone}
+                                  email={c.email}
+                                  contextMessage={`Hi ${c.full_name || ''}, thank you for contacting FunPrint! How can we assist you with your apparel orders today?`}
+                                  compact={false}
+                                />
                                 <button
                                   type="button"
-                                  onClick={() => handleUpdateEnquiryStatus('retail', e.id, 'RESOLVED')}
-                                  className="px-2 py-0.5 bg-emerald-600 hover:bg-emerald-700 text-white rounded-full font-bold text-[9px] sm:text-[10px] shadow-2xs transition-colors"
+                                  disabled={deletingCustomerId === c.id}
+                                  onClick={() => {
+                                    setConfirmDialog({
+                                      isOpen: true,
+                                      title: 'Delete Customer Account?',
+                                      message: `Are you sure you want to delete ${c.full_name || 'this customer'} (${c.email || 'No email'})? Associated orders, payments, and financial history will remain safely preserved in compliance with store auditing rules.`,
+                                      confirmLabel: 'Confirm Delete',
+                                      isDestructive: true,
+                                      onConfirm: () => handleDeleteCustomer(c.id),
+                                    });
+                                  }}
+                                  title={`Delete customer profile for ${c.full_name}`}
+                                  className="inline-flex items-center gap-1 px-2 py-1 rounded-lg bg-rose-50 hover:bg-rose-100 text-rose-700 font-bold text-[11px] border border-rose-200 transition-colors"
                                 >
-                                  Mark Resolved
+                                  <Trash2 className="w-3.5 h-3.5 text-rose-600" />
+                                  <span>Delete</span>
                                 </button>
-                              )}
-                            </div>
-                          </div>
-
-                          {/* Customer Details Box */}
-                          <div className="bg-white p-3 rounded-xl border border-gray-200/90 shadow-2xs space-y-2">
-                            <div className="flex items-center justify-between gap-2">
-                              <div>
-                                <span className="text-gray-400 text-[9.5px] uppercase font-bold tracking-wider block">Customer Name</span>
-                                <p className="font-black text-xs sm:text-sm text-gray-950 leading-tight">
-                                  {e.customer_name || 'Anonymous Customer'}
-                                </p>
                               </div>
-                              <div className="text-right">
-                                <span className="text-gray-400 text-[9.5px] uppercase font-bold tracking-wider block">Total Pieces</span>
-                                <span className="font-black text-xs sm:text-sm text-amber-900 bg-amber-50 px-2 py-0.5 rounded-md border border-amber-200 inline-block">
-                                  {e.quantities || e.quantity || 1} pcs
+                            </td>
+                          </tr>
+                        ))
+                      )}
+                    </tbody>
+                  </table>
+                </div>
+
+                {/* Mobile Card List View */}
+                <div className="block sm:hidden space-y-2.5">
+                  {filteredCusts.length === 0 ? (
+                    <div className="py-8 text-center text-xs text-gray-400">
+                      {customers.length === 0
+                        ? 'Registered customer records will appear here upon account creation.'
+                        : 'No customers found matching your search and filter criteria.'}
+                    </div>
+                  ) : (
+                    filteredCusts.map((c) => (
+                      <div key={c.id} className="p-3 bg-stone-50/70 border border-gray-200 rounded-2xl shadow-xs space-y-2">
+                        <div className="flex items-center justify-between gap-2">
+                          <span className="font-black text-xs text-gray-950">{c.full_name || 'Anonymous User'}</span>
+                          <span
+                            className={`px-2 py-0.5 rounded-full text-[9.5px] font-bold ${
+                              c.is_active ? 'bg-emerald-100 text-emerald-800' : 'bg-rose-100 text-rose-800'
+                            }`}
+                          >
+                            {c.is_active ? 'Active' : 'Disabled'}
+                          </span>
+                        </div>
+                        <div className="text-xs text-gray-600 truncate">{c.email || 'No email provided'}</div>
+                        <div className="flex items-center justify-between text-[11px] text-gray-500">
+                          <span className="font-mono text-gray-800">{c.phone || 'No phone'}</span>
+                          <span className="text-[10px]">
+                            Joined: {c.created_at ? new Date(c.created_at).toLocaleDateString('en-IN') : '—'}
+                          </span>
+                        </div>
+                        <div className="pt-2 border-t border-gray-200/80 flex items-center justify-between gap-1.5">
+                          <ContactActions
+                            name={c.full_name || 'Customer'}
+                            phone={c.phone}
+                            email={c.email}
+                            compact={false}
+                          />
+                          <button
+                            type="button"
+                            disabled={deletingCustomerId === c.id}
+                            onClick={() => {
+                              setConfirmDialog({
+                                isOpen: true,
+                                title: 'Delete Customer Account?',
+                                message: `Are you sure you want to delete ${c.full_name || 'this customer'}? Associated order history will be preserved.`,
+                                confirmLabel: 'Confirm Delete',
+                                isDestructive: true,
+                                onConfirm: () => handleDeleteCustomer(c.id),
+                              });
+                            }}
+                            className="inline-flex items-center gap-1 px-2 py-1 rounded-lg bg-rose-50 hover:bg-rose-100 text-rose-700 font-bold text-[10.5px] border border-rose-200 transition-colors"
+                          >
+                            <Trash2 className="w-3.5 h-3.5" />
+                            <span>Delete</span>
+                          </button>
+                        </div>
+                      </div>
+                    ))
+                  )}
+                </div>
+              </div>
+            );
+          })()}
+
+          {/* TAB 9: ENQUIRIES — FOUR SEPARATE SECTIONS */}
+          {activeTab === 'enquiries' && (() => {
+            const retailCounts = {
+              total: retailEnquiries.length,
+              pending: retailEnquiries.filter((e) => e.status !== 'RESOLVED').length,
+              resolved: retailEnquiries.filter((e) => e.status === 'RESOLVED').length,
+            };
+
+            const bulkCounts = {
+              total: bulkEnquiries.length,
+              pending: bulkEnquiries.filter((e) => e.status !== 'RESOLVED').length,
+              resolved: bulkEnquiries.filter((e) => e.status === 'RESOLVED').length,
+            };
+
+            const brandCounts = {
+              total: brandEnquiries.length,
+              pending: brandEnquiries.filter((e) => e.status !== 'RESOLVED').length,
+              resolved: brandEnquiries.filter((e) => e.status === 'RESOLVED').length,
+            };
+
+            const contactCounts = {
+              total: contactEnquiries.length,
+              pending: contactEnquiries.filter((e) => e.status !== 'RESOLVED').length,
+              resolved: contactEnquiries.filter((e) => e.status === 'RESOLVED').length,
+            };
+
+            const filterEnquiryList = (items: any[], type: 'retail' | 'bulk' | 'brand' | 'contact') => {
+              const q = enquirySearch.trim().toLowerCase();
+              return items.filter((item) => {
+                const isResolved = item.status === 'RESOLVED';
+                if (enquiryStatusFilter === 'pending' && isResolved) return false;
+                if (enquiryStatusFilter === 'resolved' && !isResolved) return false;
+
+                if (!q) return true;
+
+                const nameMatch = (item.customer_name || item.contact_name || item.name || '').toLowerCase().includes(q);
+                const emailMatch = (item.email || item.customer_email || '').toLowerCase().includes(q);
+                const phoneMatch = String(item.phone || item.customer_phone || '').includes(q);
+                const idMatch = String(item.id || '').toLowerCase().includes(q);
+
+                if (nameMatch || emailMatch || phoneMatch || idMatch) return true;
+
+                if (type === 'retail') {
+                  return (
+                    (item.garment_type && item.garment_type.toLowerCase().includes(q)) ||
+                    (item.colors && item.colors.toLowerCase().includes(q)) ||
+                    (item.instructions && item.instructions.toLowerCase().includes(q))
+                  );
+                } else if (type === 'bulk') {
+                  return (
+                    (item.organization && item.organization.toLowerCase().includes(q)) ||
+                    (item.fabric_specs && item.fabric_specs.toLowerCase().includes(q)) ||
+                    (item.admin_notes && item.admin_notes.toLowerCase().includes(q))
+                  );
+                } else if (type === 'brand') {
+                  return (
+                    (item.brands && item.brands.toLowerCase().includes(q)) ||
+                    (item.message && item.message.toLowerCase().includes(q))
+                  );
+                } else if (type === 'contact') {
+                  return item.message && item.message.toLowerCase().includes(q);
+                }
+                return false;
+              });
+            };
+
+            const filteredRetail = filterEnquiryList(retailEnquiries, 'retail');
+            const filteredBulk = filterEnquiryList(bulkEnquiries, 'bulk');
+            const filteredBrand = filterEnquiryList(brandEnquiries, 'brand');
+            const filteredContact = filterEnquiryList(contactEnquiries, 'contact');
+
+            const currentSubTabCounts =
+              enquirySubTab === 'retail'
+                ? retailCounts
+                : enquirySubTab === 'bulk'
+                ? bulkCounts
+                : enquirySubTab === 'brand'
+                ? brandCounts
+                : contactCounts;
+
+            const currentFilteredCount =
+              enquirySubTab === 'retail'
+                ? filteredRetail.length
+                : enquirySubTab === 'bulk'
+                ? filteredBulk.length
+                : enquirySubTab === 'brand'
+                ? filteredBrand.length
+                : filteredContact.length;
+
+            return (
+              <div className="space-y-4 sm:space-y-5">
+                {/* Enquiries Header & Export Controls */}
+                <div className="flex flex-wrap items-center justify-between gap-2.5 sm:gap-3 bg-white p-3 sm:p-5 rounded-xl sm:rounded-3xl border border-gray-200 shadow-xs">
+                  <div>
+                    <h2 className="text-sm sm:text-lg font-black text-gray-950">
+                      Customer Inquiries &amp; Wholesale Requests
+                    </h2>
+                    <p className="text-[11px] text-gray-500">
+                      Segmented inquiries divided across retail custom logos, wholesale factory bulk, brand collaborations, and support.
+                    </p>
+                  </div>
+                  <div className="flex items-center gap-1.5 sm:gap-2">
+                    <button
+                      onClick={() => handleExportEnquiries('pdf', enquirySubTab)}
+                      className="px-2.5 sm:px-3.5 py-1 sm:py-1.5 rounded-full bg-white hover:bg-gray-50 border border-gray-200 text-[10px] sm:text-xs font-bold text-gray-800 shadow-xs flex items-center gap-1 sm:gap-1.5 transition-colors"
+                      title="Download active category PDF with FunPrint Header"
+                    >
+                      <FileText className="w-3 h-3 sm:w-3.5 sm:h-3.5 text-red-500" />
+                      <span>Download PDF</span>
+                    </button>
+                    <button
+                      onClick={() => handleExportEnquiries('excel', enquirySubTab)}
+                      className="px-2.5 sm:px-3.5 py-1 sm:py-1.5 rounded-full bg-white hover:bg-gray-50 border border-gray-200 text-[10px] sm:text-xs font-bold text-gray-800 shadow-xs flex items-center gap-1 sm:gap-1.5 transition-colors"
+                      title="Download active category Excel with FunPrint Header"
+                    >
+                      <FileSpreadsheet className="w-3 h-3 sm:w-3.5 sm:h-3.5 text-emerald-600" />
+                      <span>Download Excel</span>
+                    </button>
+                  </div>
+                </div>
+
+                {/* 4 CLEARLY SEPARATED TABS / SEGMENTED CONTROLS WITH 3 REAL COUNTS */}
+                <div className="grid grid-cols-2 md:grid-cols-4 gap-2 sm:gap-2.5">
+                  {/* Tab A: Retail Enquiry */}
+                  <button
+                    type="button"
+                    onClick={() => {
+                      setEnquirySubTab('retail');
+                      setEnquirySearch('');
+                      setEnquiryStatusFilter('all');
+                    }}
+                    className={`p-3 sm:p-4 rounded-2xl border text-left transition-all ${
+                      enquirySubTab === 'retail'
+                        ? 'bg-amber-500/10 border-amber-400 ring-2 ring-amber-400/40 shadow-xs'
+                        : 'bg-white hover:bg-stone-50 border-gray-200'
+                    }`}
+                  >
+                    <div className="flex items-center justify-between gap-1.5 mb-1.5">
+                      <span className="text-[11px] sm:text-xs font-black text-amber-950 flex items-center gap-1.5">
+                        <span className="w-2 h-2 rounded-full bg-amber-500" />
+                        Retail Enquiry
+                      </span>
+                      {retailCounts.pending > 0 && (
+                        <span className="px-1.5 py-0.2 bg-amber-200 text-amber-950 font-black rounded-full text-[9px] animate-pulse">
+                          {retailCounts.pending} New
+                        </span>
+                      )}
+                    </div>
+                    <div className="flex items-center gap-2 text-[10px] font-bold">
+                      <span className="text-gray-600">Total: <strong className="text-gray-950 font-black">{retailCounts.total}</strong></span>
+                      <span className="text-amber-800">Pending: <strong className="font-black">{retailCounts.pending}</strong></span>
+                      <span className="text-emerald-700">Resolved: <strong className="font-black">{retailCounts.resolved}</strong></span>
+                    </div>
+                  </button>
+
+                  {/* Tab B: Factory Direct Bulk Enquiries */}
+                  <button
+                    type="button"
+                    onClick={() => {
+                      setEnquirySubTab('bulk');
+                      setEnquirySearch('');
+                      setEnquiryStatusFilter('all');
+                    }}
+                    className={`p-3 sm:p-4 rounded-2xl border text-left transition-all ${
+                      enquirySubTab === 'bulk'
+                        ? 'bg-purple-500/10 border-purple-400 ring-2 ring-purple-400/40 shadow-xs'
+                        : 'bg-white hover:bg-stone-50 border-gray-200'
+                    }`}
+                  >
+                    <div className="flex items-center justify-between gap-1.5 mb-1.5">
+                      <span className="text-[11px] sm:text-xs font-black text-purple-950 flex items-center gap-1.5">
+                        <span className="w-2 h-2 rounded-full bg-purple-600" />
+                        Factory Direct Bulk
+                      </span>
+                      {bulkCounts.pending > 0 && (
+                        <span className="px-1.5 py-0.2 bg-purple-200 text-purple-950 font-black rounded-full text-[9px] animate-pulse">
+                          {bulkCounts.pending} New
+                        </span>
+                      )}
+                    </div>
+                    <div className="flex items-center gap-2 text-[10px] font-bold">
+                      <span className="text-gray-600">Total: <strong className="text-gray-950 font-black">{bulkCounts.total}</strong></span>
+                      <span className="text-purple-800">Pending: <strong className="font-black">{bulkCounts.pending}</strong></span>
+                      <span className="text-emerald-700">Resolved: <strong className="font-black">{bulkCounts.resolved}</strong></span>
+                    </div>
+                  </button>
+
+                  {/* Tab C: Brand Collaboration Bulk Enquiries */}
+                  <button
+                    type="button"
+                    onClick={() => {
+                      setEnquirySubTab('brand');
+                      setEnquirySearch('');
+                      setEnquiryStatusFilter('all');
+                    }}
+                    className={`p-3 sm:p-4 rounded-2xl border text-left transition-all ${
+                      enquirySubTab === 'brand'
+                        ? 'bg-emerald-500/10 border-emerald-400 ring-2 ring-emerald-400/40 shadow-xs'
+                        : 'bg-white hover:bg-stone-50 border-gray-200'
+                    }`}
+                  >
+                    <div className="flex items-center justify-between gap-1.5 mb-1.5">
+                      <span className="text-[11px] sm:text-xs font-black text-emerald-950 flex items-center gap-1.5">
+                        <span className="w-2 h-2 rounded-full bg-emerald-600" />
+                        Brand Collaboration
+                      </span>
+                      {brandCounts.pending > 0 && (
+                        <span className="px-1.5 py-0.2 bg-emerald-200 text-emerald-950 font-black rounded-full text-[9px] animate-pulse">
+                          {brandCounts.pending} New
+                        </span>
+                      )}
+                    </div>
+                    <div className="flex items-center gap-2 text-[10px] font-bold">
+                      <span className="text-gray-600">Total: <strong className="text-gray-950 font-black">{brandCounts.total}</strong></span>
+                      <span className="text-emerald-800">Pending: <strong className="font-black">{brandCounts.pending}</strong></span>
+                      <span className="text-emerald-700">Resolved: <strong className="font-black">{brandCounts.resolved}</strong></span>
+                    </div>
+                  </button>
+
+                  {/* Tab D: General Contact Submissions */}
+                  <button
+                    type="button"
+                    onClick={() => {
+                      setEnquirySubTab('contact');
+                      setEnquirySearch('');
+                      setEnquiryStatusFilter('all');
+                    }}
+                    className={`p-3 sm:p-4 rounded-2xl border text-left transition-all ${
+                      enquirySubTab === 'contact'
+                        ? 'bg-blue-500/10 border-blue-400 ring-2 ring-blue-400/40 shadow-xs'
+                        : 'bg-white hover:bg-stone-50 border-gray-200'
+                    }`}
+                  >
+                    <div className="flex items-center justify-between gap-1.5 mb-1.5">
+                      <span className="text-[11px] sm:text-xs font-black text-blue-950 flex items-center gap-1.5">
+                        <span className="w-2 h-2 rounded-full bg-blue-600" />
+                        General Contact
+                      </span>
+                      {contactCounts.pending > 0 && (
+                        <span className="px-1.5 py-0.2 bg-blue-200 text-blue-950 font-black rounded-full text-[9px] animate-pulse">
+                          {contactCounts.pending} New
+                        </span>
+                      )}
+                    </div>
+                    <div className="flex items-center gap-2 text-[10px] font-bold">
+                      <span className="text-gray-600">Total: <strong className="text-gray-950 font-black">{contactCounts.total}</strong></span>
+                      <span className="text-blue-800">Pending: <strong className="font-black">{contactCounts.pending}</strong></span>
+                      <span className="text-emerald-700">Resolved: <strong className="font-black">{contactCounts.resolved}</strong></span>
+                    </div>
+                  </button>
+                </div>
+
+                {/* Search & Filter Controls for the Active Tab */}
+                <div className="flex flex-wrap items-center justify-between gap-2.5 bg-white p-2.5 sm:p-3.5 rounded-2xl border border-gray-200 shadow-xs">
+                  <div className="flex flex-wrap items-center gap-2 flex-1 min-w-[240px]">
+                    <div className="relative flex-1 min-w-[180px] max-w-sm">
+                      <Search className="w-3.5 h-3.5 absolute left-3 top-1/2 -translate-y-1/2 text-gray-400" />
+                      <input
+                        type="text"
+                        placeholder={
+                          enquirySubTab === 'retail'
+                            ? 'Search retail by customer, garment, colors...'
+                            : enquirySubTab === 'bulk'
+                            ? 'Search bulk by contact, company, specs...'
+                            : enquirySubTab === 'brand'
+                            ? 'Search by contact, selected brands...'
+                            : 'Search support by sender, message...'
+                        }
+                        value={enquirySearch}
+                        onChange={(e) => setEnquirySearch(e.target.value)}
+                        className="w-full pl-8 pr-3 py-1.5 rounded-xl border border-gray-200 text-xs bg-white text-gray-900 placeholder:text-gray-400 focus:outline-none focus:ring-2 focus:ring-[#FFC006]/50 focus:border-amber-400"
+                      />
+                      {enquirySearch && (
+                        <button
+                          type="button"
+                          onClick={() => setEnquirySearch('')}
+                          className="absolute right-2.5 top-1/2 -translate-y-1/2 text-gray-400 hover:text-gray-600 text-xs font-bold"
+                        >
+                          ✕
+                        </button>
+                      )}
+                    </div>
+
+                    {/* Status Filter Tabs */}
+                    <div className="inline-flex items-center gap-1 bg-stone-100 p-0.5 rounded-xl text-[11px] font-bold">
+                      <button
+                        type="button"
+                        onClick={() => setEnquiryStatusFilter('all')}
+                        className={`px-2.5 py-1 rounded-lg transition-colors ${
+                          enquiryStatusFilter === 'all'
+                            ? 'bg-gray-950 text-white shadow-2xs'
+                            : 'text-gray-600 hover:text-gray-950'
+                        }`}
+                      >
+                        All ({currentSubTabCounts.total})
+                      </button>
+                      <button
+                        type="button"
+                        onClick={() => setEnquiryStatusFilter('pending')}
+                        className={`px-2.5 py-1 rounded-lg transition-colors ${
+                          enquiryStatusFilter === 'pending'
+                            ? 'bg-amber-600 text-white shadow-2xs'
+                            : 'text-gray-600 hover:text-amber-800'
+                        }`}
+                      >
+                        Pending ({currentSubTabCounts.pending})
+                      </button>
+                      <button
+                        type="button"
+                        onClick={() => setEnquiryStatusFilter('resolved')}
+                        className={`px-2.5 py-1 rounded-lg transition-colors ${
+                          enquiryStatusFilter === 'resolved'
+                            ? 'bg-emerald-600 text-white shadow-2xs'
+                            : 'text-gray-600 hover:text-emerald-800'
+                        }`}
+                      >
+                        Resolved ({currentSubTabCounts.resolved})
+                      </button>
+                    </div>
+
+                    {(enquirySearch || enquiryStatusFilter !== 'all') && (
+                      <button
+                        type="button"
+                        onClick={() => {
+                          setEnquirySearch('');
+                          setEnquiryStatusFilter('all');
+                        }}
+                        className="text-[11px] font-bold text-amber-900 hover:text-amber-950 underline px-1"
+                      >
+                        Clear Filters
+                      </button>
+                    )}
+                  </div>
+
+                  <div className="text-[11px] font-bold text-gray-500 whitespace-nowrap">
+                    Showing <span className="text-gray-950 font-black">{currentFilteredCount}</span> of {currentSubTabCounts.total} enquiries
+                  </div>
+                </div>
+
+                {/* ===================== TAB A: RETAIL ENQUIRY ===================== */}
+                {enquirySubTab === 'retail' && (
+                  <div className="space-y-3">
+                    {filteredRetail.length === 0 ? (
+                      <div className="bg-white rounded-2xl border border-gray-200 p-8 text-center space-y-2">
+                        <p className="text-xs sm:text-sm font-bold text-gray-600">
+                          {retailEnquiries.length === 0
+                            ? 'No retail customization enquiries found.'
+                            : 'No retail customization requests match your search criteria.'}
+                        </p>
+                        {retailEnquiries.length > 0 && (
+                          <button
+                            type="button"
+                            onClick={() => {
+                              setEnquirySearch('');
+                              setEnquiryStatusFilter('all');
+                            }}
+                            className="px-3 py-1 rounded-lg bg-amber-100 hover:bg-amber-200 text-amber-950 text-xs font-bold"
+                          >
+                            Reset Filters
+                          </button>
+                        )}
+                      </div>
+                    ) : (
+                      filteredRetail.map((e) => {
+                        const itemsList = e.colors
+                          ? e.colors.split(';').map((s: string) => s.trim()).filter(Boolean)
+                          : [];
+                        const isResolved = e.status === 'RESOLVED';
+                        const isExpanded = expandedRetailIds.includes(e.id);
+                        const submittedDate = e.created_at
+                          ? new Date(e.created_at).toLocaleString('en-IN', {
+                              dateStyle: 'medium',
+                              timeStyle: 'short',
+                            })
+                          : 'N/A';
+
+                        return (
+                          <div
+                            key={e.id}
+                            className="p-3.5 sm:p-5 rounded-2xl sm:rounded-3xl border border-amber-200/90 bg-white shadow-xs space-y-3"
+                          >
+                            {/* Card Header */}
+                            <div className="flex flex-wrap items-center justify-between gap-2 border-b border-amber-100 pb-2.5">
+                              <div className="flex items-center gap-2">
+                                <span className="px-2 py-0.5 rounded-full text-[9px] sm:text-[10px] font-black uppercase tracking-wider bg-amber-100 text-amber-950 border border-amber-300">
+                                  Retail Enquiry
                                 </span>
+                                <span className="text-[10px] sm:text-[11px] text-gray-500">{submittedDate}</span>
+                              </div>
+                              <div className="flex items-center gap-1.5">
+                                <span
+                                  className={`px-2 py-0.5 rounded-full text-[9.5px] font-black uppercase tracking-wider ${
+                                    isResolved
+                                      ? 'bg-emerald-100 text-emerald-800 border border-emerald-200'
+                                      : 'bg-amber-100 text-amber-900 border border-amber-300'
+                                  }`}
+                                >
+                                  {e.status || 'NEW'}
+                                </span>
+                                <button
+                                  type="button"
+                                  disabled={updatingEnquiryId === e.id}
+                                  onClick={() =>
+                                    handleUpdateEnquiryStatus(
+                                      'retail',
+                                      e.id,
+                                      isResolved ? 'NEW' : 'RESOLVED'
+                                    )
+                                  }
+                                  className={`px-2.5 py-0.5 rounded-full font-bold text-[9.5px] shadow-2xs transition-colors ${
+                                    isResolved
+                                      ? 'bg-gray-100 hover:bg-gray-200 text-gray-700'
+                                      : 'bg-emerald-600 hover:bg-emerald-700 text-white'
+                                  }`}
+                                >
+                                  {isResolved ? 'Reopen (Mark New)' : 'Mark Resolved'}
+                                </button>
+                                <button
+                                  type="button"
+                                  disabled={deletingEnquiryId === e.id}
+                                  onClick={() => {
+                                    setConfirmDialog({
+                                      isOpen: true,
+                                      title: 'Delete Retail Enquiry?',
+                                      message: `Are you sure you want to delete this custom apparel retail inquiry from ${e.customer_name || 'Customer'}?`,
+                                      confirmLabel: 'Confirm Delete',
+                                      isDestructive: true,
+                                      onConfirm: () => handleDeleteEnquiry('retail', e.id),
+                                    });
+                                  }}
+                                  title="Delete enquiry"
+                                  className="p-1 rounded-lg hover:bg-rose-50 text-rose-600 transition-colors"
+                                >
+                                  <Trash2 className="w-3.5 h-3.5" />
+                                </button>
                               </div>
                             </div>
 
-                            <div className="flex flex-wrap items-center gap-1.5 pt-1 text-[11px]">
-                              {e.phone && (
-                                <a
-                                  href={`tel:${e.phone}`}
-                                  className="inline-flex items-center gap-1 px-2.5 py-1 rounded-lg bg-stone-100 hover:bg-stone-200 text-gray-900 font-semibold transition-colors"
-                                >
-                                  <Phone className="w-3 h-3 text-gray-500" />
-                                  <span>{e.phone}</span>
-                                </a>
-                              )}
-                              {e.email && (
-                                <a
-                                  href={`mailto:${e.email}`}
-                                  className="inline-flex items-center gap-1 px-2.5 py-1 rounded-lg bg-stone-100 hover:bg-stone-200 text-gray-900 font-semibold transition-colors truncate max-w-[200px]"
-                                >
-                                  <Mail className="w-3 h-3 text-gray-500" />
-                                  <span className="truncate">{e.email}</span>
-                                </a>
-                              )}
-                              {e.phone && (
-                                <a
-                                  href={`https://wa.me/91${String(e.phone).replace(/\D/g, '').slice(-10)}?text=${encodeURIComponent(`Hi ${e.customer_name || ''}, thank you for contacting FunPrint! Regarding your custom apparel retail order enquiry (${e.quantities || 1} pcs)...`)}`}
-                                  target="_blank"
-                                  rel="noopener noreferrer"
-                                  className="inline-flex items-center gap-1 px-2.5 py-1 rounded-lg bg-emerald-600 hover:bg-emerald-700 text-white font-bold transition-colors ml-auto shadow-2xs text-[10.5px]"
-                                >
-                                  <MessageCircle className="w-3 h-3" />
-                                  <span>WhatsApp</span>
-                                </a>
-                              )}
-                            </div>
-                          </div>
-
-                          {/* Garment Details & Items Breakdown */}
-                          <div className="space-y-1.5">
-                            <div className="flex items-center justify-between text-[11px] bg-stone-100/80 px-2.5 py-1 rounded-lg border border-stone-200">
-                              <span className="text-gray-500 uppercase text-[9.5px] font-bold">Base Garment:</span>
-                              <span className="font-bold text-gray-900">{e.garment_type || 'Custom Apparel'}</span>
-                            </div>
-
-                            {itemsList.length > 0 && (
-                              <div className="space-y-1">
-                                <span className="text-[9.5px] uppercase font-bold text-gray-400 tracking-wider block">Itemized Garments &amp; Print Locations:</span>
-                                <div className="grid grid-cols-1 gap-1">
-                                  {itemsList.map((item: string, idx: number) => (
-                                    <div
-                                      key={idx}
-                                      className="bg-white border border-gray-200/80 rounded-lg px-2.5 py-1.5 text-[10.5px] text-gray-900 font-medium flex items-center gap-2 shadow-2xs"
-                                    >
-                                      <span className="w-1.5 h-1.5 rounded-full bg-amber-500 shrink-0" />
-                                      <span className="leading-tight">{item}</span>
-                                    </div>
-                                  ))}
+                            {/* Customer Summary & Shared Contact Actions */}
+                            <div className="bg-amber-50/40 p-3 sm:p-3.5 rounded-xl border border-amber-200/80 shadow-2xs space-y-2">
+                              <div className="flex flex-wrap items-center justify-between gap-2">
+                                <div>
+                                  <span className="text-gray-400 text-[9.5px] uppercase font-bold tracking-wider block">
+                                    Customer Name
+                                  </span>
+                                  <p className="font-black text-xs sm:text-sm text-gray-950 leading-tight">
+                                    {e.customer_name || 'Anonymous Customer'}
+                                  </p>
                                 </div>
+                                <div className="text-right">
+                                  <span className="text-gray-400 text-[9.5px] uppercase font-bold tracking-wider block">
+                                    Total Pieces
+                                  </span>
+                                  <span className="font-black text-xs sm:text-sm text-amber-950 bg-amber-100 px-2 py-0.5 rounded-md border border-amber-300 inline-block">
+                                    {e.quantities || e.quantity || 1} pcs
+                                  </span>
+                                </div>
+                              </div>
+
+                              <div className="flex flex-wrap items-center justify-between gap-2 pt-1 border-t border-amber-200/60">
+                                <div className="text-xs text-gray-600">
+                                  <span className="font-mono text-gray-900 font-semibold">{e.phone || 'No phone'}</span>
+                                  {e.email && <span className="ml-2 text-gray-500">({e.email})</span>}
+                                </div>
+                                <ContactActions
+                                  name={e.customer_name || 'Customer'}
+                                  phone={e.phone}
+                                  email={e.email}
+                                  contextMessage={`Hi ${e.customer_name || ''}, thank you for contacting FunPrint! Regarding your custom apparel retail order enquiry (${e.quantities || e.quantity || 1} pcs)...`}
+                                  compact={false}
+                                />
+                              </div>
+                            </div>
+
+                            {/* Base Garment & Expandable Breakdown */}
+                            <div className="space-y-2">
+                              <div className="flex items-center justify-between text-xs bg-amber-50/50 px-3 py-1.5 rounded-lg border border-amber-200/70">
+                                <span className="text-gray-500 uppercase text-[10px] font-bold">Base Garment:</span>
+                                <span className="font-black text-gray-950">{e.garment_type || 'Custom Apparel'}</span>
+                              </div>
+
+                              {/* Concise Summary with Expand/Collapse Option */}
+                              {itemsList.length > 0 && (
+                                <div className="space-y-1.5">
+                                  <div className="flex items-center justify-between">
+                                    <span className="text-[10px] uppercase font-black text-gray-500 tracking-wider">
+                                      Custom Garments Breakdown ({itemsList.length} items):
+                                    </span>
+                                    <button
+                                      type="button"
+                                      onClick={() => {
+                                        setExpandedRetailIds((prev) =>
+                                          prev.includes(e.id)
+                                            ? prev.filter((id) => id !== e.id)
+                                            : [...prev, e.id]
+                                        );
+                                      }}
+                                      className="inline-flex items-center gap-1 text-[11px] font-bold text-amber-900 hover:text-amber-950"
+                                    >
+                                      <span>{isExpanded ? 'Hide Breakdown' : 'Expand Full Breakdown'}</span>
+                                      {isExpanded ? (
+                                        <ChevronUp className="w-3.5 h-3.5" />
+                                      ) : (
+                                        <ChevronDown className="w-3.5 h-3.5" />
+                                      )}
+                                    </button>
+                                  </div>
+
+                                  {!isExpanded ? (
+                                    <div className="bg-amber-50/20 border border-amber-200/50 rounded-xl p-2.5 text-xs text-gray-700 font-medium">
+                                      <p className="line-clamp-2">
+                                        {itemsList.join(' • ')}
+                                      </p>
+                                    </div>
+                                  ) : (
+                                    <div className="grid grid-cols-1 gap-1.5 pt-1">
+                                      {itemsList.map((item: string, idx: number) => (
+                                        <div
+                                          key={idx}
+                                          className="bg-amber-50/40 border border-amber-200/70 rounded-xl p-2 text-xs text-gray-900 font-medium flex items-center gap-2 shadow-2xs"
+                                        >
+                                          <span className="w-1.5 h-1.5 rounded-full bg-amber-500 shrink-0" />
+                                          <span className="leading-snug">{item}</span>
+                                        </div>
+                                      ))}
+                                    </div>
+                                  )}
+                                </div>
+                              )}
+                            </div>
+
+                            {/* Logo Instructions Callout */}
+                            {e.instructions && (
+                              <div className="bg-amber-50/90 border border-amber-300/80 rounded-xl p-2.5 sm:p-3 text-xs text-amber-950 font-sans">
+                                <strong className="font-black uppercase text-[10px] text-amber-900 tracking-wider block mb-1">
+                                  Customization &amp; Logo Requirements:
+                                </strong>
+                                <p className="whitespace-pre-wrap leading-relaxed">{e.instructions}</p>
                               </div>
                             )}
                           </div>
-
-                          {/* Logo Instructions Callout */}
-                          {e.instructions && (
-                            <div className="bg-amber-50/90 border border-amber-200/90 rounded-xl p-2.5 text-[11px] text-amber-950 font-sans">
-                              <strong className="font-black uppercase text-[9.5px] text-amber-800 tracking-wider block mb-0.5">
-                                Logo &amp; Placement Instructions:
-                              </strong>
-                              <p className="whitespace-pre-wrap leading-relaxed">{e.instructions}</p>
-                            </div>
-                          )}
-                        </div>
-                      );
-                    })
-                  )}
-                </div>
-              </div>
-
-              {/* 2. Factory Direct Bulk Enquiries */}
-              <div className="bg-white rounded-xl sm:rounded-3xl border border-gray-200 p-3.5 sm:p-6 shadow-xs space-y-3">
-                <div className="flex items-center justify-between border-b border-gray-100 pb-2.5">
-                  <div className="flex items-center gap-2">
-                    <span className="w-2.5 h-2.5 rounded-full bg-purple-600" />
-                    <h3 className="font-extrabold text-xs sm:text-base text-gray-950">
-                      Factory Direct Bulk Enquiries ({bulkEnquiries.length})
-                    </h3>
+                        );
+                      })
+                    )}
                   </div>
-                  <span className="text-[10.5px] font-bold text-purple-900 bg-purple-50 border border-purple-200 px-2.5 py-0.5 rounded-full">
-                    Wholesale B2B
-                  </span>
-                </div>
+                )}
 
-                <div className="space-y-3">
-                  {bulkEnquiries.length === 0 ? (
-                    <p className="text-[10px] sm:text-xs text-gray-400 py-3 text-center">No bulk order submissions recorded yet.</p>
-                  ) : (
-                    bulkEnquiries.map((b) => {
-                      const isResolved = b.status === 'RESOLVED';
-                      const submittedDate = b.created_at
-                        ? new Date(b.created_at).toLocaleString('en-IN', { dateStyle: 'medium', timeStyle: 'short' })
-                        : 'N/A';
+                {/* ===================== TAB B: FACTORY DIRECT BULK ENQUIRIES ===================== */}
+                {enquirySubTab === 'bulk' && (
+                  <div className="space-y-3">
+                    {filteredBulk.length === 0 ? (
+                      <div className="bg-white rounded-2xl border border-gray-200 p-8 text-center space-y-2">
+                        <p className="text-xs sm:text-sm font-bold text-gray-600">
+                          No factory direct bulk enquiries found.
+                        </p>
+                        {bulkEnquiries.length > 0 && (
+                          <button
+                            type="button"
+                            onClick={() => {
+                              setEnquirySearch('');
+                              setEnquiryStatusFilter('all');
+                            }}
+                            className="px-3 py-1 rounded-lg bg-purple-100 hover:bg-purple-200 text-purple-950 text-xs font-bold"
+                          >
+                            Reset Filters
+                          </button>
+                        )}
+                      </div>
+                    ) : (
+                      filteredBulk.map((b) => {
+                        const isResolved = b.status === 'RESOLVED';
+                        const submittedDate = b.created_at
+                          ? new Date(b.created_at).toLocaleString('en-IN', {
+                              dateStyle: 'medium',
+                              timeStyle: 'short',
+                            })
+                          : 'N/A';
 
-                      return (
-                        <div key={b.id} className="p-3.5 sm:p-4 rounded-2xl border border-gray-200 bg-stone-50/70 shadow-xs space-y-3">
-                          {/* Template Header */}
-                          <div className="flex items-center justify-between gap-2 border-b border-gray-200/80 pb-2">
-                            <div className="flex items-center gap-2">
-                              <span className="px-2 py-0.5 rounded-full text-[9px] sm:text-[10px] font-black uppercase tracking-wider bg-purple-100 text-purple-950 border border-purple-300">
-                                Bulk Order Form
-                              </span>
-                              <span className="text-[10px] sm:text-[11px] text-gray-500">{submittedDate}</span>
-                            </div>
-                            <div className="flex items-center gap-1.5">
-                              <span
-                                className={`px-2 py-0.5 rounded-full text-[9px] font-black uppercase tracking-wider ${
-                                  isResolved
-                                    ? 'bg-emerald-100 text-emerald-800 border border-emerald-200'
-                                    : 'bg-purple-100 text-purple-800 border border-purple-200'
-                                }`}
-                              >
-                                {b.status || 'NEW'}
-                              </span>
-                              {!isResolved && (
+                        return (
+                          <div
+                            key={b.id}
+                            className="p-3.5 sm:p-5 rounded-2xl sm:rounded-3xl border border-purple-200/90 bg-white shadow-xs space-y-3"
+                          >
+                            {/* Card Header */}
+                            <div className="flex flex-wrap items-center justify-between gap-2 border-b border-purple-100 pb-2.5">
+                              <div className="flex items-center gap-2">
+                                <span className="px-2 py-0.5 rounded-full text-[9px] sm:text-[10px] font-black uppercase tracking-wider bg-purple-100 text-purple-950 border border-purple-300">
+                                  Factory Direct Bulk
+                                </span>
+                                <span className="text-[10px] sm:text-[11px] text-gray-500">{submittedDate}</span>
+                              </div>
+                              <div className="flex items-center gap-1.5">
+                                <span
+                                  className={`px-2 py-0.5 rounded-full text-[9.5px] font-black uppercase tracking-wider ${
+                                    isResolved
+                                      ? 'bg-emerald-100 text-emerald-800 border border-emerald-200'
+                                      : 'bg-purple-100 text-purple-900 border border-purple-300'
+                                  }`}
+                                >
+                                  {b.status || 'NEW'}
+                                </span>
                                 <button
                                   type="button"
-                                  onClick={() => handleUpdateEnquiryStatus('bulk', b.id, 'RESOLVED')}
-                                  className="px-2.5 py-0.5 bg-emerald-600 hover:bg-emerald-700 text-white rounded-full font-bold text-[9px] sm:text-[10px] shadow-2xs transition-colors"
+                                  disabled={updatingEnquiryId === b.id}
+                                  onClick={() =>
+                                    handleUpdateEnquiryStatus(
+                                      'bulk',
+                                      b.id,
+                                      isResolved ? 'NEW' : 'RESOLVED'
+                                    )
+                                  }
+                                  className={`px-2.5 py-0.5 rounded-full font-bold text-[9.5px] shadow-2xs transition-colors ${
+                                    isResolved
+                                      ? 'bg-gray-100 hover:bg-gray-200 text-gray-700'
+                                      : 'bg-emerald-600 hover:bg-emerald-700 text-white'
+                                  }`}
                                 >
-                                  Mark Resolved
+                                  {isResolved ? 'Reopen (Mark New)' : 'Mark Resolved'}
                                 </button>
-                              )}
-                            </div>
-                          </div>
-
-                          {/* Customer & Company Box */}
-                          <div className="bg-white p-3 rounded-xl border border-gray-200/90 shadow-2xs space-y-2">
-                            <div className="flex items-center justify-between gap-2">
-                              <div>
-                                <span className="text-gray-400 text-[9.5px] uppercase font-bold tracking-wider block">Contact &amp; Organization</span>
-                                <p className="font-black text-xs sm:text-sm text-gray-950 leading-tight">
-                                  {b.contact_name || b.company_name || 'Anonymous Wholesale Contact'}
-                                </p>
-                                {b.organization && (
-                                  <span className="text-[10.5px] font-semibold text-purple-800 bg-purple-50 px-1.5 py-0.5 rounded border border-purple-100 inline-block mt-0.5">
-                                    {b.organization}
-                                  </span>
-                                )}
+                                <button
+                                  type="button"
+                                  disabled={deletingEnquiryId === b.id}
+                                  onClick={() => {
+                                    setConfirmDialog({
+                                      isOpen: true,
+                                      title: 'Delete Factory Bulk Enquiry?',
+                                      message: `Are you sure you want to delete this wholesale order inquiry from ${b.contact_name || b.company_name || 'Wholesale Buyer'}?`,
+                                      confirmLabel: 'Confirm Delete',
+                                      isDestructive: true,
+                                      onConfirm: () => handleDeleteEnquiry('bulk', b.id),
+                                    });
+                                  }}
+                                  title="Delete enquiry"
+                                  className="p-1 rounded-lg hover:bg-rose-50 text-rose-600 transition-colors"
+                                >
+                                  <Trash2 className="w-3.5 h-3.5" />
+                                </button>
                               </div>
-                              <div className="text-right">
-                                <span className="text-gray-400 text-[9.5px] uppercase font-bold tracking-wider block">Requested Units</span>
-                                <span className="font-black text-xs sm:text-sm text-purple-900 bg-purple-50 px-2 py-0.5 rounded-md border border-purple-200 inline-block">
-                                  {b.items?.[0]?.quantity || 50}+ units
+                            </div>
+
+                            {/* Contact & Company Details */}
+                            <div className="bg-purple-50/40 p-3 sm:p-3.5 rounded-xl border border-purple-200/80 shadow-2xs space-y-2">
+                              <div className="flex flex-wrap items-center justify-between gap-2">
+                                <div>
+                                  <span className="text-gray-400 text-[9.5px] uppercase font-bold tracking-wider block">
+                                    Contact &amp; Company Information
+                                  </span>
+                                  <p className="font-black text-xs sm:text-sm text-gray-950 leading-tight">
+                                    {b.contact_name || b.company_name || 'Anonymous Wholesale Contact'}
+                                  </p>
+                                  {b.organization && (
+                                    <span className="text-[10.5px] font-semibold text-purple-900 bg-purple-100 px-1.5 py-0.5 rounded border border-purple-200 inline-block mt-0.5">
+                                      {b.organization}
+                                    </span>
+                                  )}
+                                </div>
+                                <div className="text-right">
+                                  <span className="text-gray-400 text-[9.5px] uppercase font-bold tracking-wider block">
+                                    Requested Quantity
+                                  </span>
+                                  <span className="font-black text-xs sm:text-sm text-purple-950 bg-purple-100 px-2 py-0.5 rounded-md border border-purple-300 inline-block">
+                                    {b.items?.[0]?.quantity || 50}+ units
+                                  </span>
+                                </div>
+                              </div>
+
+                              <div className="flex flex-wrap items-center justify-between gap-2 pt-1 border-t border-purple-200/60">
+                                <div className="text-xs text-gray-600">
+                                  <span className="font-mono text-gray-900 font-semibold">{b.phone || 'No phone'}</span>
+                                  {b.email && <span className="ml-2 text-gray-500">({b.email})</span>}
+                                </div>
+                                <ContactActions
+                                  name={b.contact_name || b.company_name || 'Wholesale Buyer'}
+                                  phone={b.phone}
+                                  email={b.email}
+                                  contextMessage={`Hi ${b.contact_name || ''}, thank you for your wholesale bulk enquiry with FunPrint! Regarding your order for ${b.organization || 'custom garments'}...`}
+                                  compact={false}
+                                />
+                              </div>
+                            </div>
+
+                            {/* Specs & Products */}
+                            <div className="grid grid-cols-1 sm:grid-cols-2 gap-2 text-xs">
+                              <div className="bg-purple-50/30 p-2.5 rounded-xl border border-purple-200/60">
+                                <span className="text-gray-400 uppercase text-[9.5px] font-bold block">
+                                  Requested Garment
+                                </span>
+                                <span className="font-bold text-gray-950">
+                                  {b.items?.[0]?.garmentType || 'Bulk Custom Apparel'}
+                                </span>
+                              </div>
+                              <div className="bg-purple-50/30 p-2.5 rounded-xl border border-purple-200/60">
+                                <span className="text-gray-400 uppercase text-[9.5px] font-bold block">
+                                  Fabric / GSM Specifications
+                                </span>
+                                <span className="font-bold text-gray-950">
+                                  {b.fabric_specs || b.gsm || 'Standard Factory Specs'}
                                 </span>
                               </div>
                             </div>
 
-                            <div className="flex flex-wrap items-center gap-1.5 pt-1 text-[11px]">
-                              {b.phone && (
-                                <a
-                                  href={`tel:${b.phone}`}
-                                  className="inline-flex items-center gap-1 px-2.5 py-1 rounded-lg bg-stone-100 hover:bg-stone-200 text-gray-900 font-semibold transition-colors"
-                                >
-                                  <Phone className="w-3 h-3 text-gray-500" />
-                                  <span>{b.phone}</span>
-                                </a>
-                              )}
-                              {b.email && (
-                                <a
-                                  href={`mailto:${b.email}`}
-                                  className="inline-flex items-center gap-1 px-2.5 py-1 rounded-lg bg-stone-100 hover:bg-stone-200 text-gray-900 font-semibold transition-colors truncate max-w-[200px]"
-                                >
-                                  <Mail className="w-3 h-3 text-gray-500" />
-                                  <span className="truncate">{b.email}</span>
-                                </a>
-                              )}
-                              {b.phone && (
-                                <a
-                                  href={`https://wa.me/91${String(b.phone).replace(/\D/g, '').slice(-10)}?text=${encodeURIComponent(`Hi ${b.contact_name || ''}, thank you for your wholesale bulk enquiry with FunPrint! Regarding your order for ${b.organization || 'custom garments'}...`)}`}
-                                  target="_blank"
-                                  rel="noopener noreferrer"
-                                  className="inline-flex items-center gap-1 px-2.5 py-1 rounded-lg bg-emerald-600 hover:bg-emerald-700 text-white font-bold transition-colors ml-auto shadow-2xs text-[10.5px]"
-                                >
-                                  <MessageCircle className="w-3 h-3" />
-                                  <span>WhatsApp</span>
-                                </a>
-                              )}
-                            </div>
+                            {/* Requirements & Notes */}
+                            {b.admin_notes && (
+                              <div className="bg-purple-50/90 border border-purple-300/80 rounded-xl p-2.5 sm:p-3 text-xs text-purple-950 font-sans">
+                                <strong className="font-black uppercase text-[10px] text-purple-900 tracking-wider block mb-1">
+                                  Wholesale Requirements &amp; Notes:
+                                </strong>
+                                <p className="whitespace-pre-wrap leading-relaxed">{b.admin_notes}</p>
+                              </div>
+                            )}
                           </div>
-
-                          {/* Wholesale Specs */}
-                          <div className="grid grid-cols-1 sm:grid-cols-2 gap-2 text-[11px]">
-                            <div className="bg-white p-2.5 rounded-xl border border-gray-200 text-[11px]">
-                              <span className="text-gray-400 uppercase text-[9.5px] font-bold block">Fabric / GSM Specs</span>
-                              <span className="font-bold text-gray-900">{b.fabric_specs || b.gsm || 'Standard Wholesale Specs'}</span>
-                            </div>
-                            <div className="bg-white p-2.5 rounded-xl border border-gray-200 text-[11px]">
-                              <span className="text-gray-400 uppercase text-[9.5px] font-bold block">Garment Type</span>
-                              <span className="font-bold text-gray-900">{b.items?.[0]?.garmentType || 'T-Shirts & Hoodies'}</span>
-                            </div>
-                          </div>
-
-                          {/* Requirements & Notes */}
-                          {b.admin_notes && (
-                            <div className="bg-purple-50/80 border border-purple-200/90 rounded-xl p-2.5 text-[11px] text-purple-950 font-sans">
-                              <strong className="font-black uppercase text-[9.5px] text-purple-800 tracking-wider block mb-0.5">
-                                Wholesale Requirements &amp; Notes:
-                              </strong>
-                              <p className="whitespace-pre-wrap leading-relaxed">{b.admin_notes}</p>
-                            </div>
-                          )}
-                        </div>
-                      );
-                    })
-                  )}
-                </div>
-              </div>
-
-              {/* 3. General Contact Form */}
-              <div className="bg-white rounded-xl sm:rounded-3xl border border-gray-200 p-3.5 sm:p-6 shadow-xs space-y-3">
-                <div className="flex items-center justify-between border-b border-gray-100 pb-2.5">
-                  <div className="flex items-center gap-2">
-                    <span className="w-2.5 h-2.5 rounded-full bg-blue-600" />
-                    <h3 className="font-extrabold text-xs sm:text-base text-gray-950">
-                      General Contact Submissions ({contactEnquiries.length})
-                    </h3>
+                        );
+                      })
+                    )}
                   </div>
-                  <span className="text-[10.5px] font-bold text-blue-900 bg-blue-50 border border-blue-200 px-2.5 py-0.5 rounded-full">
-                    Support Messages
-                  </span>
-                </div>
+                )}
 
-                <div className="space-y-3">
-                  {contactEnquiries.length === 0 ? (
-                    <p className="text-[10px] sm:text-xs text-gray-400 py-3 text-center">No contact submissions recorded yet.</p>
-                  ) : (
-                    contactEnquiries.map((e) => {
-                      const isResolved = e.status === 'RESOLVED';
-                      const submittedDate = e.created_at
-                        ? new Date(e.created_at).toLocaleString('en-IN', { dateStyle: 'medium', timeStyle: 'short' })
-                        : 'N/A';
+                {/* ===================== TAB C: BRAND COLLABORATION BULK ENQUIRIES ===================== */}
+                {enquirySubTab === 'brand' && (
+                  <div className="space-y-3">
+                    {filteredBrand.length === 0 ? (
+                      <div className="bg-white rounded-2xl border border-gray-200 p-8 text-center space-y-2">
+                        <p className="text-xs sm:text-sm font-bold text-gray-600">
+                          No brand collaboration bulk enquiries found.
+                        </p>
+                        {brandEnquiries.length > 0 && (
+                          <button
+                            type="button"
+                            onClick={() => {
+                              setEnquirySearch('');
+                              setEnquiryStatusFilter('all');
+                            }}
+                            className="px-3 py-1 rounded-lg bg-emerald-100 hover:bg-emerald-200 text-emerald-950 text-xs font-bold"
+                          >
+                            Reset Filters
+                          </button>
+                        )}
+                      </div>
+                    ) : (
+                      filteredBrand.map((br) => {
+                        const isResolved = br.status === 'RESOLVED';
+                        const submittedDate = br.created_at
+                          ? new Date(br.created_at).toLocaleString('en-IN', {
+                              dateStyle: 'medium',
+                              timeStyle: 'short',
+                            })
+                          : 'N/A';
+                        const brandList = (br.brands || '')
+                          .split(',')
+                          .map((s: string) => s.trim())
+                          .filter(Boolean);
 
-                      return (
-                        <div key={e.id} className="p-3.5 sm:p-4 rounded-2xl border border-gray-200 bg-stone-50/70 shadow-xs space-y-3">
-                          {/* Template Header */}
-                          <div className="flex items-center justify-between gap-2 border-b border-gray-200/80 pb-2">
-                            <div className="flex items-center gap-2">
-                              <span className="px-2 py-0.5 rounded-full text-[9px] sm:text-[10px] font-black uppercase tracking-wider bg-blue-100 text-blue-950 border border-blue-300">
-                                Contact Form
-                              </span>
-                              <span className="text-[10px] sm:text-[11px] text-gray-500">{submittedDate}</span>
-                            </div>
-                            <div className="flex items-center gap-1.5">
-                              <span
-                                className={`px-2 py-0.5 rounded-full text-[9px] font-black uppercase tracking-wider ${
-                                  isResolved
-                                    ? 'bg-emerald-100 text-emerald-800 border border-emerald-200'
-                                    : 'bg-blue-100 text-blue-800 border border-blue-200'
-                                }`}
-                              >
-                                {e.status || 'NEW'}
-                              </span>
-                              {!isResolved && (
+                        return (
+                          <div
+                            key={br.id}
+                            className="p-3.5 sm:p-5 rounded-2xl sm:rounded-3xl border border-emerald-200/90 bg-white shadow-xs space-y-3"
+                          >
+                            {/* Card Header */}
+                            <div className="flex flex-wrap items-center justify-between gap-2 border-b border-emerald-100 pb-2.5">
+                              <div className="flex items-center gap-2">
+                                <span className="px-2 py-0.5 rounded-full text-[9px] sm:text-[10px] font-black uppercase tracking-wider bg-emerald-100 text-emerald-950 border border-emerald-300">
+                                  Brand Collaboration
+                                </span>
+                                <span className="text-[10px] sm:text-[11px] text-gray-500">{submittedDate}</span>
+                              </div>
+                              <div className="flex items-center gap-1.5">
+                                <span
+                                  className={`px-2 py-0.5 rounded-full text-[9.5px] font-black uppercase tracking-wider ${
+                                    isResolved
+                                      ? 'bg-emerald-100 text-emerald-800 border border-emerald-200'
+                                      : 'bg-emerald-100 text-emerald-900 border border-emerald-300'
+                                  }`}
+                                >
+                                  {br.status || 'NEW'}
+                                </span>
                                 <button
                                   type="button"
-                                  onClick={() => handleUpdateEnquiryStatus('contact', e.id, 'RESOLVED')}
-                                  className="px-2 py-0.5 bg-emerald-600 hover:bg-emerald-700 text-white rounded-full font-bold text-[9px] sm:text-[10px] shadow-2xs transition-colors"
+                                  disabled={updatingEnquiryId === br.id}
+                                  onClick={() =>
+                                    handleUpdateEnquiryStatus(
+                                      'brand',
+                                      br.id,
+                                      isResolved ? 'NEW' : 'RESOLVED'
+                                    )
+                                  }
+                                  className={`px-2.5 py-0.5 rounded-full font-bold text-[9.5px] shadow-2xs transition-colors ${
+                                    isResolved
+                                      ? 'bg-gray-100 hover:bg-gray-200 text-gray-700'
+                                      : 'bg-emerald-600 hover:bg-emerald-700 text-white'
+                                  }`}
                                 >
-                                  Mark Resolved
+                                  {isResolved ? 'Reopen (Mark New)' : 'Mark Resolved'}
                                 </button>
-                              )}
+                                <button
+                                  type="button"
+                                  disabled={deletingEnquiryId === br.id}
+                                  onClick={() => {
+                                    setConfirmDialog({
+                                      isOpen: true,
+                                      title: 'Delete Brand Enquiry?',
+                                      message: `Are you sure you want to delete this brand collaboration bulk inquiry from ${br.name || 'Brand Buyer'}?`,
+                                      confirmLabel: 'Confirm Delete',
+                                      isDestructive: true,
+                                      onConfirm: () => handleDeleteEnquiry('brand', br.id),
+                                    });
+                                  }}
+                                  title="Delete enquiry"
+                                  className="p-1 rounded-lg hover:bg-rose-50 text-rose-600 transition-colors"
+                                >
+                                  <Trash2 className="w-3.5 h-3.5" />
+                                </button>
+                              </div>
                             </div>
-                          </div>
 
-                          {/* Contact Details */}
-                          <div className="bg-white p-3 rounded-xl border border-gray-200/90 shadow-2xs space-y-2">
-                            <div>
-                              <span className="text-gray-400 text-[9.5px] uppercase font-bold tracking-wider block">Sender Name</span>
-                              <p className="font-black text-xs sm:text-sm text-gray-950 leading-tight">
-                                {e.name || 'Anonymous Sender'}
+                            {/* Contact Box */}
+                            <div className="bg-emerald-50/40 p-3 sm:p-3.5 rounded-xl border border-emerald-200/80 shadow-2xs space-y-2">
+                              <div className="flex flex-wrap items-center justify-between gap-2">
+                                <div>
+                                  <span className="text-gray-400 text-[9.5px] uppercase font-bold tracking-wider block">
+                                    Contact Person
+                                  </span>
+                                  <p className="font-black text-xs sm:text-sm text-gray-950 leading-tight">
+                                    {br.name || 'Anonymous Brand Buyer'}
+                                  </p>
+                                </div>
+                                <div className="text-right">
+                                  <span className="text-gray-400 text-[9.5px] uppercase font-bold tracking-wider block">
+                                    Selected Brands Count
+                                  </span>
+                                  <span className="font-black text-xs sm:text-sm text-emerald-950 bg-emerald-100 px-2 py-0.5 rounded-md border border-emerald-300 inline-block">
+                                    {brandList.length} Brand{brandList.length !== 1 ? 's' : ''}
+                                  </span>
+                                </div>
+                              </div>
+
+                              <div className="flex flex-wrap items-center justify-between gap-2 pt-1 border-t border-emerald-200/60">
+                                <div className="text-xs text-gray-600">
+                                  <span className="font-mono text-gray-900 font-semibold">{br.phone || 'No phone'}</span>
+                                  {br.email && <span className="ml-2 text-gray-500">({br.email})</span>}
+                                </div>
+                                <ContactActions
+                                  name={br.name || 'Brand Buyer'}
+                                  phone={br.phone}
+                                  email={br.email}
+                                  contextMessage={`Hi ${br.name || ''}, thank you for contacting FunPrint! Regarding your brand bulk order enquiry for ${br.brands || 'selected brands'}...`}
+                                  compact={false}
+                                />
+                              </div>
+                            </div>
+
+                            {/* Selected Brands Chips (Loaded from Neon PostgreSQL) */}
+                            <div className="space-y-1.5">
+                              <span className="text-[10px] uppercase font-black text-gray-500 tracking-wider block">
+                                Selected Brand Collaborations:
+                              </span>
+                              <div className="flex flex-wrap gap-1.5">
+                                {brandList.length === 0 ? (
+                                  <span className="text-xs text-gray-500 italic">No specific brands selected</span>
+                                ) : (
+                                  brandList.map((brandName: string, idx: number) => (
+                                    <span
+                                      key={idx}
+                                      className="bg-emerald-950 text-emerald-100 border border-emerald-800 rounded-lg px-2.5 py-1 text-xs font-bold shadow-2xs flex items-center gap-1.5"
+                                    >
+                                      <span className="w-1.5 h-1.5 rounded-full bg-emerald-400" />
+                                      <span>{brandName}</span>
+                                    </span>
+                                  ))
+                                )}
+                              </div>
+                            </div>
+
+                            {/* Customer Requirements / Message */}
+                            {br.message && (
+                              <div className="bg-emerald-50/90 border border-emerald-300/80 rounded-xl p-2.5 sm:p-3 text-xs text-emerald-950 font-sans">
+                                <strong className="font-black uppercase text-[10px] text-emerald-900 tracking-wider block mb-1">
+                                  Customer Requirements &amp; Order Concern:
+                                </strong>
+                                <p className="whitespace-pre-wrap leading-relaxed">{br.message}</p>
+                              </div>
+                            )}
+                          </div>
+                        );
+                      })
+                    )}
+                  </div>
+                )}
+
+                {/* ===================== TAB D: GENERAL CONTACT SUBMISSIONS ===================== */}
+                {enquirySubTab === 'contact' && (
+                  <div className="space-y-3">
+                    {filteredContact.length === 0 ? (
+                      <div className="bg-white rounded-2xl border border-gray-200 p-8 text-center space-y-2">
+                        <p className="text-xs sm:text-sm font-bold text-gray-600">
+                          No general contact submissions found.
+                        </p>
+                        {contactEnquiries.length > 0 && (
+                          <button
+                            type="button"
+                            onClick={() => {
+                              setEnquirySearch('');
+                              setEnquiryStatusFilter('all');
+                            }}
+                            className="px-3 py-1 rounded-lg bg-blue-100 hover:bg-blue-200 text-blue-950 text-xs font-bold"
+                          >
+                            Reset Filters
+                          </button>
+                        )}
+                      </div>
+                    ) : (
+                      filteredContact.map((e) => {
+                        const isResolved = e.status === 'RESOLVED';
+                        const submittedDate = e.created_at
+                          ? new Date(e.created_at).toLocaleString('en-IN', {
+                              dateStyle: 'medium',
+                              timeStyle: 'short',
+                            })
+                          : 'N/A';
+
+                        return (
+                          <div
+                            key={e.id}
+                            className="p-3.5 sm:p-5 rounded-2xl sm:rounded-3xl border border-blue-200/90 bg-white shadow-xs space-y-3"
+                          >
+                            {/* Card Header */}
+                            <div className="flex flex-wrap items-center justify-between gap-2 border-b border-blue-100 pb-2.5">
+                              <div className="flex items-center gap-2">
+                                <span className="px-2 py-0.5 rounded-full text-[9px] sm:text-[10px] font-black uppercase tracking-wider bg-blue-100 text-blue-950 border border-blue-300">
+                                  General Contact
+                                </span>
+                                <span className="text-[10px] sm:text-[11px] text-gray-500">{submittedDate}</span>
+                              </div>
+                              <div className="flex items-center gap-1.5">
+                                <span
+                                  className={`px-2 py-0.5 rounded-full text-[9.5px] font-black uppercase tracking-wider ${
+                                    isResolved
+                                      ? 'bg-emerald-100 text-emerald-800 border border-emerald-200'
+                                      : 'bg-blue-100 text-blue-900 border border-blue-300'
+                                  }`}
+                                >
+                                  {e.status || 'NEW'}
+                                </span>
+                                <button
+                                  type="button"
+                                  disabled={updatingEnquiryId === e.id}
+                                  onClick={() =>
+                                    handleUpdateEnquiryStatus(
+                                      'contact',
+                                      e.id,
+                                      isResolved ? 'NEW' : 'RESOLVED'
+                                    )
+                                  }
+                                  className={`px-2.5 py-0.5 rounded-full font-bold text-[9.5px] shadow-2xs transition-colors ${
+                                    isResolved
+                                      ? 'bg-gray-100 hover:bg-gray-200 text-gray-700'
+                                      : 'bg-emerald-600 hover:bg-emerald-700 text-white'
+                                  }`}
+                                >
+                                  {isResolved ? 'Reopen (Mark New)' : 'Mark Resolved'}
+                                </button>
+                                <button
+                                  type="button"
+                                  disabled={deletingEnquiryId === e.id}
+                                  onClick={() => {
+                                    setConfirmDialog({
+                                      isOpen: true,
+                                      title: 'Delete Contact Message?',
+                                      message: `Are you sure you want to delete this support inquiry from ${e.name || 'Sender'}?`,
+                                      confirmLabel: 'Confirm Delete',
+                                      isDestructive: true,
+                                      onConfirm: () => handleDeleteEnquiry('contact', e.id),
+                                    });
+                                  }}
+                                  title="Delete enquiry"
+                                  className="p-1 rounded-lg hover:bg-rose-50 text-rose-600 transition-colors"
+                                >
+                                  <Trash2 className="w-3.5 h-3.5" />
+                                </button>
+                              </div>
+                            </div>
+
+                            {/* Sender Details */}
+                            <div className="bg-blue-50/40 p-3 sm:p-3.5 rounded-xl border border-blue-200/80 shadow-2xs space-y-2">
+                              <div>
+                                <span className="text-gray-400 text-[9.5px] uppercase font-bold tracking-wider block">
+                                  Sender Information
+                                </span>
+                                <p className="font-black text-xs sm:text-sm text-gray-950 leading-tight">
+                                  {e.name || 'Anonymous Sender'}
+                                </p>
+                              </div>
+
+                              <div className="flex flex-wrap items-center justify-between gap-2 pt-1 border-t border-blue-200/60">
+                                <div className="text-xs text-gray-600">
+                                  <span className="font-mono text-gray-900 font-semibold">{e.phone || 'No phone'}</span>
+                                  {e.email && <span className="ml-2 text-gray-500">({e.email})</span>}
+                                </div>
+                                <ContactActions
+                                  name={e.name || 'Customer'}
+                                  phone={e.phone}
+                                  email={e.email}
+                                  contextMessage={`Hi ${e.name || ''}, thank you for contacting FunPrint! Regarding your support message...`}
+                                  compact={false}
+                                />
+                              </div>
+                            </div>
+
+                            {/* Message Content */}
+                            <div className="bg-blue-50/70 border border-blue-200/90 rounded-xl p-3 sm:p-3.5 text-xs text-blue-950 font-sans shadow-2xs">
+                              <span className="text-blue-800 text-[10px] uppercase font-black tracking-wider block mb-1">
+                                Message / Query Content:
+                              </span>
+                              <p className="whitespace-pre-wrap leading-relaxed text-blue-950 font-medium">
+                                &ldquo;{e.message}&rdquo;
                               </p>
                             </div>
-
-                            <div className="flex flex-wrap items-center gap-1.5 pt-1 text-[11px]">
-                              {e.phone && (
-                                <a
-                                  href={`tel:${e.phone}`}
-                                  className="inline-flex items-center gap-1 px-2.5 py-1 rounded-lg bg-stone-100 hover:bg-stone-200 text-gray-900 font-semibold transition-colors"
-                                >
-                                  <Phone className="w-3 h-3 text-gray-500" />
-                                  <span>{e.phone}</span>
-                                </a>
-                              )}
-                              {e.email && (
-                                <a
-                                  href={`mailto:${e.email}`}
-                                  className="inline-flex items-center gap-1 px-2.5 py-1 rounded-lg bg-stone-100 hover:bg-stone-200 text-gray-900 font-semibold transition-colors truncate max-w-[200px]"
-                                >
-                                  <Mail className="w-3 h-3 text-gray-500" />
-                                  <span className="truncate">{e.email}</span>
-                                </a>
-                              )}
-                              {e.phone && (
-                                <a
-                                  href={`https://wa.me/91${String(e.phone).replace(/\D/g, '').slice(-10)}?text=${encodeURIComponent(`Hi ${e.name || ''}, thank you for contacting FunPrint! Regarding your message...`)}`}
-                                  target="_blank"
-                                  rel="noopener noreferrer"
-                                  className="inline-flex items-center gap-1 px-2.5 py-1 rounded-lg bg-emerald-600 hover:bg-emerald-700 text-white font-bold transition-colors ml-auto shadow-2xs text-[10.5px]"
-                                >
-                                  <MessageCircle className="w-3 h-3" />
-                                  <span>WhatsApp</span>
-                                </a>
-                              )}
-                            </div>
                           </div>
-
-                          {/* Message Content Callout */}
-                          <div className="bg-white border border-gray-200/90 rounded-xl p-3 text-[11.5px] text-gray-800 font-sans shadow-2xs">
-                            <span className="text-gray-400 text-[9.5px] uppercase font-bold tracking-wider block mb-1">
-                              Message Content / Query:
-                            </span>
-                            <p className="whitespace-pre-wrap leading-relaxed text-gray-900 italic font-serif">
-                              &ldquo;{e.message}&rdquo;
-                            </p>
-                          </div>
-                        </div>
-                      );
-                    })
-                  )}
-                </div>
+                        );
+                      })
+                    )}
+                  </div>
+                )}
               </div>
-            </div>
-          )}
+            );
+          })()}
 
           {/* TAB 10: OPERATIONAL SETTINGS */}
           {activeTab === 'settings' && (

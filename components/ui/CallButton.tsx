@@ -1,11 +1,13 @@
 'use client';
 
 import { motion } from 'framer-motion';
+import { usePathname } from 'next/navigation';
 
 export default function CallButton() {
+  const pathname = usePathname();
   const phoneNumber = process.env.NEXT_PUBLIC_PHONE_NUMBER || process.env.NEXT_PUBLIC_WHATSAPP_NUMBER || '';
 
-  if (!phoneNumber) return null;
+  if (pathname?.startsWith('/admin') || !phoneNumber) return null;
 
   return (
     <motion.a

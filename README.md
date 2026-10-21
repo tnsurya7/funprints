@@ -310,5 +310,3 @@ This project is proprietary and confidential.
 - [ ] Analytics dashboard
 
 ---
-
-Built with ❤️ for Fun Print

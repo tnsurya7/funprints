@@ -69,6 +69,7 @@ export default function FloatingHeader() {
     { href: '/products', label: 'Products' },
     { href: '/retail-orders', label: 'Retail Orders' },
     { href: '/bulk-order', label: 'Bulk Orders' },
+    { href: '/brands', label: 'Brands' },
     { href: '/contact', label: 'Contact' },
   ];
 

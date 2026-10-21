@@ -1,9 +1,13 @@
 'use client';
 
 import { motion } from 'framer-motion';
+import { usePathname } from 'next/navigation';
 
 export default function InstagramButton() {
+  const pathname = usePathname();
   const instagramUrl = process.env.NEXT_PUBLIC_INSTAGRAM_URL || 'https://www.instagram.com/funprint.in/';
+
+  if (pathname?.startsWith('/admin')) return null;
 
   return (
     <motion.a

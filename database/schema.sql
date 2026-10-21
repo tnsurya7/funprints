@@ -240,7 +240,21 @@ CREATE TABLE IF NOT EXISTS bulk_enquiry_items (
   created_at TIMESTAMPTZ DEFAULT NOW()
 );
 
--- 16. Visitor Sessions (Privacy-conscious, 5-minute active window)
+-- 16. Brand Bulk Enquiries (Top Brands Collaboration)
+CREATE TABLE IF NOT EXISTS brand_enquiries (
+  id UUID PRIMARY KEY DEFAULT gen_random_uuid(),
+  name VARCHAR(255) NOT NULL,
+  email VARCHAR(255) NOT NULL,
+  phone VARCHAR(50) NOT NULL,
+  brands TEXT NOT NULL,
+  message TEXT,
+  status VARCHAR(50) DEFAULT 'NEW',
+  admin_notes TEXT,
+  created_at TIMESTAMPTZ DEFAULT NOW(),
+  updated_at TIMESTAMPTZ DEFAULT NOW()
+);
+
+-- 17. Visitor Sessions (Privacy-conscious, 5-minute active window)
 CREATE TABLE IF NOT EXISTS visitor_sessions (
   session_id VARCHAR(100) PRIMARY KEY,
   customer_id UUID REFERENCES customers(id) ON DELETE SET NULL,
