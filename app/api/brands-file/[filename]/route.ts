@@ -17,12 +17,7 @@ export async function GET(
     const safeFilename = path.basename(decodedFilename);
 
     const primaryDir = path.join(process.cwd(), 'app', 'brands_pdfs & images');
-    const fallbackDir = path.join(process.cwd(), 'app', 'brands_pdfs');
-
-    let filePath = path.join(primaryDir, safeFilename);
-    if (!fs.existsSync(filePath)) {
-      filePath = path.join(fallbackDir, safeFilename);
-    }
+    const filePath = path.join(primaryDir, safeFilename);
 
     if (!fs.existsSync(filePath)) {
       return NextResponse.json({ error: 'File not found' }, { status: 404 });
