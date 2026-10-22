@@ -17,6 +17,7 @@ import {
 } from 'lucide-react';
 import { BRANDS_DATA } from '@/lib/brands-data';
 import toast from 'react-hot-toast';
+import WhatsAppIcon from '@/components/ui/WhatsAppIcon';
 
 interface BrandEnquiryFormProps {
   selectedBrands: string[];
@@ -141,6 +142,7 @@ export default function BrandEnquiryForm({
                 rel="noopener noreferrer"
                 className="w-full sm:w-auto inline-flex items-center justify-center gap-2 px-5 py-2.5 bg-emerald-600 hover:bg-emerald-500 text-white text-xs sm:text-sm font-bold rounded-xl transition-colors shadow-lg"
               >
+                <WhatsAppIcon className="w-4 h-4 fill-white shrink-0" />
                 <span>Instant WhatsApp Connect</span>
               </a>
               <button
@@ -318,16 +320,17 @@ export default function BrandEnquiryForm({
                 <span>Confirmation email sent to you immediately upon submission.</span>
               </div>
 
-              <div className="flex items-center gap-2 w-full sm:w-auto">
+              <div className="flex flex-col sm:flex-row items-center gap-2 w-full sm:w-auto">
                 {/* Instant WhatsApp Enquiry */}
                 <a
                   href={`https://wa.me/91${(process.env.NEXT_PUBLIC_WHATSAPP_NUMBER || '917358782998').replace(/\D/g, '').slice(-10)}?text=${whatsappMessage}`}
                   target="_blank"
                   rel="noopener noreferrer"
-                  className="hidden sm:inline-flex items-center gap-1.5 px-4 py-2.5 rounded-xl bg-emerald-600/90 hover:bg-emerald-600 text-white text-xs sm:text-sm font-bold transition-colors"
+                  className="w-full sm:w-auto inline-flex items-center justify-center gap-2 px-4 py-2.5 sm:py-3 rounded-xl bg-emerald-600 hover:bg-emerald-500 text-white text-xs sm:text-sm font-bold transition-colors shadow-sm"
                   title="Chat directly on WhatsApp"
                 >
-                  <span>WhatsApp</span>
+                  <WhatsAppIcon className="w-4 h-4 fill-white shrink-0" />
+                  <span>WhatsApp Enquiry</span>
                 </a>
 
                 {/* Submit Button */}

@@ -9,12 +9,14 @@ import {
   MessageCircle, 
   Shirt, 
   Check, 
+  CheckCircle2,
   X,
   Minus
 } from 'lucide-react';
 import toast from 'react-hot-toast';
 import { getAllEnhancedProducts, EnhancedProduct } from '@/lib/enhanced-products';
 import { getColorDisplay } from '@/lib/colors';
+import WhatsAppIcon from '@/components/ui/WhatsAppIcon';
 
 interface OrderItem {
   id: string;
@@ -74,6 +76,12 @@ export default function RetailOrdersPage() {
   const [email, setEmail] = useState('');
   const [notes, setNotes] = useState('');
   const [isSubmitting, setIsSubmitting] = useState(false);
+  const [submitted, setSubmitted] = useState(false);
+  const [lastSubmittedInfo, setLastSubmittedInfo] = useState({
+    customerName: '',
+    email: '',
+    totalQuantity: 0,
+  });
 
   // Filtered products list (Strictly Round Neck, Polos, Hoodies, All Garments)
   const filteredCatalogProducts = allCatalogProducts.filter((product) => {
@@ -217,6 +225,24 @@ export default function RetailOrdersPage() {
 
   const totalQuantity = items.reduce((sum, item) => sum + (item.totalQuantity || 0), 0);
 
+  const rawNumber = (process.env.NEXT_PUBLIC_WHATSAPP_NUMBER || '917358782998').replace(/\D/g, '');
+  const targetWhatsappNumber = rawNumber.length === 10 ? `91${rawNumber}` : rawNumber;
+
+  const itemsSummary = items.length > 0
+    ? items
+        .map((it, idx) => {
+          const sizeBreakdown = Object.entries(it.sizeQuantities)
+            .map(([sz, q]) => `${q}x Size ${sz}`)
+            .join(', ');
+          return `${idx + 1}. ${it.totalQuantity}x ${it.productName} - Color: ${it.color} [${sizeBreakdown}] (${it.logoPlacement})`;
+        })
+        .join('\n')
+    : 'No garments configured yet';
+
+  const retailWhatsappMessage = encodeURIComponent(
+    `Hi FunPrint Team,\n\nI want to place/enquire about a Retail Custom Order:\n• Total Items: ${totalQuantity} Pieces\n\n• Items Breakdown:\n${itemsSummary}\n\n• Customer Details:\nName: ${customerName || 'Not provided'}\nMobile: ${mobile || 'Not provided'}\nEmail: ${email || 'Not provided'}\nLogo / Design Instructions: ${notes || 'Ready to send logo file and discuss print options.'}`
+  );
+
   // Submit via API (stores in Neon DB, emails receiver + both admins) and opens WhatsApp
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
@@ -269,32 +295,16 @@ export default function RetailOrdersPage() {
 
       toast.success('Custom order submitted! Confirmation email sent to your inbox.');
 
+      setLastSubmittedInfo({
+        customerName: customerName.trim(),
+        email: email.trim(),
+        totalQuantity,
+      });
+      setSubmitted(true);
+
       // 2. Open WhatsApp for instant logo sharing
-      const itemsSummary = items
-        .map((it, idx) => {
-          const sizeBreakdown = Object.entries(it.sizeQuantities)
-            .map(([sz, q]) => `${q}x Size ${sz}`)
-            .join(', ');
-          return `${idx + 1}. ${it.totalQuantity}x ${it.productName} - Color: ${it.color} [${sizeBreakdown}] (${it.logoPlacement})`;
-        })
-        .join('\n');
-
-      const orderText = `Hi FunPrint, I want to place a Customized Logo Order:
-Total Items: ${totalQuantity} Pieces
-
-Items Breakdown:
-${itemsSummary}
-
-Customer Details:
-Name: ${customerName}
-Mobile: ${mobile}
-Email: ${email}
-Logo Instructions: ${notes || 'Ready to send logo file'}`;
-
-      const whatsappNumber = process.env.NEXT_PUBLIC_WHATSAPP_NUMBER || '';
-      if (whatsappNumber) {
-        const whatsappUrl = `https://wa.me/${whatsappNumber.replace(/\D/g, '')}?text=${encodeURIComponent(orderText)}`;
-        window.open(whatsappUrl, '_blank');
+      if (targetWhatsappNumber) {
+        window.open(`https://wa.me/${targetWhatsappNumber}?text=${retailWhatsappMessage}`, '_blank');
       }
     } catch (err: any) {
       console.error('Retail order submission error:', err);
@@ -551,80 +561,140 @@ Logo Instructions: ${notes || 'Ready to send logo file'}`;
                 </span>
               </div>
 
-              {/* Customer Contact & Submission */}
-              <form onSubmit={handleSubmit} className="space-y-3 pt-1">
-                <div>
-                  <label className="block text-xs font-bold uppercase tracking-wider text-gray-700 mb-1">
-                    Your Full Name *
-                  </label>
-                  <input
-                    type="text"
-                    required
-                    value={customerName}
-                    onChange={(e) => setCustomerName(e.target.value)}
-                    placeholder="Surya Kumar"
-                    className="w-full p-2.5 border border-gray-300 rounded-2xl text-xs sm:text-sm font-semibold outline-none focus:ring-2 focus:ring-gray-950"
-                  />
-                </div>
-
-                <div>
-                  <label className="block text-xs font-bold uppercase tracking-wider text-gray-700 mb-1">
-                    WhatsApp / Phone Number *
-                  </label>
-                  <input
-                    type="tel"
-                    required
-                    value={mobile}
-                    onChange={(e) => setMobile(e.target.value)}
-                    placeholder="10-digit WhatsApp number"
-                    className="w-full p-2.5 border border-gray-300 rounded-2xl text-xs sm:text-sm font-semibold outline-none focus:ring-2 focus:ring-gray-950"
-                  />
-                </div>
-
-                <div>
-                  <label className="block text-xs font-bold uppercase tracking-wider text-gray-700 mb-1">
-                    Email Address *
-                  </label>
-                  <input
-                    type="email"
-                    required
-                    value={email}
-                    onChange={(e) => setEmail(e.target.value)}
-                    placeholder="surya@gmail.com"
-                    className="w-full p-2.5 border border-gray-300 rounded-2xl text-xs sm:text-sm font-semibold outline-none focus:ring-2 focus:ring-gray-950"
-                  />
-                  <p className="text-[10px] text-gray-500 mt-1">
-                    Order confirmation and design proofs will be sent directly to this email.
-                  </p>
-                </div>
-
-                <div>
-                  <label className="block text-xs font-bold uppercase tracking-wider text-gray-700 mb-1">
-                    Logo / Design Instructions
-                  </label>
-                  <textarea
-                    rows={3}
-                    value={notes}
-                    onChange={(e) => setNotes(e.target.value)}
-                    placeholder="Specify logo placements, printing type (Screen / DTF / Embroidery), or special instructions..."
-                    className="w-full p-2.5 border border-gray-300 rounded-2xl text-xs resize-none outline-none focus:ring-2 focus:ring-gray-950"
-                  />
-                </div>
-
-                {/* Primary Curvly CTA */}
-                <button
-                  type="submit"
-                  disabled={isSubmitting}
-                  className="w-full py-3 sm:py-3.5 rounded-full font-black bg-[#FFC006] hover:bg-[#E5AC00] text-gray-950 shadow-xs hover:shadow transition-all border border-amber-400/60 flex items-center justify-center gap-2 text-xs sm:text-sm mt-3 disabled:opacity-60 disabled:cursor-not-allowed"
+              {submitted ? (
+                <motion.div
+                  initial={{ opacity: 0, scale: 0.95 }}
+                  animate={{ opacity: 1, scale: 1 }}
+                  className="text-center py-6 sm:py-8 space-y-4"
                 >
-                  <MessageCircle className="w-4 h-4 sm:w-5 sm:h-5" />
-                  <span>
-                    {isSubmitting
-                      ? 'Submitting Custom Order...'
-                      : `Submit Custom Order (${totalQuantity} Pieces)`}
+                  <div className="w-14 h-14 bg-emerald-100 text-emerald-600 border border-emerald-200 rounded-full flex items-center justify-center mx-auto shadow-sm">
+                    <CheckCircle2 className="w-7 h-7" />
+                  </div>
+
+                  <span className="inline-block px-3 py-1 bg-emerald-100 text-emerald-800 border border-emerald-300 rounded-full text-[11px] font-black uppercase tracking-wider">
+                    Retail Enquiry Received
                   </span>
-                </button>
-              </form>
+
+                  <h3 className="text-lg sm:text-xl font-extrabold text-gray-950 font-serif">
+                    Thank You, {lastSubmittedInfo.customerName || 'Valued Customer'}!
+                  </h3>
+
+                  <p className="text-xs text-gray-600 leading-relaxed">
+                    We received your custom logo apparel order request for{' '}
+                    <strong className="text-gray-900">{lastSubmittedInfo.totalQuantity} Pieces</strong>. A confirmation has been sent to{' '}
+                    <span className="font-semibold text-gray-950">{lastSubmittedInfo.email}</span> and our customization team will connect with your mockups.
+                  </p>
+
+                  <div className="pt-2 flex flex-col gap-2">
+                    <a
+                      href={`https://wa.me/${targetWhatsappNumber}?text=${retailWhatsappMessage}`}
+                      target="_blank"
+                      rel="noopener noreferrer"
+                      className="w-full inline-flex items-center justify-center gap-2 px-5 py-3 bg-emerald-600 hover:bg-emerald-500 text-white text-xs sm:text-sm font-bold rounded-full transition-colors shadow-md"
+                    >
+                      <WhatsAppIcon className="w-4 h-4 fill-white shrink-0" />
+                      <span>Instant WhatsApp Connect</span>
+                    </a>
+                    <button
+                      type="button"
+                      onClick={() => setSubmitted(false)}
+                      className="w-full px-4 py-2.5 bg-gray-100 hover:bg-gray-200 text-gray-900 text-xs font-bold rounded-full transition-colors"
+                    >
+                      Modify or Submit Another Request
+                    </button>
+                  </div>
+                </motion.div>
+              ) : (
+                /* Customer Contact & Submission */
+                <form onSubmit={handleSubmit} className="space-y-3 pt-1">
+                  <div>
+                    <label className="block text-xs font-bold uppercase tracking-wider text-gray-700 mb-1">
+                      Your Full Name *
+                    </label>
+                    <input
+                      type="text"
+                      required
+                      value={customerName}
+                      onChange={(e) => setCustomerName(e.target.value)}
+                      placeholder="Surya Kumar"
+                      className="w-full p-2.5 border border-gray-300 rounded-2xl text-xs sm:text-sm font-semibold outline-none focus:ring-2 focus:ring-gray-950"
+                    />
+                  </div>
+
+                  <div>
+                    <label className="block text-xs font-bold uppercase tracking-wider text-gray-700 mb-1">
+                      WhatsApp / Phone Number *
+                    </label>
+                    <input
+                      type="tel"
+                      required
+                      value={mobile}
+                      onChange={(e) => setMobile(e.target.value)}
+                      placeholder="10-digit WhatsApp number"
+                      className="w-full p-2.5 border border-gray-300 rounded-2xl text-xs sm:text-sm font-semibold outline-none focus:ring-2 focus:ring-gray-950"
+                    />
+                  </div>
+
+                  <div>
+                    <label className="block text-xs font-bold uppercase tracking-wider text-gray-700 mb-1">
+                      Email Address *
+                    </label>
+                    <input
+                      type="email"
+                      required
+                      value={email}
+                      onChange={(e) => setEmail(e.target.value)}
+                      placeholder="surya@gmail.com"
+                      className="w-full p-2.5 border border-gray-300 rounded-2xl text-xs sm:text-sm font-semibold outline-none focus:ring-2 focus:ring-gray-950"
+                    />
+                    <p className="text-[10px] text-gray-500 mt-1">
+                      Order confirmation and design proofs will be sent directly to this email.
+                    </p>
+                  </div>
+
+                  <div>
+                    <label className="block text-xs font-bold uppercase tracking-wider text-gray-700 mb-1">
+                      Logo / Design Instructions
+                    </label>
+                    <textarea
+                      rows={3}
+                      value={notes}
+                      onChange={(e) => setNotes(e.target.value)}
+                      placeholder="Specify logo placements, printing type (Screen / DTF / Embroidery), or special instructions..."
+                      className="w-full p-2.5 border border-gray-300 rounded-2xl text-xs resize-none outline-none focus:ring-2 focus:ring-gray-950"
+                    />
+                  </div>
+
+                  {/* Submission & WhatsApp Actions */}
+                  <div className="flex flex-col sm:flex-row items-center gap-2.5 mt-3">
+                    {/* Instant WhatsApp Enquiry */}
+                    <a
+                      href={`https://wa.me/${targetWhatsappNumber}?text=${retailWhatsappMessage}`}
+                      target="_blank"
+                      rel="noopener noreferrer"
+                      className="w-full sm:w-auto inline-flex items-center justify-center gap-2 px-5 py-3 sm:py-3.5 rounded-full bg-emerald-600 hover:bg-emerald-500 text-white font-bold text-xs sm:text-sm transition-all shadow-md shrink-0"
+                      title="Direct WhatsApp Enquiry"
+                    >
+                      <WhatsAppIcon className="w-4 h-4 sm:w-4.5 sm:h-4.5 fill-white shrink-0" />
+                      <span>WhatsApp Enquiry</span>
+                    </a>
+
+                    {/* Primary Curvly CTA */}
+                    <button
+                      type="submit"
+                      disabled={isSubmitting}
+                      className="w-full sm:flex-1 py-3 sm:py-3.5 rounded-full font-black bg-[#FFC006] hover:bg-[#E5AC00] text-gray-950 shadow-xs hover:shadow transition-all border border-amber-400/60 flex items-center justify-center gap-2 text-xs sm:text-sm disabled:opacity-60 disabled:cursor-not-allowed"
+                    >
+                      <MessageCircle className="w-4 h-4 sm:w-5 sm:h-5" />
+                      <span>
+                        {isSubmitting
+                          ? 'Submitting Custom Order...'
+                          : `Submit Custom Order (${totalQuantity} Pieces)`}
+                      </span>
+                    </button>
+                  </div>
+                </form>
+              )}
             </div>
           </div>
         </div>

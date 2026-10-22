@@ -4,6 +4,7 @@ import { useState } from 'react';
 import { motion } from 'framer-motion';
 import toast from 'react-hot-toast';
 import { Shirt, Sparkles, CheckCircle2, Layers, Check, Palette, Scissors, Paintbrush } from 'lucide-react';
+import WhatsAppIcon from '@/components/ui/WhatsAppIcon';
 
 const AVAILABLE_CUSTOMIZATIONS = [
   {
@@ -63,6 +64,23 @@ export default function BulkOrderPage() {
   };
 
   const [submitting, setSubmitting] = useState(false);
+  const [submitted, setSubmitted] = useState(false);
+  const [lastSubmittedInfo, setLastSubmittedInfo] = useState({
+    name: '',
+    productType: '',
+    quantity: '',
+  });
+
+  const rawNumber = (process.env.NEXT_PUBLIC_WHATSAPP_NUMBER || '917358782998').replace(/\D/g, '');
+  const targetWhatsappNumber = rawNumber.length === 10 ? `91${rawNumber}` : rawNumber;
+
+  const customizationsList = selectedCustomizations.length > 0
+    ? selectedCustomizations.join(', ')
+    : 'All standard options';
+
+  const bulkWhatsappMessage = encodeURIComponent(
+    `Hi FunPrint Bulk Sales,\n\nI want to enquire about bulk orders:\n• Product Type: ${formData.productType}\n• Total Quantity: ${formData.quantity ? `${formData.quantity} units` : 'Not specified yet'}\n• Customizations Requested: ${customizationsList}\n• Name: ${formData.name || 'Not provided'}\n• Mobile: ${formData.mobile || 'Not provided'}\n• Email: ${formData.email || 'Not provided'}\n• Company/College: ${formData.company || 'Not provided'}\n• Requirements: ${formData.message || 'Please share catalog, size chart, and wholesale price breaks.'}`
+  );
 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
@@ -85,27 +103,16 @@ export default function BulkOrderPage() {
 
       toast.success('Bulk enquiry submitted! Confirmation email sent & our team will contact you shortly.');
 
-      const whatsappNumber = process.env.NEXT_PUBLIC_WHATSAPP_NUMBER || '';
-      const customizationsList = selectedCustomizations.length > 0 
-        ? selectedCustomizations.join(', ')
-        : 'All standard options';
-
-      if (whatsappNumber) {
-        const whatsappMessage = encodeURIComponent(
-          `Hi FunPrint Bulk Sales,\n\nBulk Order Enquiry:\n• Product: ${formData.productType}\n• Name: ${formData.name}\n• Company: ${formData.company || 'N/A'}\n• Mobile: ${formData.mobile}\n• Quantity: ${formData.quantity}\n• Customizations Requested: ${customizationsList}\n• Additional Details: ${formData.message || 'Please share catalog and wholesale price chart'}`
-        );
-        window.open(`https://wa.me/${whatsappNumber.replace(/\D/g, '')}?text=${whatsappMessage}`, '_blank');
-      }
-
-      setFormData({
-        name: '',
-        email: '',
-        mobile: '',
-        company: '',
-        productType: 'Both T-Shirts & Hoodies',
-        quantity: '',
-        message: '',
+      setLastSubmittedInfo({
+        name: formData.name,
+        productType: formData.productType,
+        quantity: formData.quantity,
       });
+      setSubmitted(true);
+
+      if (targetWhatsappNumber) {
+        window.open(`https://wa.me/${targetWhatsappNumber}?text=${bulkWhatsappMessage}`, '_blank');
+      }
     } catch (err: any) {
       toast.error(err.message || 'Failed to submit bulk enquiry');
     } finally {
@@ -188,133 +195,213 @@ export default function BulkOrderPage() {
 
           {/* Form Card */}
           <div className="bg-white rounded-3xl p-6 sm:p-10 border border-gray-200 shadow-xs">
-            <h2 className="text-xl sm:text-2xl font-bold mb-6 text-gray-950 pb-4 border-b border-gray-100">
-              Request Bulk Quotation
-            </h2>
-
-            <form onSubmit={handleSubmit} className="space-y-5">
-              {/* Product Selection */}
-              <div>
-                <label className="block text-xs font-bold uppercase tracking-wider text-gray-700 mb-2">
-                  What are you ordering? *
-                </label>
-                <div className="grid grid-cols-1 sm:grid-cols-3 gap-3">
-                  {[
-                    { id: 'T-Shirts Bulk Order', label: 'T-Shirts Bulk Order', desc: 'Round Neck, Polo, Dry-Fit' },
-                    { id: 'Hoodies Bulk Order', label: 'Hoodies Bulk Order', desc: 'Pullover & Zip-Up Hoodies' },
-                    { id: 'Both T-Shirts & Hoodies', label: 'Both T-Shirts & Hoodies', desc: 'Combined apparel order' },
-                  ].map((option) => (
-                    <button
-                      key={option.id}
-                      type="button"
-                      onClick={() => setFormData({ ...formData, productType: option.id })}
-                      className={`p-4 rounded-2xl border-2 text-left transition-all ${
-                        formData.productType === option.id
-                          ? 'border-gray-950 bg-gray-50 shadow-xs ring-1 ring-gray-950'
-                          : 'border-gray-200 hover:border-gray-300 bg-white'
-                      }`}
-                    >
-                      <p className="font-bold text-sm text-gray-950">{option.label}</p>
-                      <p className="text-xs text-gray-500 mt-0.5">{option.desc}</p>
-                    </button>
-                  ))}
-                </div>
-              </div>
-
-              <div className="grid grid-cols-1 md:grid-cols-2 gap-5 pt-2">
-                <div>
-                  <label className="block text-xs font-bold uppercase tracking-wider text-gray-700 mb-1.5">
-                    Contact Name *
-                  </label>
-                  <input
-                    type="text"
-                    value={formData.name}
-                    onChange={(e) => setFormData({ ...formData, name: e.target.value })}
-                    className="w-full px-4 py-3 border border-gray-300 rounded-2xl focus:ring-2 focus:ring-gray-950 focus:border-gray-950 transition-all text-sm outline-none"
-                    placeholder="Surya Kumar"
-                    required
-                  />
-                </div>
-
-                <div>
-                  <label className="block text-xs font-bold uppercase tracking-wider text-gray-700 mb-1.5">
-                    Email Address *
-                  </label>
-                  <input
-                    type="email"
-                    value={formData.email}
-                    onChange={(e) => setFormData({ ...formData, email: e.target.value })}
-                    className="w-full px-4 py-3 border border-gray-300 rounded-2xl focus:ring-2 focus:ring-gray-950 focus:border-gray-950 transition-all text-sm outline-none"
-                    placeholder="surya@gmail.com"
-                    required
-                  />
-                </div>
-
-                <div>
-                  <label className="block text-xs font-bold uppercase tracking-wider text-gray-700 mb-1.5">
-                    Mobile / WhatsApp *
-                  </label>
-                  <input
-                    type="tel"
-                    value={formData.mobile}
-                    onChange={(e) => setFormData({ ...formData, mobile: e.target.value })}
-                    className="w-full px-4 py-3 border border-gray-300 rounded-2xl focus:ring-2 focus:ring-gray-950 focus:border-gray-950 transition-all text-sm outline-none"
-                    placeholder="9876543210"
-                    required
-                  />
-                </div>
-
-                <div>
-                  <label className="block text-xs font-bold uppercase tracking-wider text-gray-700 mb-1.5">
-                    Company / College / Event Name
-                  </label>
-                  <input
-                    type="text"
-                    value={formData.company}
-                    onChange={(e) => setFormData({ ...formData, company: e.target.value })}
-                    className="w-full px-4 py-3 border border-gray-300 rounded-2xl focus:ring-2 focus:ring-gray-950 focus:border-gray-950 transition-all text-sm outline-none"
-                    placeholder="Acme Corp / College Fest"
-                  />
-                </div>
-              </div>
-
-              <div>
-                <label className="block text-xs font-bold uppercase tracking-wider text-gray-700 mb-1.5">
-                  Total Quantity (Min: 10 units) *
-                </label>
-                <input
-                  type="number"
-                  value={formData.quantity}
-                  onChange={(e) => setFormData({ ...formData, quantity: e.target.value })}
-                  className="w-full px-4 py-3 border border-gray-300 rounded-2xl focus:ring-2 focus:ring-gray-950 focus:border-gray-950 transition-all text-sm outline-none"
-                  placeholder="e.g. 50 T-shirts, 25 Hoodies"
-                  required
-                  min="10"
-                />
-              </div>
-
-              <div>
-                <label className="block text-xs font-bold uppercase tracking-wider text-gray-700 mb-1.5">
-                  Design & Customization Details
-                </label>
-                <textarea
-                  value={formData.message}
-                  onChange={(e) => setFormData({ ...formData, message: e.target.value })}
-                  rows={4}
-                  className="w-full px-4 py-3 border border-gray-300 rounded-2xl focus:ring-2 focus:ring-gray-950 focus:border-gray-950 transition-all resize-none text-sm outline-none"
-                  placeholder="Specify fabric preference (e.g. 180 GSM Cotton T-Shirts, 300 GSM Fleece Hoodies), colors, logo placement (chest, back, sleeves), and target delivery date..."
-                />
-              </div>
-
-              {/* Curvly Submit Button */}
-              <button
-                type="submit"
-                disabled={submitting}
-                className="w-full py-2.5 sm:py-4 rounded-full font-bold bg-[#FFC006] hover:bg-[#E5AC00] text-gray-950 shadow-xs hover:shadow transition-all border border-amber-400/60 text-xs sm:text-base disabled:opacity-60 disabled:cursor-not-allowed"
+            {submitted ? (
+              <motion.div
+                initial={{ opacity: 0, scale: 0.95 }}
+                animate={{ opacity: 1, scale: 1 }}
+                className="text-center py-8 sm:py-12 space-y-4 max-w-lg mx-auto"
               >
-                {submitting ? 'Submitting Bulk Enquiry...' : 'Submit T-Shirts & Hoodies Bulk Enquiry'}
-              </button>
-            </form>
+                <div className="w-16 h-16 sm:w-20 sm:h-20 bg-emerald-100 text-emerald-600 border border-emerald-200 rounded-full flex items-center justify-center mx-auto shadow-sm">
+                  <CheckCircle2 className="w-8 h-8 sm:w-10 sm:h-10" />
+                </div>
+
+                <span className="inline-block px-3 py-1 bg-emerald-100 text-emerald-800 border border-emerald-300 rounded-full text-[11px] font-black uppercase tracking-wider">
+                  Bulk Enquiry Received
+                </span>
+
+                <h3 className="text-xl sm:text-3xl font-extrabold text-gray-950">
+                  Thank You, {lastSubmittedInfo.name || 'Valued Customer'}!
+                </h3>
+
+                <p className="text-xs sm:text-sm text-gray-600 leading-relaxed">
+                  We received your bulk quotation request for{' '}
+                  <strong className="text-gray-900">{lastSubmittedInfo.productType}</strong>{' '}
+                  {lastSubmittedInfo.quantity && `(${lastSubmittedInfo.quantity} units)`}. Our B2B bulk team will review your specs and contact you with wholesale price breaks and catalogue swatches.
+                </p>
+
+                <div className="pt-3 flex flex-col sm:flex-row items-center justify-center gap-2.5">
+                  <a
+                    href={`https://wa.me/${targetWhatsappNumber}?text=${bulkWhatsappMessage}`}
+                    target="_blank"
+                    rel="noopener noreferrer"
+                    className="w-full sm:w-auto inline-flex items-center justify-center gap-2 px-6 py-3 bg-emerald-600 hover:bg-emerald-500 text-white text-xs sm:text-sm font-bold rounded-full transition-colors shadow-lg"
+                  >
+                    <WhatsAppIcon className="w-4 h-4 fill-white shrink-0" />
+                    <span>Instant WhatsApp Connect</span>
+                  </a>
+                  <button
+                    type="button"
+                    onClick={() => {
+                      setSubmitted(false);
+                      setFormData({
+                        name: '',
+                        email: '',
+                        mobile: '',
+                        company: '',
+                        productType: 'Both T-Shirts & Hoodies',
+                        quantity: '',
+                        message: '',
+                      });
+                    }}
+                    className="w-full sm:w-auto px-5 py-3 bg-gray-100 hover:bg-gray-200 text-gray-900 text-xs sm:text-sm font-bold rounded-full transition-colors"
+                  >
+                    Submit Another Enquiry
+                  </button>
+                </div>
+              </motion.div>
+            ) : (
+              <>
+                <h2 className="text-xl sm:text-2xl font-bold mb-6 text-gray-950 pb-4 border-b border-gray-100">
+                  Request Bulk Quotation
+                </h2>
+
+                <form onSubmit={handleSubmit} className="space-y-5">
+                  {/* Product Selection */}
+                  <div>
+                    <label className="block text-xs font-bold uppercase tracking-wider text-gray-700 mb-2">
+                      What are you ordering? *
+                    </label>
+                    <div className="grid grid-cols-1 sm:grid-cols-3 gap-3">
+                      {[
+                        { id: 'T-Shirts Bulk Order', label: 'T-Shirts Bulk Order', desc: 'Round Neck, Polo, Dry-Fit' },
+                        { id: 'Hoodies Bulk Order', label: 'Hoodies Bulk Order', desc: 'Pullover & Zip-Up Hoodies' },
+                        { id: 'Both T-Shirts & Hoodies', label: 'Both T-Shirts & Hoodies', desc: 'Combined apparel order' },
+                      ].map((option) => (
+                        <button
+                          key={option.id}
+                          type="button"
+                          onClick={() => setFormData({ ...formData, productType: option.id })}
+                          className={`p-4 rounded-2xl border-2 text-left transition-all ${
+                            formData.productType === option.id
+                              ? 'border-gray-950 bg-gray-50 shadow-xs ring-1 ring-gray-950'
+                              : 'border-gray-200 hover:border-gray-300 bg-white'
+                          }`}
+                        >
+                          <p className="font-bold text-sm text-gray-950">{option.label}</p>
+                          <p className="text-xs text-gray-500 mt-0.5">{option.desc}</p>
+                        </button>
+                      ))}
+                    </div>
+                  </div>
+
+                  <div className="grid grid-cols-1 md:grid-cols-2 gap-5 pt-2">
+                    <div>
+                      <label className="block text-xs font-bold uppercase tracking-wider text-gray-700 mb-1.5">
+                        Contact Name *
+                      </label>
+                      <input
+                        type="text"
+                        value={formData.name}
+                        onChange={(e) => setFormData({ ...formData, name: e.target.value })}
+                        className="w-full px-4 py-3 border border-gray-300 rounded-2xl focus:ring-2 focus:ring-gray-950 focus:border-gray-950 transition-all text-sm outline-none"
+                        placeholder="Surya Kumar"
+                        required
+                      />
+                    </div>
+
+                    <div>
+                      <label className="block text-xs font-bold uppercase tracking-wider text-gray-700 mb-1.5">
+                        Email Address *
+                      </label>
+                      <input
+                        type="email"
+                        value={formData.email}
+                        onChange={(e) => setFormData({ ...formData, email: e.target.value })}
+                        className="w-full px-4 py-3 border border-gray-300 rounded-2xl focus:ring-2 focus:ring-gray-950 focus:border-gray-950 transition-all text-sm outline-none"
+                        placeholder="surya@gmail.com"
+                        required
+                      />
+                    </div>
+
+                    <div>
+                      <label className="block text-xs font-bold uppercase tracking-wider text-gray-700 mb-1.5">
+                        Mobile / WhatsApp *
+                      </label>
+                      <input
+                        type="tel"
+                        value={formData.mobile}
+                        onChange={(e) => setFormData({ ...formData, mobile: e.target.value })}
+                        className="w-full px-4 py-3 border border-gray-300 rounded-2xl focus:ring-2 focus:ring-gray-950 focus:border-gray-950 transition-all text-sm outline-none"
+                        placeholder="9876543210"
+                        required
+                      />
+                    </div>
+
+                    <div>
+                      <label className="block text-xs font-bold uppercase tracking-wider text-gray-700 mb-1.5">
+                        Company / College / Event Name
+                      </label>
+                      <input
+                        type="text"
+                        value={formData.company}
+                        onChange={(e) => setFormData({ ...formData, company: e.target.value })}
+                        className="w-full px-4 py-3 border border-gray-300 rounded-2xl focus:ring-2 focus:ring-gray-950 focus:border-gray-950 transition-all text-sm outline-none"
+                        placeholder="Acme Corp / College Fest"
+                      />
+                    </div>
+                  </div>
+
+                  <div>
+                    <label className="block text-xs font-bold uppercase tracking-wider text-gray-700 mb-1.5">
+                      Total Quantity (Min: 10 units) *
+                    </label>
+                    <input
+                      type="number"
+                      value={formData.quantity}
+                      onChange={(e) => setFormData({ ...formData, quantity: e.target.value })}
+                      className="w-full px-4 py-3 border border-gray-300 rounded-2xl focus:ring-2 focus:ring-gray-950 focus:border-gray-950 transition-all text-sm outline-none"
+                      placeholder="e.g. 50 T-shirts, 25 Hoodies"
+                      required
+                      min="10"
+                    />
+                  </div>
+
+                  <div>
+                    <label className="block text-xs font-bold uppercase tracking-wider text-gray-700 mb-1.5">
+                      Design &amp; Customization Details
+                    </label>
+                    <textarea
+                      value={formData.message}
+                      onChange={(e) => setFormData({ ...formData, message: e.target.value })}
+                      rows={4}
+                      className="w-full px-4 py-3 border border-gray-300 rounded-2xl focus:ring-2 focus:ring-gray-950 focus:border-gray-950 transition-all resize-none text-sm outline-none"
+                      placeholder="Specify fabric preference (e.g. 180 GSM Cotton T-Shirts, 300 GSM Fleece Hoodies), colors, logo placement (chest, back, sleeves), and target delivery date..."
+                    />
+                  </div>
+
+                  {/* Submission & WhatsApp Actions */}
+                  <div className="flex flex-col sm:flex-row items-center gap-3 pt-2">
+                    {/* Instant WhatsApp Enquiry */}
+                    <a
+                      href={`https://wa.me/${targetWhatsappNumber}?text=${bulkWhatsappMessage}`}
+                      target="_blank"
+                      rel="noopener noreferrer"
+                      className="w-full sm:w-auto inline-flex items-center justify-center gap-2 px-6 py-3 sm:py-3.5 rounded-full bg-emerald-600 hover:bg-emerald-500 text-white font-bold text-xs sm:text-sm transition-all shadow-md hover:shadow-lg shrink-0"
+                      title="Chat directly on WhatsApp"
+                    >
+                      <WhatsAppIcon className="w-4 h-4 sm:w-4.5 sm:h-4.5 fill-white shrink-0" />
+                      <span>WhatsApp Enquiry</span>
+                    </a>
+
+                    {/* Curvly Submit Button */}
+                    <button
+                      type="submit"
+                      disabled={submitting}
+                      className="w-full sm:flex-1 py-3 sm:py-3.5 rounded-full font-bold bg-[#FFC006] hover:bg-[#E5AC00] text-gray-950 shadow-xs hover:shadow transition-all border border-amber-400/60 text-xs sm:text-sm disabled:opacity-60 disabled:cursor-not-allowed flex items-center justify-center gap-2"
+                    >
+                      {submitting ? (
+                        <>
+                          <div className="w-4 h-4 border-2 border-stone-950 border-t-transparent rounded-full animate-spin" />
+                          <span>Submitting Bulk Enquiry...</span>
+                        </>
+                      ) : (
+                        <span>Submit T-Shirts &amp; Hoodies Bulk Enquiry</span>
+                      )}
+                    </button>
+                  </div>
+                </form>
+              </>
+            )}
           </div>
 
           {/* Value Highlights */}
