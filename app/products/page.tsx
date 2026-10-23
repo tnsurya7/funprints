@@ -1,14 +1,27 @@
 'use client';
 
-import { useState } from 'react';
+import { useState, useEffect } from 'react';
 import ProductCard from '@/components/products/ProductCard';
 import { getAllEnhancedProducts } from '@/lib/enhanced-products';
+import { trackViewItemList } from '@/lib/analytics';
 
 export default function ProductsPage() {
   const [filter, setFilter] = useState<string>('all');
   
   const products = getAllEnhancedProducts();
   const categories = ['all', ...new Set(products.map(p => p.category))];
+
+  useEffect(() => {
+    trackViewItemList(
+      products.map((p) => ({
+        item_id: p.id,
+        item_name: p.name,
+        price: p.price,
+        item_category: p.category,
+      })),
+      filter === 'all' ? 'All Products' : `${filter} Collection`
+    );
+  }, [filter, products]);
   
   // Create individual product cards for each color when category is filtered
   const getFilteredProducts = () => {

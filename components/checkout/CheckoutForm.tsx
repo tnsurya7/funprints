@@ -9,6 +9,7 @@ import OrderSummary from './OrderSummary';
 import IndianAddressForm from './IndianAddressForm';
 import AuthModal from '@/components/auth/AuthModal';
 import { calculateShipping } from '@/lib/enhanced-products';
+import { trackAddShippingInfo, trackAddPaymentInfo, trackPurchase } from '@/lib/analytics';
 import toast from 'react-hot-toast';
 import { Home, Briefcase, User, Mail, Phone, Lock, CheckCircle2, AlertCircle, Sparkles } from 'lucide-react';
 
@@ -300,6 +301,19 @@ export default function CheckoutForm() {
     localStorage.setItem(DRAFT_STORAGE_KEY, JSON.stringify(draftPayload));
     localStorage.setItem('checkoutInfo', JSON.stringify(formData));
     setLastSavedTime(now);
+
+    trackAddShippingInfo(
+      items.map((i) => ({
+        item_id: i.productId || i.id,
+        item_name: i.name,
+        price: i.price,
+        item_variant: `${i.color} / ${i.size}`,
+        quantity: i.quantity,
+      })),
+      finalTotal,
+      formData.state ? `Dispatch to ${formData.state}` : 'Standard Dispatch'
+    );
+
     setStep(2);
   };
 
@@ -337,6 +351,18 @@ export default function CheckoutForm() {
 
     setSubmittingOrder(true);
 
+    trackAddPaymentInfo(
+      items.map((i) => ({
+        item_id: i.productId || i.id,
+        item_name: i.name,
+        price: i.price,
+        item_variant: `${i.color} / ${i.size}`,
+        quantity: i.quantity,
+      })),
+      finalTotal,
+      paymentMethod
+    );
+
     const orderData = {
       items,
       customer: {
@@ -366,6 +392,21 @@ export default function CheckoutForm() {
         setSubmittingOrder(false);
         return;
       }
+
+      // Track confirmed GA4 purchase with real transaction ID
+      trackPurchase(
+        data.orderId,
+        items.map((i) => ({
+          item_id: i.productId || i.id,
+          item_name: i.name,
+          price: i.price,
+          item_variant: `${i.color} / ${i.size}`,
+          quantity: i.quantity,
+        })),
+        finalTotal,
+        shipping,
+        0
+      );
 
       // If manual UPI, also post to /api/payments/submit to ensure tracking
       if (paymentMethod === 'UPI') {

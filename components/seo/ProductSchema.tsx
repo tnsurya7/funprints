@@ -5,12 +5,12 @@ interface ProductSchemaProps {
     description: string;
     price: number;
     image: string;
-    category: string;
+    category?: string;
   };
 }
 
 export default function ProductSchema({ product }: ProductSchemaProps) {
-  const schema = {
+  const productSchema = {
     '@context': 'https://schema.org',
     '@type': 'Product',
     name: product.name,
@@ -19,7 +19,7 @@ export default function ProductSchema({ product }: ProductSchemaProps) {
     sku: product.id,
     brand: {
       '@type': 'Brand',
-      name: 'Fun Print',
+      name: 'FunPrint',
     },
     offers: {
       '@type': 'Offer',
@@ -29,20 +29,46 @@ export default function ProductSchema({ product }: ProductSchemaProps) {
       availability: 'https://schema.org/InStock',
       seller: {
         '@type': 'Organization',
-        name: 'Fun Print',
+        name: 'FunPrint',
       },
-    },
-    aggregateRating: {
-      '@type': 'AggregateRating',
-      ratingValue: '4.8',
-      reviewCount: '127',
     },
   };
 
+  const breadcrumbSchema = {
+    '@context': 'https://schema.org',
+    '@type': 'BreadcrumbList',
+    itemListElement: [
+      {
+        '@type': 'ListItem',
+        position: 1,
+        name: 'Home',
+        item: 'https://www.funprint.in',
+      },
+      {
+        '@type': 'ListItem',
+        position: 2,
+        name: 'Products',
+        item: 'https://www.funprint.in/products',
+      },
+      {
+        '@type': 'ListItem',
+        position: 3,
+        name: product.name,
+        item: `https://www.funprint.in/products/${product.id}`,
+      },
+    ],
+  };
+
   return (
-    <script
-      type="application/ld+json"
-      dangerouslySetInnerHTML={{ __html: JSON.stringify(schema) }}
-    />
+    <>
+      <script
+        type="application/ld+json"
+        dangerouslySetInnerHTML={{ __html: JSON.stringify(productSchema) }}
+      />
+      <script
+        type="application/ld+json"
+        dangerouslySetInnerHTML={{ __html: JSON.stringify(breadcrumbSchema) }}
+      />
+    </>
   );
 }

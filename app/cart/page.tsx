@@ -7,6 +7,7 @@ import Image from 'next/image';
 import Link from 'next/link';
 import { useRouter } from 'next/navigation';
 import { calculateShipping } from '@/lib/enhanced-products';
+import { trackRemoveFromCart, trackBeginCheckout } from '@/lib/analytics';
 
 export default function CartPage() {
   const { items, removeItem, updateQuantity, clearCart } = useCartStore();
@@ -111,7 +112,16 @@ export default function CartPage() {
                           {item.name}
                         </h3>
                         <button
-                          onClick={() => removeItem(item.id)}
+                          onClick={() => {
+                            trackRemoveFromCart({
+                              item_id: item.productId || item.id,
+                              item_name: item.name,
+                              price: item.price,
+                              item_variant: `${item.color} / ${item.size}`,
+                              quantity: item.quantity,
+                            });
+                            removeItem(item.id);
+                          }}
                           className="text-gray-400 hover:text-red-600 p-1 -mr-1 -mt-1 transition-colors shrink-0"
                           title="Remove item"
                           aria-label="Remove item"
@@ -216,7 +226,19 @@ export default function CartPage() {
               {/* Checkout Button */}
               <button
                 type="button"
-                onClick={() => router.push('/checkout')}
+                onClick={() => {
+                  trackBeginCheckout(
+                    items.map((item) => ({
+                      item_id: item.productId || item.id,
+                      item_name: item.name,
+                      price: item.price,
+                      item_variant: `${item.color} / ${item.size}`,
+                      quantity: item.quantity,
+                    })),
+                    total
+                  );
+                  router.push('/checkout');
+                }}
                 className="w-full py-3 sm:py-3.5 bg-[#FFC006] hover:bg-[#E5AC00] text-gray-950 rounded-full font-black text-xs sm:text-sm shadow-xs hover:shadow transition-all border border-amber-400/60 flex items-center justify-center gap-1.5"
               >
                 <span>Proceed to Checkout</span>

@@ -8,8 +8,18 @@ import Testimonials from "@/components/home/Testimonials";
 import CTASection from "@/components/home/CTASection";
 
 export const metadata: Metadata = {
+  title: "FunPrint | Custom T-Shirts & Hoodies Printing Online India",
+  description: "FunPrint (Fun Print) is India's premium custom t-shirt and hoodie manufacturer. Personalized clothing, corporate bulk apparel, and retail custom t-shirts.",
+  keywords: "FunPrint, FunPrints, Fun Print, Fun Prints, custom t-shirts, custom hoodies, personalized clothing, bulk t-shirts, custom printed t-shirts online",
   alternates: {
     canonical: "/",
+  },
+  openGraph: {
+    title: "FunPrint | Custom T-Shirts & Hoodies Printing Online India",
+    description: "FunPrint (Fun Print) is India's premium custom t-shirt and hoodie manufacturer. Personalized clothing, corporate bulk apparel, and retail custom t-shirts.",
+    url: "https://www.funprint.in",
+    siteName: "FunPrint",
+    type: "website",
   },
 };
 

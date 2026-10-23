@@ -8,6 +8,7 @@ import toast from 'react-hot-toast';
 
 import { calculateShipping, calculateTotal } from '@/lib/enhanced-products';
 import { getColorDisplay } from '@/lib/colors';
+import { trackViewItem, trackAddToCart } from '@/lib/analytics';
 
 interface Product {
   id: string;
@@ -39,6 +40,18 @@ export default function EnhancedProductDetail({ product }: { product: Product })
   const [selectedPhotoView, setSelectedPhotoView] = useState<'front' | 'side' | 'back'>('front');
   const [quantity, setQuantity] = useState(1);
   const [isWishlisted, setIsWishlisted] = useState(false);
+
+  // Track GA4 view_item event on load
+  useEffect(() => {
+    trackViewItem({
+      item_id: product.id,
+      item_name: product.name,
+      price: product.price,
+      item_category: product.category,
+      item_variant: selectedColor,
+      quantity: 1,
+    });
+  }, [product.id, product.name, product.price, product.category, selectedColor]);
 
   // Handle URL parameters for color pre-selection
   useEffect(() => {
@@ -108,6 +121,15 @@ export default function EnhancedProductDetail({ product }: { product: Product })
         localStorage.setItem('cart', JSON.stringify(existingCart));
         toast.success('Added to cart!');
       }
+
+      trackAddToCart({
+        item_id: product.id,
+        item_name: product.name,
+        price: product.price,
+        item_category: product.category,
+        item_variant: `${selectedColor} / ${selectedSize}`,
+        quantity,
+      });
     }
 
     router.push('/cart');

@@ -63,7 +63,20 @@ const organizationJsonLd = {
     "postalCode": "600011",
     "addressRegion": "Tamil Nadu",
     "addressCountry": "IN"
-  }
+  },
+  "sameAs": [
+    "https://www.instagram.com/funprint.in/",
+    "https://www.facebook.com/thefunprint",
+    "https://www.youtube.com/@funprint19"
+  ]
+};
+
+const websiteJsonLd = {
+  "@context": "https://schema.org",
+  "@type": "WebSite",
+  "name": "FunPrint",
+  "alternateName": ["FunPrints", "Fun Print", "Fun Prints"],
+  "url": process.env.NEXT_PUBLIC_SITE_URL || "https://www.funprint.in"
 };
 
 export default function RootLayout({
@@ -77,6 +90,10 @@ export default function RootLayout({
         <script
           type="application/ld+json"
           dangerouslySetInnerHTML={{ __html: JSON.stringify(organizationJsonLd) }}
+        />
+        <script
+          type="application/ld+json"
+          dangerouslySetInnerHTML={{ __html: JSON.stringify(websiteJsonLd) }}
         />
       </head>
       <body className="font-serif antialiased">

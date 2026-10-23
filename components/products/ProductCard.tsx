@@ -6,6 +6,7 @@ import { motion } from 'framer-motion';
 import { Heart } from 'lucide-react';
 import { useState } from 'react';
 import { getColorDisplay } from '@/lib/colors';
+import { trackSelectItem } from '@/lib/analytics';
 
 interface Product {
   id: string;
@@ -35,7 +36,19 @@ export default function ProductCard({ product }: { product: Product }) {
     <div className="relative group w-full h-full">
       <div className="bg-white rounded-2xl border border-gray-200/90 shadow-sm hover:shadow-md transition-all duration-200 overflow-hidden h-full flex flex-col">
         {/* Product Image Frame */}
-        <Link href={getProductUrl()} className="relative block aspect-square bg-gray-50 overflow-hidden">
+        <Link
+          href={getProductUrl()}
+          onClick={() => {
+            trackSelectItem({
+              item_id: product.id,
+              item_name: product.name,
+              price: product.price,
+              item_category: product.category,
+              item_variant: product.selectedColor,
+            });
+          }}
+          className="relative block aspect-square bg-gray-50 overflow-hidden"
+        >
           <Image
             src={product.image}
             alt={product.name}
