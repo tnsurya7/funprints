@@ -36,11 +36,11 @@ const nextConfig = {
   async headers() {
     const cspHeader = `
       default-src 'self';
-      script-src 'self' 'unsafe-eval' 'unsafe-inline' https://www.googletagmanager.com https://va.vercel-scripts.com;
+      script-src 'self' 'unsafe-eval' 'unsafe-inline' https://www.googletagmanager.com https://*.googletagmanager.com https://*.google-analytics.com https://google-analytics.com https://va.vercel-scripts.com;
       style-src 'self' 'unsafe-inline' https://fonts.googleapis.com;
-      img-src 'self' data: blob: https://res.cloudinary.com https://images.unsplash.com https://via.placeholder.com https://api.qrserver.com https://*.neon.tech https://www.googletagmanager.com https://*.google-analytics.com;
+      img-src 'self' data: blob: https://res.cloudinary.com https://images.unsplash.com https://via.placeholder.com https://api.qrserver.com https://*.neon.tech https://www.googletagmanager.com https://*.googletagmanager.com https://*.google-analytics.com https://google-analytics.com https://*.analytics.google.com https://analytics.google.com https://*.google.com https://www.google.com https://*.google.co.in https://www.google.co.in https://*.doubleclick.net https://googleads.g.doubleclick.net;
       font-src 'self' data: https://fonts.gstatic.com;
-      connect-src 'self' https://api.postalpincode.in https://*.google-analytics.com https://*.analytics.google.com https://*.googletagmanager.com https://vitals.vercel-insights.com https://*.neon.tech;
+      connect-src 'self' https://api.postalpincode.in https://*.google-analytics.com https://google-analytics.com https://*.analytics.google.com https://analytics.google.com https://*.googletagmanager.com https://googletagmanager.com https://*.google.com https://www.google.com https://*.google.co.in https://*.doubleclick.net https://stats.g.doubleclick.net https://vitals.vercel-insights.com https://*.neon.tech;
       frame-src 'self' https://www.youtube.com;
       frame-ancestors 'self';
       base-uri 'self';
