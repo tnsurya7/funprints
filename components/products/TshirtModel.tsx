@@ -1,6 +1,6 @@
 'use client';
 
-import { useMemo, useRef } from 'react';
+import { useMemo, useRef, useEffect } from 'react';
 import * as THREE from 'three';
 import { useFrame } from '@react-three/fiber';
 import { useGLTF } from '@react-three/drei';
@@ -64,6 +64,13 @@ export default function TshirtModel({
 
   // Generate fabric micro texture once
   const bumpTexture = useMemo(() => createFabricBumpTexture(), []);
+
+  // Dispose texture memory on unmount
+  useEffect(() => {
+    return () => {
+      bumpTexture.dispose();
+    };
+  }, [bumpTexture]);
 
   // Keep model at stable centered height for perfectly smooth rotation
   useFrame(() => {
