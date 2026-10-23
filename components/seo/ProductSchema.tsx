@@ -23,7 +23,7 @@ export default function ProductSchema({ product }: ProductSchemaProps) {
     },
     offers: {
       '@type': 'Offer',
-      url: `https://funprint.com/products/${product.id}`,
+      url: `https://www.funprint.in/products/${product.id}`,
       priceCurrency: 'INR',
       price: product.price,
       availability: 'https://schema.org/InStock',

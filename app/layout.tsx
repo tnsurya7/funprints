@@ -10,6 +10,14 @@ import InstagramButton from "@/components/ui/InstagramButton";
 import CallButton from "@/components/ui/CallButton";
 
 export const metadata: Metadata = {
+  metadataBase: new URL(
+    process.env.NEXT_PUBLIC_SITE_URL?.startsWith("https://www.")
+      ? process.env.NEXT_PUBLIC_SITE_URL
+      : "https://www.funprint.in"
+  ),
+  alternates: {
+    canonical: "/",
+  },
   title: "FunPrint - Premium Custom T-Shirts & Hoodies",
   description: "Create your perfect custom t-shirt and hoodie with FunPrint. Premium quality, personalized designs, and creative collaboration.",
   keywords: "custom t-shirts, custom hoodies, personalized clothing, bulk t-shirts, retail custom t-shirts",
@@ -22,6 +30,7 @@ export const metadata: Metadata = {
     title: "FunPrint - Premium Custom T-Shirts & Hoodies",
     description: "Create your perfect custom t-shirt and hoodie with FunPrint",
     type: "website",
+    url: "https://www.funprint.in",
   },
   verification: {
     google: "zEwpcI_vNaX8C20w52k20NLssX_dj2LbM2-f0GOfi7w",
@@ -39,8 +48,8 @@ const organizationJsonLd = {
   "@type": "Organization",
   "name": "FunPrint",
   "legalName": "FunPrint (OSHIVO EXIM OPC PVT LTD)",
-  "url": process.env.NEXT_PUBLIC_SITE_URL || "https://funprint.in",
-  "logo": "https://funprint.in/fun-print-logo.avif",
+  "url": process.env.NEXT_PUBLIC_SITE_URL || "https://www.funprint.in",
+  "logo": "https://www.funprint.in/fun-print-logo.avif",
   "contactPoint": {
     "@type": "ContactPoint",
     "telephone": (process.env.NEXT_PUBLIC_PHONE_NUMBER || process.env.NEXT_PUBLIC_WHATSAPP_NUMBER || '').startsWith('+')
