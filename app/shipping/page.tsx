@@ -1,6 +1,9 @@
 export const metadata = {
   title: 'Shipping Policy - Fun Print',
   description: 'Shipping and delivery information for Fun Print',
+  alternates: {
+    canonical: '/shipping',
+  },
 };
 
 export default function Shipping() {

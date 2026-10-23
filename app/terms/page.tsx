@@ -4,6 +4,9 @@ import Link from 'next/link';
 export const metadata = {
   title: 'Terms & Conditions - FunPrint',
   description: 'Terms and conditions, refund and exchange policy for FunPrint (OSHIVO EXIM OPC PVT LTD)',
+  alternates: {
+    canonical: '/terms',
+  },
 };
 
 export default function Terms() {

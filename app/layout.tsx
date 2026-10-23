@@ -15,9 +15,6 @@ export const metadata: Metadata = {
       ? process.env.NEXT_PUBLIC_SITE_URL
       : "https://www.funprint.in"
   ),
-  alternates: {
-    canonical: "/",
-  },
   title: "FunPrint - Premium Custom T-Shirts & Hoodies",
   description: "Create your perfect custom t-shirt and hoodie with FunPrint. Premium quality, personalized designs, and creative collaboration.",
   keywords: "custom t-shirts, custom hoodies, personalized clothing, bulk t-shirts, retail custom t-shirts",

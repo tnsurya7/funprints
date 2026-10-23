@@ -34,10 +34,29 @@ const nextConfig = {
   },
   transpilePackages: ['three'],
   async headers() {
+    const cspHeader = `
+      default-src 'self';
+      script-src 'self' 'unsafe-eval' 'unsafe-inline' https://www.googletagmanager.com https://va.vercel-scripts.com;
+      style-src 'self' 'unsafe-inline' https://fonts.googleapis.com;
+      img-src 'self' data: blob: https://res.cloudinary.com https://images.unsplash.com https://via.placeholder.com https://api.qrserver.com https://*.neon.tech https://www.googletagmanager.com https://*.google-analytics.com;
+      font-src 'self' data: https://fonts.gstatic.com;
+      connect-src 'self' https://api.postalpincode.in https://*.google-analytics.com https://*.analytics.google.com https://*.googletagmanager.com https://vitals.vercel-insights.com https://*.neon.tech;
+      frame-src 'self' https://www.youtube.com;
+      frame-ancestors 'self';
+      base-uri 'self';
+      form-action 'self';
+      object-src 'none';
+      upgrade-insecure-requests;
+    `.replace(/\s{2,}/g, ' ').trim();
+
     return [
       {
         source: '/:path*',
         headers: [
+          {
+            key: 'Content-Security-Policy',
+            value: cspHeader,
+          },
           {
             key: 'X-Frame-Options',
             value: 'SAMEORIGIN',

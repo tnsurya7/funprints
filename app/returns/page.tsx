@@ -4,6 +4,9 @@ import Link from 'next/link';
 export const metadata = {
   title: 'Refund and Exchange Policy - FunPrint',
   description: 'Official Refund, Exchange, and Cancellation Policy for FunPrint (OSHIVO EXIM OPC PVT LTD)',
+  alternates: {
+    canonical: '/returns',
+  },
 };
 
 export default function Returns() {

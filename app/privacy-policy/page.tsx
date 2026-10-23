@@ -4,6 +4,9 @@ import { ShieldCheck } from 'lucide-react';
 export const metadata = {
   title: 'Privacy Policy - Fun Print',
   description: 'Privacy policy for Fun Print custom t-shirt services',
+  alternates: {
+    canonical: '/privacy-policy',
+  },
 };
 
 export default function PrivacyPolicy() {
