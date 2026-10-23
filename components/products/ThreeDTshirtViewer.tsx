@@ -285,6 +285,30 @@ export default function ThreeDTshirtViewer({
               toneMapping: THREE.ACESFilmicToneMapping,
               toneMappingExposure: 1.05
             }}
+            onCreated={({ gl }) => {
+              // Gracefully silence expected context loss log during component unmount
+              const originalForceLoss = gl.forceContextLoss?.bind(gl);
+              if (originalForceLoss) {
+                gl.forceContextLoss = () => {
+                  const originalLog = console.log;
+                  console.log = (...args: any[]) => {
+                    if (typeof args[0] === 'string' && args[0].includes('THREE.WebGLRenderer: Context Lost')) {
+                      return;
+                    }
+                    originalLog.apply(console, args);
+                  };
+                  try {
+                    originalForceLoss();
+                  } finally {
+                    setTimeout(() => {
+                      if (console.log !== originalLog) {
+                        console.log = originalLog;
+                      }
+                    }, 0);
+                  }
+                };
+              }
+            }}
             className="w-full h-full cursor-grab active:cursor-grabbing touch-none"
           >
             <SceneContent
