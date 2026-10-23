@@ -2,11 +2,9 @@
 
 import { useEffect, useRef } from 'react';
 import { usePathname } from 'next/navigation';
-import Script from 'next/script';
 
 export default function VisitorTracker() {
   const pathname = usePathname();
-  const gaId = process.env.NEXT_PUBLIC_GA_MEASUREMENT_ID;
   const lastPingRef = useRef<number>(0);
 
   useEffect(() => {
@@ -45,26 +43,5 @@ export default function VisitorTracker() {
     return () => clearInterval(interval);
   }, [pathname]);
 
-  return (
-    <>
-      {gaId && (
-        <>
-          <Script
-            src={`https://www.googletagmanager.com/gtag/js?id=${gaId}`}
-            strategy="afterInteractive"
-          />
-          <Script id="google-analytics" strategy="afterInteractive">
-            {`
-              window.dataLayer = window.dataLayer || [];
-              function gtag(){dataLayer.push(arguments);}
-              gtag('js', new Date());
-              gtag('config', '${gaId}', {
-                page_path: window.location.pathname,
-              });
-            `}
-          </Script>
-        </>
-      )}
-    </>
-  );
+  return null;
 }
