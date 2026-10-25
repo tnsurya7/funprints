@@ -45,7 +45,7 @@ export default function BulkOrderPage() {
     email: '',
     mobile: '',
     company: '',
-    productType: 'Both T-Shirts & Hoodies',
+    productType: 'Bulk Order (Min 10 units)',
     quantity: '',
     message: '',
   });
@@ -238,7 +238,7 @@ export default function BulkOrderPage() {
                         email: '',
                         mobile: '',
                         company: '',
-                        productType: 'Both T-Shirts & Hoodies',
+                        productType: 'Bulk Order (Min 10 units)',
                         quantity: '',
                         message: '',
                       });
@@ -256,31 +256,23 @@ export default function BulkOrderPage() {
                 </h2>
 
                 <form onSubmit={handleSubmit} className="space-y-5">
-                  {/* Product Selection */}
-                  <div>
-                    <label className="block text-xs font-bold uppercase tracking-wider text-gray-700 mb-2">
-                      What are you ordering? *
-                    </label>
-                    <div className="grid grid-cols-1 sm:grid-cols-3 gap-3">
-                      {[
-                        { id: 'T-Shirts Bulk Order', label: 'T-Shirts Bulk Order', desc: 'Round Neck, Polo, Dry-Fit' },
-                        { id: 'Hoodies Bulk Order', label: 'Hoodies Bulk Order', desc: 'Pullover & Zip-Up Hoodies' },
-                        { id: 'Both T-Shirts & Hoodies', label: 'Both T-Shirts & Hoodies', desc: 'Combined apparel order' },
-                      ].map((option) => (
-                        <button
-                          key={option.id}
-                          type="button"
-                          onClick={() => setFormData({ ...formData, productType: option.id })}
-                          className={`p-4 rounded-2xl border-2 text-left transition-all ${
-                            formData.productType === option.id
-                              ? 'border-gray-950 bg-gray-50 shadow-xs ring-1 ring-gray-950'
-                              : 'border-gray-200 hover:border-gray-300 bg-white'
-                          }`}
-                        >
-                          <p className="font-bold text-sm text-gray-950">{option.label}</p>
-                          <p className="text-xs text-gray-500 mt-0.5">{option.desc}</p>
-                        </button>
-                      ))}
+                  {/* Bulk Order Minimum Quantity Mention */}
+                  <div className="p-4 sm:p-5 rounded-2xl bg-amber-50/80 border-2 border-amber-300/80 flex items-start sm:items-center gap-3.5">
+                    <div className="w-10 h-10 rounded-xl bg-[#FFC006] text-gray-950 flex items-center justify-center shrink-0 shadow-xs">
+                      <Layers className="w-5 h-5 stroke-[2.5]" />
+                    </div>
+                    <div className="flex-1">
+                      <div className="flex flex-wrap items-center gap-2">
+                        <span className="font-extrabold text-sm sm:text-base text-gray-950">
+                          Bulk Order
+                        </span>
+                        <span className="inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-black bg-amber-200/90 text-amber-950 border border-amber-300">
+                          Minimum 10 Quantity Required
+                        </span>
+                      </div>
+                      <p className="text-xs text-gray-700 mt-1 leading-relaxed">
+                        Wholesale bulk pricing and custom manufacturing apply for orders with a minimum quantity of <strong>10 units</strong>. You can combine sizes, colors, T-shirts, and hoodies in your order.
+                      </p>
                     </div>
                   </div>
 
@@ -395,7 +387,7 @@ export default function BulkOrderPage() {
                           <span>Submitting Bulk Enquiry...</span>
                         </>
                       ) : (
-                        <span>Submit T-Shirts &amp; Hoodies Bulk Enquiry</span>
+                        <span>Submit Bulk Order Enquiry</span>
                       )}
                     </button>
                   </div>
