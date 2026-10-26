@@ -19,8 +19,8 @@ export const metadata: Metadata = {
   description: "Create your perfect custom t-shirt and hoodie with FunPrint. Premium quality, personalized designs, and creative collaboration.",
   keywords: "custom t-shirts, custom hoodies, personalized clothing, bulk t-shirts, retail custom t-shirts",
   icons: {
-    icon: "/favicon.png",
-    shortcut: "/favicon.png",
+    icon: "/favicon.ico",
+    shortcut: "/favicon.ico",
     apple: "/apple-icon.png",
   },
   openGraph: {
