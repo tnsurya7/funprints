@@ -80,13 +80,9 @@ export default function ClientsSection() {
     <section className="py-14 sm:py-20 bg-slate-50/70 border-b border-gray-200/80 overflow-hidden font-serif">
       <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 mb-8 sm:mb-12">
         <div className="text-center max-w-2xl mx-auto">
-          <h2 className="text-2xl sm:text-4xl font-black text-gray-950 tracking-tight mb-2.5">
+          <h2 className="text-2xl sm:text-4xl font-black text-gray-950 tracking-tight">
             Our Valued Clients
           </h2>
-
-          <p className="text-xs sm:text-sm text-gray-600 leading-relaxed">
-            Leading financial institutions, healthcare brands, retail chains, and industrial giants trust FunPrint for high-definition custom bulk apparel and corporate merchandise.
-          </p>
         </div>
       </div>
 

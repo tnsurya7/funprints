@@ -36,13 +36,10 @@ export default function FeaturedProducts() {
   return (
     <section className="py-14 sm:py-20 bg-white border-b border-gray-200/80 font-serif">
       <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
-        <div className="text-center mb-10 sm:mb-16">
-          <h2 className="text-3xl sm:text-4xl md:text-5xl font-black text-gray-950 tracking-tight mb-3">
+        <div className="text-center mb-8 sm:mb-12">
+          <h2 className="text-3xl sm:text-4xl md:text-5xl font-black text-gray-950 tracking-tight">
             Featured <span className="text-[#D97706]">Collection</span>
           </h2>
-          <p className="text-sm sm:text-base text-gray-600 max-w-xl mx-auto leading-relaxed">
-            Explore our best-selling crew necks, polos, and athletic wear available in multiple vibrant colors.
-          </p>
         </div>
 
         <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-6 sm:gap-8 items-stretch">

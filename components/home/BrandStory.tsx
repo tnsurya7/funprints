@@ -20,15 +20,15 @@ export default function BrandStory() {
               </span>
             </div>
 
-            {/* Mobile-only hero logo shown below About Us and above heading */}
-            <div className="lg:hidden flex items-center justify-start my-2.5">
-              <div className="relative w-20 h-14 flex items-center justify-center p-1 bg-white rounded-2xl border border-gray-200/90 shadow-2xs">
+            {/* Mobile-only collage image shown below About Us and above heading */}
+            <div className="lg:hidden my-3.5">
+              <div className="relative aspect-[3/2] w-full rounded-2xl overflow-hidden border border-gray-200 shadow-sm bg-gray-50">
                 <Image
-                  src="/fun-print-logo.avif"
-                  alt="FunPrint Logo"
-                  width={68}
-                  height={54}
-                  className="object-contain max-h-12 w-auto"
+                  src="/funprint-team-stories-collage.png"
+                  alt="FunPrint Team Stories Collage"
+                  fill
+                  sizes="100vw"
+                  className="object-cover"
                   priority
                 />
               </div>
@@ -38,7 +38,7 @@ export default function BrandStory() {
               Crafting Premium Apparel with Attention to Every Detail
             </h2>
             
-            <div className="space-y-3 sm:space-y-4 text-xs sm:text-base lg:text-lg text-gray-600 leading-relaxed">
+            <div className="space-y-3 sm:space-y-4 text-xs sm:text-base lg:text-lg text-gray-600 leading-relaxed text-justify">
               <p>
                 Since 2015, we have been dedicated to perfecting every detail of custom apparel and printing. As your trusted one-stop destination for high-quality custom apparel, we specialize in crafting personalized t-shirts, hoodies, and other garments that showcase your unique style and vision.
               </p>
@@ -74,19 +74,17 @@ export default function BrandStory() {
             whileInView={{ opacity: 1, x: 0 }}
             viewport={{ once: true }}
             transition={{ duration: 0.6 }}
-            className="hidden lg:block relative"
+            className="hidden lg:block relative w-full"
           >
-            <div className="bg-gray-50 p-6 sm:p-8 rounded-3xl border border-gray-200 shadow-sm flex items-center justify-center">
-              <div className="relative aspect-square w-full max-w-sm rounded-2xl bg-white p-8 flex items-center justify-center border border-gray-200/80 shadow-sm">
-                <Image
-                  src="/logo.png"
-                  alt="FunPrint About Us Logo"
-                  width={240}
-                  height={240}
-                  className="object-contain"
-                  priority
-                />
-              </div>
+            <div className="relative aspect-[3/2] w-full rounded-3xl overflow-hidden border border-gray-200 shadow-sm bg-gray-50">
+              <Image
+                src="/funprint-team-stories-collage.png"
+                alt="FunPrint Team Stories Collage"
+                fill
+                sizes="(max-width: 1024px) 100vw, 50vw"
+                className="object-cover"
+                priority
+              />
             </div>
           </motion.div>
         </div>

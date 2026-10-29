@@ -59,7 +59,7 @@ export default function ContactPage() {
           <h1 className="text-3xl sm:text-5xl font-black text-gray-950 tracking-tight mb-3">
             Contact FunPrint
           </h1>
-          <p className="text-base sm:text-lg text-gray-600 max-w-lg mx-auto">
+          <p className="text-sm sm:text-base md:text-lg text-gray-600 max-w-4xl mx-auto sm:whitespace-nowrap">
             Have questions about custom printing, bulk quantities, or fabric weights? We are here to help.
           </p>
         </div>

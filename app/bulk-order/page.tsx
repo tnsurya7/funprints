@@ -128,14 +128,10 @@ export default function BulkOrderPage() {
           animate={{ opacity: 1, y: 0 }}
         >
           {/* Top Title & Header */}
-          <div className="text-center mb-8 sm:mb-12">
-            <h1 className="text-3xl sm:text-5xl font-black text-gray-950 tracking-tight mb-3">
+          <div className="text-center mb-6 sm:mb-10">
+            <h1 className="text-3xl sm:text-5xl font-black text-gray-950 tracking-tight">
               T-Shirts & Hoodies Bulk Orders
             </h1>
-            <p className="text-base sm:text-lg text-gray-600 max-w-2xl mx-auto leading-relaxed">
-              Special wholesale pricing and direct factory manufacturing for bulk orders of custom printed 
-              <strong> T-Shirts</strong> (Crew Neck, Polo, Oversized, Dry-Fit) and <strong>Hoodies</strong> (300 GSM Pullover & Zip-Up).
-            </p>
           </div>
 
           {/* Customizations Available Showcase Card */}
@@ -146,11 +142,7 @@ export default function BulkOrderPage() {
                 Customizations available are:
               </h2>
             </div>
-            <p className="text-xs sm:text-sm text-gray-600 mb-5 leading-relaxed">
-              Tailor every element of your bulk garments. Select the custom features you require for your quotation:
-            </p>
-
-            <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-3.5">
+            <div className="flex gap-2 sm:gap-2.5 overflow-x-auto pb-2 scrollbar-none lg:grid lg:grid-cols-5">
               {AVAILABLE_CUSTOMIZATIONS.map((custom) => {
                 const Icon = custom.icon;
                 const isSelected = selectedCustomizations.includes(custom.id);
@@ -159,32 +151,30 @@ export default function BulkOrderPage() {
                     key={custom.id}
                     type="button"
                     onClick={() => toggleCustomization(custom.id)}
-                    className={`p-4 rounded-2xl border text-left transition-all flex flex-col justify-between ${
+                    className={`flex-shrink-0 w-36 sm:w-40 lg:w-auto p-2.5 sm:p-3 rounded-2xl border text-left transition-all flex flex-col justify-between ${
                       isSelected
                         ? 'border-gray-950 bg-amber-50/50 ring-1 ring-gray-950 shadow-xs'
                         : 'border-gray-200 bg-gray-50/50 hover:border-gray-300'
                     }`}
                   >
-                    <div className="flex items-center justify-between mb-2">
-                      <div className="flex items-center gap-2">
-                        <div className={`w-8 h-8 rounded-full flex items-center justify-center ${
-                          isSelected ? 'bg-gray-900 text-[#FFC006]' : 'bg-gray-200 text-gray-700'
-                        }`}>
-                          <Icon className="w-4 h-4" />
-                        </div>
-                        <span className="font-extrabold text-sm text-gray-950">
-                          {custom.title}
-                        </span>
+                    <div className="flex items-center justify-between mb-1.5">
+                      <div className={`w-7 h-7 rounded-xl flex items-center justify-center flex-shrink-0 ${
+                        isSelected ? 'bg-gray-900 text-[#FFC006]' : 'bg-gray-200 text-gray-700'
+                      }`}>
+                        <Icon className="w-3.5 h-3.5" />
                       </div>
-                      <div className={`w-5 h-5 rounded-full border flex items-center justify-center transition-colors ${
+                      <div className={`w-4 h-4 rounded-full border flex items-center justify-center transition-colors flex-shrink-0 ${
                         isSelected
                           ? 'border-gray-950 bg-gray-950 text-white'
                           : 'border-gray-300 bg-white'
                       }`}>
-                        {isSelected && <Check className="w-3 h-3 stroke-[3]" />}
+                        {isSelected && <Check className="w-2.5 h-2.5 stroke-[3]" />}
                       </div>
                     </div>
-                    <p className="text-xs text-gray-600 leading-relaxed pl-10">
+                    <span className="font-extrabold text-[11.5px] sm:text-xs text-gray-950 leading-tight block">
+                      {custom.title}
+                    </span>
+                    <p className="text-[10px] text-gray-500 leading-tight line-clamp-2 mt-1">
                       {custom.desc}
                     </p>
                   </button>
@@ -397,29 +387,20 @@ export default function BulkOrderPage() {
           </div>
 
           {/* Value Highlights */}
-          <div className="mt-8 grid grid-cols-1 md:grid-cols-3 gap-5">
-            <div className="bg-white rounded-2xl p-6 border border-gray-200 shadow-xs text-center">
-              <Shirt className="w-8 h-8 mx-auto text-gray-800 mb-2" />
-              <h3 className="text-lg font-bold text-gray-950 mb-1">T-Shirts Bulk</h3>
-              <p className="text-xs text-gray-600">
-                180-240 GSM bio-washed combed cotton & Dry-Fit aerotech styles in 50+ colors.
-              </p>
+          <div className="mt-6 grid grid-cols-3 gap-2.5 sm:gap-4">
+            <div className="bg-white rounded-2xl p-3 sm:p-3.5 border border-gray-200 shadow-2xs text-center flex flex-col sm:flex-row items-center justify-center gap-1.5 sm:gap-2">
+              <Shirt className="w-4 h-4 sm:w-5 sm:h-5 text-gray-800 flex-shrink-0" />
+              <h3 className="text-xs sm:text-sm font-extrabold text-gray-950 leading-tight">T-Shirts Bulk</h3>
             </div>
             
-            <div className="bg-white rounded-2xl p-6 border border-gray-200 shadow-xs text-center">
-              <Layers className="w-8 h-8 mx-auto text-gray-800 mb-2" />
-              <h3 className="text-lg font-bold text-gray-950 mb-1">Hoodies Bulk</h3>
-              <p className="text-xs text-gray-600">
-                300 GSM heavyweight premium fleece pullover & zip hoodies with kangaroo pockets.
-              </p>
+            <div className="bg-white rounded-2xl p-3 sm:p-3.5 border border-gray-200 shadow-2xs text-center flex flex-col sm:flex-row items-center justify-center gap-1.5 sm:gap-2">
+              <Layers className="w-4 h-4 sm:w-5 sm:h-5 text-gray-800 flex-shrink-0" />
+              <h3 className="text-xs sm:text-sm font-extrabold text-gray-950 leading-tight">Hoodies Bulk</h3>
             </div>
             
-            <div className="bg-white rounded-2xl p-6 border border-gray-200 shadow-xs text-center">
-              <CheckCircle2 className="w-8 h-8 mx-auto text-emerald-600 mb-2" />
-              <h3 className="text-lg font-bold text-gray-950 mb-1">Free Digital Proof</h3>
-              <p className="text-xs text-gray-600">
-                We prepare high-res mockups and color swatch approvals before production begins.
-              </p>
+            <div className="bg-white rounded-2xl p-3 sm:p-3.5 border border-gray-200 shadow-2xs text-center flex flex-col sm:flex-row items-center justify-center gap-1.5 sm:gap-2">
+              <CheckCircle2 className="w-4 h-4 sm:w-5 sm:h-5 text-emerald-600 flex-shrink-0" />
+              <h3 className="text-xs sm:text-sm font-extrabold text-gray-950 leading-tight">Free Digital Proof</h3>
             </div>
           </div>
         </motion.div>

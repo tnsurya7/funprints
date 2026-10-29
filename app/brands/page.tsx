@@ -3,7 +3,7 @@
 import React, { useState } from 'react';
 import Link from 'next/link';
 import { motion } from 'framer-motion';
-import { Sparkles, Eye } from 'lucide-react';
+import { Eye } from 'lucide-react';
 import { BRANDS_DATA, BrandItem } from '@/lib/brands-data';
 import { BrandLogoRenderer } from '@/components/brands/BrandLogos';
 import DocumentPreviewModal from '@/components/brands/DocumentPreviewModal';
@@ -48,41 +48,10 @@ export default function BrandsPage() {
     <div className="min-h-screen bg-[#fafaf9] pt-20 sm:pt-28 pb-16 px-3 sm:px-6 lg:px-8">
       <div className="max-w-7xl mx-auto space-y-8 sm:space-y-12">
         {/* Hero Section */}
-        <div className="text-center space-y-3 sm:space-y-4 max-w-3xl mx-auto pt-2 sm:pt-4">
-          <div className="inline-flex items-center gap-1.5 px-3 py-1 rounded-full bg-amber-50 border border-amber-200 text-amber-900 text-[10.5px] sm:text-xs font-black uppercase tracking-wider shadow-2xs">
-            <Sparkles className="w-3.5 h-3.5 text-amber-600" />
-            <span>Top Brands &amp; FunPrint Collaborations</span>
-          </div>
-
+        <div className="text-center max-w-3xl mx-auto pt-2 sm:pt-4">
           <h1 className="text-2xl sm:text-4xl lg:text-5xl font-black text-gray-950 tracking-tight font-serif">
             Official Brand Collaborations &amp; Wholesale Bulk Orders
           </h1>
-
-          <p className="text-xs sm:text-base text-gray-600 leading-relaxed font-sans">
-            FunPrint brings you direct manufacturer and brand partnerships with the world&apos;s leading apparel icons.
-            Enjoy <strong>the best bulk prices</strong> for corporate merchandise, team uniforms, athletic kits, and
-            custom print blanks. Click any brand image to preview official lookbooks and catalogues.
-          </p>
-
-          {/* Quick Stats Badges */}
-          <div className="grid grid-cols-2 sm:grid-cols-4 gap-2 pt-2 max-w-2xl mx-auto text-[11px] sm:text-xs">
-            <div className="bg-white p-2 sm:p-2.5 rounded-xl border border-gray-200 shadow-2xs">
-              <span className="font-extrabold text-gray-950 block">8+ Top Brands</span>
-              <span className="text-gray-500 text-[10px] sm:text-[11px]">Direct Collaborations</span>
-            </div>
-            <div className="bg-white p-2 sm:p-2.5 rounded-xl border border-gray-200 shadow-2xs">
-              <span className="font-extrabold text-emerald-700 block">Best Wholesale Rate</span>
-              <span className="text-gray-500 text-[10px] sm:text-[11px]">Direct Factory Pricing</span>
-            </div>
-            <div className="bg-white p-2 sm:p-2.5 rounded-xl border border-gray-200 shadow-2xs">
-              <span className="font-extrabold text-gray-950 block">Full PDF / PPTX</span>
-              <span className="text-gray-500 text-[10px] sm:text-[11px]">Instant Lookbook Preview</span>
-            </div>
-            <div className="bg-white p-2 sm:p-2.5 rounded-xl border border-gray-200 shadow-2xs">
-              <span className="font-extrabold text-amber-800 block">Custom Printing</span>
-              <span className="text-gray-500 text-[10px] sm:text-[11px]">Embroidery &amp; DTF Ready</span>
-            </div>
-          </div>
         </div>
 
         {/* Brands Showcase Grid */}
@@ -92,9 +61,6 @@ export default function BrandsPage() {
               <h2 className="text-base sm:text-xl font-black text-gray-950 font-serif">
                 Select a Brand to Preview Catalogues
               </h2>
-              <p className="text-[11px] sm:text-xs text-gray-500">
-                Click on any brand card or logo to view the complete PDF or PPTX deck.
-              </p>
             </div>
             <span className="text-[10px] sm:text-xs font-bold text-gray-400">
               {BRANDS_DATA.length} Brands Available

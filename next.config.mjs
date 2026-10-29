@@ -1,10 +1,5 @@
 /** @type {import('next').NextConfig} */
 const nextConfig = {
-  experimental: {
-    outputFileTracingIncludes: {
-      '/api/brands-file/[filename]': ['./app/brands_pdfs & images/**/*'],
-    },
-  },
   images: {
     remotePatterns: [
       {

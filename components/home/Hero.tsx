@@ -73,7 +73,7 @@ export default function Hero() {
             transition={{ duration: 0.6, delay: 0.1 }}
             className="text-2xl sm:text-5xl md:text-7xl font-black text-gray-950 mb-2 sm:mb-5 leading-tight tracking-tight max-w-4xl mx-auto"
           >
-            Create Your Perfect Custom T-Shirts & Hoodies
+            Create Your Perfect Custom T-Shirts & Apparel
           </motion.h1>
 
           {/* Subtitle */}
@@ -81,10 +81,19 @@ export default function Hero() {
             initial={{ opacity: 0, y: 20 }}
             animate={{ opacity: 1, y: 0 }}
             transition={{ duration: 0.6, delay: 0.2 }}
-            className="text-xs sm:text-lg md:text-xl text-gray-600 mb-5 sm:mb-8 max-w-2xl mx-auto leading-relaxed"
+            className="text-gray-600 mb-5 sm:mb-8 max-w-4xl mx-auto leading-relaxed"
           >
-            High-grade fabrics, tailored fits, and crisp customized logo printing for individuals and corporate teams.
-            Available for retail customized orders and factory-direct bulk orders.
+            {/* Mobile View: strictly 2 lines */}
+            <span className="block sm:hidden text-[11px] xs:text-xs leading-snug tracking-tight">
+              <span className="block">High-grade fabrics, tailored fits &amp; crisp custom logo printing.</span>
+              <span className="block">Retail custom orders &amp; factory-direct bulk orders.</span>
+            </span>
+
+            {/* Desktop View: full text 2 lines */}
+            <span className="hidden sm:block text-base md:text-lg">
+              <span className="block">High-grade fabrics, tailored fits, and crisp customized logo printing for individuals and corporate teams.</span>
+              <span className="block">Available for retail customized orders and factory-direct bulk orders.</span>
+            </span>
           </motion.p>
 
           {/* Curvly CTA Buttons (Shop Now & Contact Us only) */}
@@ -140,7 +149,7 @@ export default function Hero() {
               { number: '10K+', label: 'Happy Customers' },
               { number: '50K+', label: 'Shirts Delivered' },
               { number: '4.9', suffix: '★', label: 'Average Rating' },
-              { number: '24-48h', label: 'Quick Dispatch' },
+              { number: '24h', label: 'Quick Dispatch' },
             ].map((stat) => (
               <div
                 key={stat.label}

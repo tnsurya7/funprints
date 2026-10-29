@@ -172,10 +172,6 @@ export default function BrandEnquiryForm({
               <h2 className="text-xl sm:text-3xl font-extrabold text-white tracking-tight font-serif">
                 Collaborate &amp; Order in Bulk
               </h2>
-              <p className="text-stone-300 text-xs sm:text-sm mt-1 max-w-2xl">
-                Get tiered volume wholesale quotes for official brands. Select your preferred brands below, enter your
-                contact details, and our procurement team will share catalogue stock, price breaks, and sample options.
-              </p>
             </div>
 
             {/* Brand Multi-Selector Section */}

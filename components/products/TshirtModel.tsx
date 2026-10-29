@@ -50,13 +50,13 @@ function createFabricBumpTexture(): THREE.CanvasTexture {
 
 export default function TshirtModel({
   color,
-  modelPath = '/models/tshirt.glb',
+  modelPath = '/models/tshirts/round-neck.glb',
   isAutoRotating = false
 }: TshirtModelProps) {
   const groupRef = useRef<THREE.Group>(null);
 
   // Load realistic GLB garment model
-  const activePath = modelPath || '/models/tshirt.glb';
+  const activePath = modelPath || '/models/tshirts/round-neck.glb';
   const { scene } = useGLTF(activePath);
 
   // Clone scene to avoid shared mutation across renders
@@ -178,10 +178,6 @@ export default function TshirtModel({
   );
 }
 
-// Preload all garment model assets for instant switching
-useGLTF.preload('/models/tshirt.glb');
+// Preload active homepage garment model asset for instant rendering
 useGLTF.preload('/models/tshirts/round-neck.glb');
-useGLTF.preload('/models/tshirts/v-neck.glb');
-useGLTF.preload('/models/tshirts/polo.glb');
-useGLTF.preload('/models/tshirts/hoodie.glb');
 

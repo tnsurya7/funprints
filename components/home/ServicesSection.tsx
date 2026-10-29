@@ -84,14 +84,10 @@ export default function ServicesSection() {
     <section className="py-14 sm:py-20 bg-slate-50/70 border-b border-gray-200/80 font-serif">
       <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
         {/* Section Header */}
-        <div className="text-center max-w-3xl mx-auto mb-10 sm:mb-14">
-          <h2 className="text-3xl sm:text-4xl md:text-5xl font-black text-gray-950 tracking-tight mb-3">
+        <div className="text-center max-w-3xl mx-auto mb-8 sm:mb-12">
+          <h2 className="text-3xl sm:text-4xl md:text-5xl font-black text-gray-950 tracking-tight">
             Our Printing Services
           </h2>
-
-          <p className="text-sm sm:text-base text-gray-600 leading-relaxed max-w-2xl mx-auto">
-            Direct factory craftsmanship using state-of-the-art machinery. From photographic HD DTF to tactile 3D puff and high-volume screen printing.
-          </p>
         </div>
 
         {/* 8-Card Grid (4 per row on desktop, 2 on tablet, 1 on mobile) */}

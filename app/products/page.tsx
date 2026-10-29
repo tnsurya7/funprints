@@ -75,12 +75,9 @@ export default function ProductsPage() {
     <div className="min-h-screen pt-24 pb-16 bg-slate-50/70">
       <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
         <div className="mb-6 sm:mb-8">
-          <h1 className="text-3xl sm:text-4xl font-black text-gray-950 tracking-tight mb-2">
+          <h1 className="text-3xl sm:text-4xl font-black text-gray-950 tracking-tight">
             Explore All Products
           </h1>
-          <p className="text-sm sm:text-base text-gray-600">
-            Select a style to customize, or filter by category to see all available colorways.
-          </p>
         </div>
         
         {/* Category Filter Pills (Compact on mobile) */}

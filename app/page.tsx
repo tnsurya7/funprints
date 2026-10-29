@@ -4,6 +4,7 @@ import ClientsSection from "@/components/home/ClientsSection";
 import FeaturedProducts from "@/components/home/FeaturedProducts";
 import BrandStory from "@/components/home/BrandStory";
 import ServicesSection from "@/components/home/ServicesSection";
+import GallerySection from "@/components/home/GallerySection";
 import Testimonials from "@/components/home/Testimonials";
 import CTASection from "@/components/home/CTASection";
 
@@ -38,13 +39,16 @@ export default function Home() {
       {/* 5. About Us */}
       <BrandStory />
 
-      {/* 6. Our Printing & Custom Services (above Testimonials) */}
+      {/* 6. Our Printing & Custom Services */}
       <ServicesSection />
 
-      {/* 7. Verified Reviews */}
+      {/* 7. Our Gallery */}
+      <GallerySection />
+
+      {/* 8. Verified Reviews */}
       <Testimonials />
 
-      {/* 8. Bottom Call to Action */}
+      {/* 9. Bottom Call to Action */}
       <CTASection />
     </>
   );

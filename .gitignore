@@ -60,3 +60,8 @@ next-env.d.ts
 *.md
 !README.md
 .neon
+
+# Protected local-only original assets and backup
+public/products/all tshirts/360/products - online - backup/
+app/brands_pdfs & images/
+

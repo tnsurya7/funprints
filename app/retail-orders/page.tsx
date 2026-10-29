@@ -26,19 +26,11 @@ interface OrderItem {
   color: string;
   sizeQuantities: Record<string, number>; // e.g. { S: 2, M: 5, L: 10 }
   totalQuantity: number;
-  logoPlacement: string;
+  logoPlacement?: string;
   image?: string;
 }
 
 const SIZES = ['S', 'M', 'L', 'XL', '2XL', '3XL'];
-
-const LOGO_PLACEMENTS = [
-  'Left Chest Logo',
-  'Center Front Logo',
-  'Full Back Print',
-  'Left Chest + Full Back (Dual Print)',
-  'Sleeve Logo',
-];
 
 export default function RetailOrdersPage() {
   const allCatalogProducts = getAllEnhancedProducts();
@@ -54,7 +46,6 @@ export default function RetailOrdersPage() {
   const [modalColor, setModalColor] = useState<string>('Black');
   // Store size quantities per color: { [colorName]: { [size]: quantity } }
   const [modalColorSizeQuantities, setModalColorSizeQuantities] = useState<Record<string, Record<string, number>>>({});
-  const [modalLogoPlacement, setModalLogoPlacement] = useState<string>('Left Chest Logo');
 
   // Customer's configured order items (defaults to 1 piece retail quantity, freely removable)
   const [items, setItems] = useState<OrderItem[]>([
@@ -66,7 +57,6 @@ export default function RetailOrdersPage() {
       color: 'Black',
       sizeQuantities: { M: 1 },
       totalQuantity: 1,
-      logoPlacement: 'Left Chest Logo',
       image: '/products/all tshirts/360/products - online/Cotton Supersoft Round Neck 180 GSM/Black/f.jpg',
     },
   ]);
@@ -118,7 +108,6 @@ export default function RetailOrdersPage() {
         '3XL': 0,
       },
     });
-    setModalLogoPlacement('Left Chest Logo');
   };
 
   // Switch color inside customizer modal without resetting other colors
@@ -198,7 +187,6 @@ export default function RetailOrdersPage() {
           color: clr,
           sizeQuantities: activeSizes,
           totalQuantity: colorTotal,
-          logoPlacement: modalLogoPlacement,
           image: productImage,
         });
       }
@@ -234,13 +222,13 @@ export default function RetailOrdersPage() {
           const sizeBreakdown = Object.entries(it.sizeQuantities)
             .map(([sz, q]) => `${q}x Size ${sz}`)
             .join(', ');
-          return `${idx + 1}. ${it.totalQuantity}x ${it.productName} - Color: ${it.color} [${sizeBreakdown}] (${it.logoPlacement})`;
+          return `${idx + 1}. ${it.totalQuantity}x ${it.productName} - Color: ${it.color} [${sizeBreakdown}]${it.logoPlacement ? ` (${it.logoPlacement})` : ''}`;
         })
         .join('\n')
     : 'No garments configured yet';
 
   const retailWhatsappMessage = encodeURIComponent(
-    `Hi FunPrint Team,\n\nI want to place/enquire about a Retail Custom Order:\n• Total Items: ${totalQuantity} Pieces\n\n• Items Breakdown:\n${itemsSummary}\n\n• Customer Details:\nName: ${customerName || 'Not provided'}\nMobile: ${mobile || 'Not provided'}\nEmail: ${email || 'Not provided'}\nLogo / Design Instructions: ${notes || 'Ready to send logo file and discuss print options.'}`
+    `Hi FunPrint Team,\n\nI want to place/enquire about a Retail Custom Order:\n• Total Items: ${totalQuantity} Pieces\n\n• Items Breakdown:\n${itemsSummary}\n\n• Customer Details:\nName: ${customerName || 'Not provided'}\nMobile: ${mobile || 'Not provided'}\nEmail: ${email || 'Not provided'}\nMessage or Instructions (Min 10 units): ${notes || 'Ready to discuss requirements.'}`
   );
 
   // Submit via API (stores in Neon DB, emails receiver + both admins) and opens WhatsApp
@@ -281,7 +269,7 @@ export default function RetailOrdersPage() {
               .map(([sz, qty]) => `${sz}:${qty}`)
               .join(', '),
             quantity: it.totalQuantity,
-            logoPlacement: it.logoPlacement,
+            logoPlacement: it.logoPlacement || '',
           })),
           notes: notes.trim(),
           totalQuantity,
@@ -319,13 +307,10 @@ export default function RetailOrdersPage() {
       <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
         
         {/* Header Title */}
-        <div className="text-center max-w-3xl mx-auto mb-8 sm:mb-12">
-          <h1 className="text-3xl sm:text-5xl font-black text-gray-950 tracking-tight mb-3">
-            Custom Logo T-Shirts, Polos &amp; Hoodies
+        <div className="text-center max-w-4xl mx-auto mb-6 sm:mb-10">
+          <h1 className="text-2xl sm:text-4xl lg:text-5xl font-black text-gray-950 tracking-tight sm:whitespace-nowrap">
+            Retail custom T-Shirts, Polos &amp; Hoodies
           </h1>
-          <p className="text-base sm:text-lg text-gray-600 leading-relaxed">
-            Select any garment card below to view details and select your colors, sizes, quantities, and custom logo placements.
-          </p>
         </div>
 
         {/* SECTION 1: PRODUCT IMAGE CARDS GALLERY (STRICTLY NO PRICES) */}
@@ -336,9 +321,6 @@ export default function RetailOrdersPage() {
                 <Shirt className="w-6 h-6 text-[#FFC006]" />
                 <span>Select Garments for Retail Customization</span>
               </h2>
-              <p className="text-xs sm:text-sm text-gray-500 mt-0.5">
-                Choose your apparel style below to configure colors, sizes, and custom logo placements.
-              </p>
             </div>
 
             {/* Filter Pills - Removed Oversized Option */}
@@ -480,9 +462,6 @@ export default function RetailOrdersPage() {
                   <h3 className="font-extrabold text-base sm:text-lg text-gray-950">
                     Your Configured Custom Garments ({items.length})
                   </h3>
-                  <p className="text-xs text-gray-500">
-                    Click any product card above to add another style, color, or size combination
-                  </p>
                 </div>
                 <span className="px-3 py-1 rounded-full bg-amber-100 text-amber-950 text-xs font-black border border-amber-300">
                   {totalQuantity} {totalQuantity === 1 ? 'Unit' : 'Units'}
@@ -525,9 +504,11 @@ export default function RetailOrdersPage() {
                               {Object.entries(item.sizeQuantities).map(([sz, q]) => `${q}x ${sz}`).join(', ')}
                             </strong>
                           </p>
-                          <p className="text-[11px] text-amber-800 mt-0.5 font-medium">
-                            Print: {item.logoPlacement}
-                          </p>
+                          {item.logoPlacement && (
+                            <p className="text-[11px] text-amber-800 mt-0.5 font-medium">
+                              Print: {item.logoPlacement}
+                            </p>
+                          )}
                         </div>
                       </div>
 
@@ -647,20 +628,17 @@ export default function RetailOrdersPage() {
                       placeholder="surya@gmail.com"
                       className="w-full p-2.5 border border-gray-300 rounded-2xl text-xs sm:text-sm font-semibold outline-none focus:ring-2 focus:ring-gray-950"
                     />
-                    <p className="text-[10px] text-gray-500 mt-1">
-                      Order confirmation and design proofs will be sent directly to this email.
-                    </p>
                   </div>
 
                   <div>
                     <label className="block text-xs font-bold uppercase tracking-wider text-gray-700 mb-1">
-                      Logo / Design Instructions
+                      Message or Instructions (Min 10 units)
                     </label>
                     <textarea
                       rows={3}
                       value={notes}
                       onChange={(e) => setNotes(e.target.value)}
-                      placeholder="Specify logo placements, printing type (Screen / DTF / Embroidery), or special instructions..."
+                      placeholder="Share your custom printing details, quantity breakdown, or special instructions (Min 10 units)..."
                       className="w-full p-2.5 border border-gray-300 rounded-2xl text-xs resize-none outline-none focus:ring-2 focus:ring-gray-950"
                     />
                   </div>
@@ -896,24 +874,6 @@ export default function RetailOrdersPage() {
                         </div>
                       </div>
                     )}
-
-                    {/* 3. Logo Placement */}
-                    <div>
-                      <label className="block text-[11px] font-black uppercase tracking-wider text-gray-700 mb-1.5">
-                        Logo / Artwork Placement
-                      </label>
-                      <select
-                        value={modalLogoPlacement}
-                        onChange={(e) => setModalLogoPlacement(e.target.value)}
-                        className="w-full px-3 py-2 rounded-xl border border-gray-300 text-xs font-bold text-gray-900 bg-white outline-none focus:border-[#FFC006]"
-                      >
-                        {LOGO_PLACEMENTS.map((lp) => (
-                          <option key={lp} value={lp}>
-                            {lp}
-                          </option>
-                        ))}
-                      </select>
-                    </div>
                   </div>
                 </div>
 
