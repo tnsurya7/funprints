@@ -50,4 +50,3 @@ FunPrint is a modern, high-performance custom apparel and merchandising e-commer
 
 ---
 
-Developed by Surya Kumar M
